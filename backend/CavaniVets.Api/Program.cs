@@ -2,6 +2,9 @@ using System.Text.Json.Serialization;
 using CavaniVets.Api.Data;
 using CavaniVets.Api.Integracoes.Cep;
 using CavaniVets.Api.Integracoes.ContaAzul;
+using CavaniVets.Api.Integracoes.Email;
+using CavaniVets.Api.Integracoes.Mapas;
+using CavaniVets.Api.Servicos;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -15,12 +18,22 @@ builder.Services.AddMemoryCache();
 builder.Services.Configure<ContaAzulOptions>(builder.Configuration.GetSection(ContaAzulOptions.Secao));
 builder.Services.AddHttpClient<ContaAzulClient>();
 builder.Services.AddHttpClient<CepClient>(c => c.Timeout = TimeSpan.FromSeconds(5));
+builder.Services.AddScoped<CadastroClientes>();
+builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection(EmailOptions.Secao));
+builder.Services.AddSingleton<EmailSender>();
+builder.Services.AddScoped<Avisos>();
+builder.Services.AddScoped<TermoPdf>();
+builder.Services.Configure<GoogleMapsOptions>(builder.Configuration.GetSection(GoogleMapsOptions.Secao));
+builder.Services.AddHttpClient<GoogleMapsClient>(c => c.Timeout = TimeSpan.FromSeconds(10));
+builder.Services.Configure<DeslocamentoOptions>(builder.Configuration.GetSection(DeslocamentoOptions.Secao));
+builder.Services.AddScoped<Deslocamentos>();
+builder.Services.AddScoped<OrcamentosContaAzul>();
+builder.Services.AddSingleton<ConfirmacaoPorEmail>();
 
-// O app Flutter roda em outra origem. No desenvolvimento libera qualquer porta do localhost
-// (o flutter run muda a porta); em produção, só o endereço publicado do app.
+// Em produção as páginas ficam no Netlify (outra origem). No desenvolvimento libera o localhost.
 builder.Services.AddCors(o => o.AddDefaultPolicy(p => p
     .SetIsOriginAllowed(origem => builder.Environment.IsDevelopment()
-        ? new Uri(origem).Host == "localhost"
+        ? Uri.TryCreate(origem, UriKind.Absolute, out var u) && u.Host == "localhost"
         : origem == "https://assist-vet.netlify.app")
     .AllowAnyHeader()
     .AllowAnyMethod()));

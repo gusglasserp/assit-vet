@@ -32,8 +32,40 @@ public class Local
     public int Id { get; set; }
     public required string Nome { get; set; }
     public TipoLocal Tipo { get; set; }
+
+    // Endereço, para a Dra. saber onde é e calcular o deslocamento. Haras costumam não ter número.
+    public string? Cep { get; set; }
+    public string? Rua { get; set; }
+    public string? Numero { get; set; }
+    public string? Complemento { get; set; }
+    public string? Bairro { get; set; }
     public string? Cidade { get; set; }
+    public string? Uf { get; set; }
+    /// <summary>Como chegar: portaria, porteira, ponto de referência.</summary>
+    public string? Referencia { get; set; }
+
+    // Quando o local foi escolhido no Google Maps: ponto exato (melhor que o CEP para haras em área rural).
+    public string? GooglePlaceId { get; set; }
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+
+    /// <summary>Distância de carro (só ida) a partir da origem do deslocamento, calculada pelo Google Maps.</summary>
+    public decimal? DistanciaKmIda { get; set; }
+    /// <summary>Pedágio estimado (só ida), quando o Google Maps informa.</summary>
+    public decimal? PedagioIda { get; set; }
+    public DateTimeOffset? DistanciaCalculadaEm { get; set; }
+
     public DateTimeOffset CriadoEm { get; set; } = DateTimeOffset.UtcNow;
+
+    /// <summary>Endereço em uma linha, para mapas e e-mails. Nulo se não houver rua nem cidade.</summary>
+    public string? EnderecoCompleto()
+    {
+        if (string.IsNullOrWhiteSpace(Rua) && string.IsNullOrWhiteSpace(Cidade)) return null;
+        var rua = string.Join(", ", new[] { Rua, Numero }.Where(x => !string.IsNullOrWhiteSpace(x)));
+        var cidade = string.Join(" - ", new[] { Cidade, Uf }.Where(x => !string.IsNullOrWhiteSpace(x)));
+        var cep = Cep is { Length: 8 } ? $"{Cep[..5]}-{Cep[5..]}" : Cep;
+        return string.Join(", ", new[] { rua, Complemento, Bairro, cidade, cep }.Where(x => !string.IsNullOrWhiteSpace(x)));
+    }
 }
 
 public class Solicitacao
@@ -72,6 +104,9 @@ public class Solicitacao
     public bool? TutorCienteCusto { get; set; }
 
     public bool VeterinarioRecebeRelatorios { get; set; }
+
+    /// <summary>Orçamento criado no Conta Azul depois do aceite (consulta + deslocamento estimado).</summary>
+    public string? ContaAzulOrcamentoId { get; set; }
 
     // Preenchidos pelo tutor no link de autorização (etapas 1 e 2).
     public int? TutorId { get; set; }

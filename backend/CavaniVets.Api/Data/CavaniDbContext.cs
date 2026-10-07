@@ -55,6 +55,14 @@ public class CavaniDbContext(DbContextOptions<CavaniDbContext> options) : DbCont
 
         m.Entity<ContaAzulConexao>().Property(x => x.Id).ValueGeneratedNever();
 
+        m.Entity<Local>(e =>
+        {
+            e.Property(x => x.Cep).HasMaxLength(8);
+            e.Property(x => x.Uf).HasMaxLength(2);
+            e.Property(x => x.DistanciaKmIda).HasPrecision(8, 1);
+            e.Property(x => x.PedagioIda).HasPrecision(10, 2);
+        });
+
         m.Entity<Convite>(e =>
         {
             e.HasIndex(x => x.Token).IsUnique();
@@ -68,7 +76,7 @@ public class CavaniDbContext(DbContextOptions<CavaniDbContext> options) : DbCont
     {
         m.Entity<ItemPreco>().HasData(
             new ItemPreco { Id = 1, Codigo = "consulta", Grupo = "Agora", Descricao = "Consulta oftalmológica inicial", Valor = 800m, Observacao = "Medicamentos para diagnóstico incluídos", Ordem = 1 },
-            new ItemPreco { Id = 2, Codigo = "km", Grupo = "Agora", Descricao = "Deslocamento", Valor = 2.50m, Observacao = "por km rodado + pedágio", Ordem = 2 },
+            new ItemPreco { Id = 2, Codigo = "km", Grupo = "Agora", Descricao = "Deslocamento", Valor = 2.50m, Observacao = "por km rodado, saindo da Rua Arandu, 885 (Brooklin Paulista), + pedágio. Se a rota for compartilhada com outros atendimentos, o deslocamento pode ser dividido.", Ordem = 2 },
             new ItemPreco { Id = 3, Codigo = "materiais-diagnostico", Grupo = "Agora", Descricao = "Materiais estéreis para diagnóstico", Observacao = "cobrados à parte, se usados", Ordem = 3 },
             new ItemPreco { Id = 4, Codigo = "ultrassom", Grupo = "Indicados", Descricao = "Exame ultrassonográfico oftalmológico", Valor = 550m, Ordem = 10 },
             new ItemPreco { Id = 5, Codigo = "acompanhamento", Grupo = "Indicados", Descricao = "Acompanhamento oftálmico, até a alta clínica", Valor = 300m, Observacao = "por visita", Ordem = 11 },
@@ -80,16 +88,34 @@ public class CavaniDbContext(DbContextOptions<CavaniDbContext> options) : DbCont
             new ItemPreco { Id = 11, Codigo = "inf-intralesional", Grupo = "Infiltrações", Descricao = "Intralesional", Valor = 750m, Ordem = 23 }
         );
 
+        // Versões do termo nunca são editadas: cada mudança é uma nova versão, e as autorizações antigas
+        // continuam apontando para o texto que foi aceito.
         m.Entity<VersaoTermo>().HasData(new VersaoTermo
         {
             Id = 1,
             Versao = "2026.1-rascunho",
             VigenteDesde = new DateTimeOffset(2026, 10, 6, 0, 0, 0, TimeSpan.Zero),
-            Ativa = true,
+            Ativa = false,
             // {animal} é substituído pelo nome do animal na exibição e na cópia gravada no aceite.
             Texto = """
                 1. Autorizo a M.V. Juliane Cavani Pimentel (CRMV-SP 11.064), da Clínica Cavani Vets, a realizar consulta oftalmológica no animal {animal}, a pedido do médico-veterinário solicitante.
                 2. Declaro estar ciente de que a consulta inicial custa R$ 800,00, com medicamentos para diagnóstico incluídos, acrescida das despesas de deslocamento (R$ 2,50 por km rodado + pedágio) e dos materiais estéreis para diagnóstico, se utilizados.
+                3. Estou ciente da tabela de valores de exames, infiltrações e acompanhamento apresentada nesta página, e de que procedimentos adicionais, medicamentos de tratamento e cirurgias serão informados antes de sua realização.
+                4. Assumo a responsabilidade pelo pagamento dos valores referentes ao atendimento do animal, nas condições informadas pela clínica.
+                5. Estou ciente de que a medicina veterinária não é uma ciência exata e de que a resposta ao diagnóstico e ao tratamento varia de acordo com cada paciente.
+                6. Autorizo o uso dos meus dados pessoais para cadastro, faturamento, emissão de documentos fiscais e comunicação sobre o atendimento, incluindo o compartilhamento com o veterinário solicitante e, quando necessário, com hospitais parceiros, conforme a Lei Geral de Proteção de Dados (Lei 13.709/2018).
+                7. Esta autorização é registrada eletronicamente com data, hora e dados do dispositivo utilizado, e vale como minha assinatura.
+                """
+        }, new VersaoTermo
+        {
+            // 2026.2: deslocamento contado a partir da Rua Arandu, 885, e possibilidade de dividir a rota.
+            Id = 2,
+            Versao = "2026.2-rascunho",
+            VigenteDesde = new DateTimeOffset(2026, 10, 7, 0, 0, 0, TimeSpan.Zero),
+            Ativa = true,
+            Texto = """
+                1. Autorizo a M.V. Juliane Cavani Pimentel (CRMV-SP 11.064), da Clínica Cavani Vets, a realizar consulta oftalmológica no animal {animal}, a pedido do médico-veterinário solicitante.
+                2. Declaro estar ciente de que a consulta inicial custa R$ 800,00, com medicamentos para diagnóstico incluídos, acrescida das despesas de deslocamento e dos materiais estéreis para diagnóstico, se utilizados. O deslocamento custa R$ 2,50 por km rodado, contado a partir da Rua Arandu, 885, Brooklin Paulista, São Paulo, mais pedágio; quando a rota for compartilhada com outros atendimentos, o deslocamento poderá ser dividido entre eles.
                 3. Estou ciente da tabela de valores de exames, infiltrações e acompanhamento apresentada nesta página, e de que procedimentos adicionais, medicamentos de tratamento e cirurgias serão informados antes de sua realização.
                 4. Assumo a responsabilidade pelo pagamento dos valores referentes ao atendimento do animal, nas condições informadas pela clínica.
                 5. Estou ciente de que a medicina veterinária não é uma ciência exata e de que a resposta ao diagnóstico e ao tratamento varia de acordo com cada paciente.

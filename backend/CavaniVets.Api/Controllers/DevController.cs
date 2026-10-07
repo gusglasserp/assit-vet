@@ -1,7 +1,10 @@
 using CavaniVets.Api.Data;
 using CavaniVets.Api.Domain;
+using CavaniVets.Api.Servicos;
+using CavaniVets.Api.Integracoes.Email;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace CavaniVets.Api.Controllers;
 
@@ -10,6 +13,7 @@ namespace CavaniVets.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/dev")]
+[SenhaClinica]
 [ApiExplorerSettings(IgnoreApi = true)]
 public class DevController(CavaniDbContext db, IWebHostEnvironment env) : ControllerBase
 {
@@ -30,6 +34,18 @@ public class DevController(CavaniDbContext db, IWebHostEnvironment env) : Contro
             await db.SaveChangesAsync(ct);
         }
         return Redirect($"/solicitacao.html?c={convite.Token}");
+    }
+
+    /// <summary>Manda um e-mail de teste para a caixa de avisos da clínica: /api/dev/email-teste</summary>
+    [HttpGet("email-teste")]
+    public async Task<IActionResult> EmailTeste([FromServices] EmailSender email, [FromServices] IOptions<EmailOptions> op, CancellationToken ct)
+    {
+        if (!env.IsDevelopment()) return NotFound();
+        if (!email.Configurado) return BadRequest("E-mail não configurado: falta Email:SenhaApp nos user-secrets.");
+        await email.Enviar(op.Value.AvisosPara, "Teste do sistema Cavani Vets",
+            "<p>Este é um e-mail de teste do sistema da <b>Clínica Cavani Vets</b>.</p><p>Se chegou, o envio está funcionando.</p>",
+            "Este é um e-mail de teste do sistema da Clínica Cavani Vets. Se chegou, o envio está funcionando.", ct);
+        return Ok($"E-mail de teste enviado para {op.Value.AvisosPara}.");
     }
 
     /// <summary>Abra no navegador: http://localhost:5273/api/dev/solicitacao-exemplo</summary>

@@ -32,7 +32,7 @@ Os protótipos são a referência de fluxo, textos e visual. Paleta e logo devem
 1. O veterinário manda mensagem no WhatsApp da Dra. Juliane. Ela responde com o link da solicitação, que leva o celular dele (`?cel=11999999999`).
 2. **Celular é a chave do veterinário.** Se já tem cadastro, a página mostra os dados dele e ele só confirma. Se não tem, informa nome completo, CRMV e UF uma única vez.
 3. A assistente da Dra. pode preencher a solicitação no lugar do veterinário, usando o mesmo fluxo. Registrar internamente quem preencheu (veterinário ou clínica), sem mostrar ao tutor.
-4. Caso clínico: o veterinário pode **gravar ou enviar um áudio** explicando o caso (até 5 min). Todos os campos escritos são opcionais: nome do animal, espécie (cão, gato, equino, outro), raça, idade, olho acometido (OD/OE/AO), prioridade (rotina, até 48 h, urgente), queixa e histórico, medicações em uso. Futuro: transcrever o áudio e gerar rascunho da ficha.
+4. Caso clínico: só campos escritos, todos opcionais: nome do animal, espécie (cão, gato, equino, outro), raça, idade, olho acometido (OD/OE/AO), prioridade (rotina, até 48 h, urgente), queixa e histórico, medicações em uso. O áudio saiu da página (out/2026): sem extração do conteúdo, ele só gerava trabalho manual. Fase 2: o áudio volta pela conversa no WhatsApp, com transcrição e preenchimento da ficha. A API já aceita áudio no envio da solicitação (`POST /api/solicitacoes`, campo `audio`).
 5. Local do atendimento: lista pesquisável de locais cadastrados (tipos: clínica/hospital, haras, hípica, residência), com opção de adicionar novo. Se espécie for equino ou o local for haras/hípica, mostrar tratador responsável e celular dele (opcionais).
 6. Tutor: nome, celular e se já sabe que a consulta tem custo próprio (todos opcionais). **O orçamento e a autorização vão sempre para o tutor**, que é o responsável financeiro.
 7. Pergunta obrigatória ao veterinário: se quer receber os relatórios clínicos do caso (sim / só o tutor).
@@ -64,4 +64,4 @@ Valores devem ser configuráveis no sistema, não fixos no código.
 
 ## Contato da clínica
 
-Rua Quintana, 206, Brooklin Paulista, São Paulo, CEP 04569-010. (11) 98288-5882. clinicapimentelvets@gmail.com
+Rua Arandu, 885, Brooklin Paulista, São Paulo, CEP 04562-031. (11) 94767-0145. clinicapimentelvets@gmail.com

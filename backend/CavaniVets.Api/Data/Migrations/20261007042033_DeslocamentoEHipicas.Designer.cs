@@ -3,6 +3,7 @@ using System;
 using CavaniVets.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CavaniVets.Api.Data.Migrations
 {
     [DbContext(typeof(CavaniDbContext))]
-    partial class CavaniDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261007042033_DeslocamentoEHipicas")]
+    partial class DeslocamentoEHipicas
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -353,63 +356,20 @@ namespace CavaniVets.Api.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Bairro")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Cep")
-                        .HasMaxLength(8)
-                        .HasColumnType("character varying(8)");
-
                     b.Property<string>("Cidade")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Complemento")
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("CriadoEm")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTimeOffset?>("DistanciaCalculadaEm")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal?>("DistanciaKmIda")
-                        .HasPrecision(8, 1)
-                        .HasColumnType("numeric(8,1)");
-
-                    b.Property<string>("GooglePlaceId")
-                        .HasColumnType("text");
-
-                    b.Property<double?>("Latitude")
-                        .HasColumnType("double precision");
-
-                    b.Property<double?>("Longitude")
-                        .HasColumnType("double precision");
-
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Numero")
-                        .HasColumnType("text");
-
-                    b.Property<decimal?>("PedagioIda")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("numeric(10,2)");
-
-                    b.Property<string>("Referencia")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Rua")
                         .HasColumnType("text");
 
                     b.Property<string>("Tipo")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
-
-                    b.Property<string>("Uf")
-                        .HasMaxLength(2)
-                        .HasColumnType("character varying(2)");
 
                     b.HasKey("Id");
 
@@ -432,9 +392,6 @@ namespace CavaniVets.Api.Data.Migrations
 
                     b.Property<int?>("AudioDuracaoSegundos")
                         .HasColumnType("integer");
-
-                    b.Property<string>("ContaAzulOrcamentoId")
-                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("CriadoEm")
                         .HasColumnType("timestamp with time zone");

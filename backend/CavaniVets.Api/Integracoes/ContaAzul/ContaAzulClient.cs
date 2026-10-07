@@ -57,6 +57,10 @@ public class ContaAzulClient(HttpClient http, CavaniDbContext db, IOptions<Conta
         return r?.Items?.FirstOrDefault(p => Documentos.SoDigitos(p.Documento) == documento);
     }
 
+    /// <summary>Busca exata pelo telefone, só dígitos com DDD (é como o Conta Azul guarda).</summary>
+    public async Task<List<PessoaResumo>> BuscarPessoasPorTelefone(string telefone, CancellationToken ct = default) =>
+        (await Enviar<PessoasPorFiltro>(HttpMethod.Get, $"/v1/pessoas?telefones={telefone}", null, ct))?.Items ?? [];
+
     public Task<Pessoa?> ObterPessoa(string id, CancellationToken ct = default) =>
         Enviar<Pessoa>(HttpMethod.Get, $"/v1/pessoas/{id}", null, ct);
 
@@ -68,6 +72,19 @@ public class ContaAzulClient(HttpClient http, CavaniDbContext db, IOptions<Conta
 
     public async Task<string> CriarOrcamento(OrcamentoCriar orcamento, CancellationToken ct = default) =>
         (await Enviar<IdResposta>(HttpMethod.Post, "/v1/orcamentos", orcamento, ct))!.Id;
+
+    /// <summary>
+    /// PDF oficial do orçamento, como o Conta Azul imprime (número, dados da empresa, itens, validade).
+    /// Orçamentos são vendas em situação de orçamento, então a rota de impressão de vendas serve.
+    /// </summary>
+    public async Task<byte[]?> ImprimirOrcamento(string orcamentoId, CancellationToken ct = default)
+    {
+        var token = await AccessTokenValido(ct);
+        using var req = new HttpRequestMessage(HttpMethod.Get, $"{_op.UrlApi}/v1/venda/{orcamentoId}/imprimir");
+        req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        using var resp = await http.SendAsync(req, ct);
+        return resp.IsSuccessStatusCode ? await resp.Content.ReadAsByteArrayAsync(ct) : null;
+    }
 
     public async Task<List<Servico>> ListarServicos(CancellationToken ct = default) =>
         (await Enviar<ServicosPorFiltro>(HttpMethod.Get, "/v1/servicos?pagina=1&tamanho_pagina=100", null, ct))?.Itens ?? [];

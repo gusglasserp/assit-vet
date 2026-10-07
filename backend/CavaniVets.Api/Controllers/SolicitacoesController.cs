@@ -1,6 +1,7 @@
 using System.Text.Json;
 using CavaniVets.Api.Data;
 using CavaniVets.Api.Domain;
+using CavaniVets.Api.Servicos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -10,7 +11,7 @@ namespace CavaniVets.Api.Controllers;
 /// <summary>Página do veterinário (solicitacao.html?c=TOKEN): envia o caso, com áudio opcional.</summary>
 [ApiController]
 [Route("api/solicitacoes")]
-public class SolicitacoesController(CavaniDbContext db, IWebHostEnvironment env, IOptions<JsonOptions> json) : ControllerBase
+public class SolicitacoesController(CavaniDbContext db, IWebHostEnvironment env, IOptions<JsonOptions> json, Avisos avisos, Deslocamentos deslocamentos) : ControllerBase
 {
     const long TamanhoMaximoAudio = 30 * 1024 * 1024;
 
@@ -52,7 +53,28 @@ public class SolicitacoesController(CavaniDbContext db, IWebHostEnvironment env,
         }
         else if (req.NovoLocal is { } nl && !string.IsNullOrWhiteSpace(nl.Nome))
         {
-            local = db.Locais.Add(new Local { Nome = nl.Nome.Trim(), Tipo = nl.Tipo, Cidade = Limpar(nl.Cidade) }).Entity;
+            // A Dra. precisa saber onde é: sem rua (ou ponto no Google Maps), cidade e UF, não dá para chegar.
+            if (nl.GooglePlaceId is null && (string.IsNullOrWhiteSpace(nl.Rua) || string.IsNullOrWhiteSpace(nl.Cidade) || nl.Uf?.Length != 2))
+                return BadRequest("Informe o endereço do local (rua, cidade e UF), ou escolha o local no Google Maps.");
+
+            // Mesmo lugar do Google Maps já cadastrado por outro veterinário: reaproveita.
+            local = nl.GooglePlaceId is null ? null : await db.Locais.FirstOrDefaultAsync(x => x.GooglePlaceId == nl.GooglePlaceId, ct);
+            local ??= db.Locais.Add(new Local
+            {
+                Nome = nl.Nome.Trim(),
+                Tipo = nl.Tipo,
+                Cep = NuloSeVazio(Documentos.SoDigitos(nl.Cep)),
+                Rua = Limpar(nl.Rua),
+                Numero = Limpar(nl.Numero),
+                Complemento = Limpar(nl.Complemento),
+                Bairro = Limpar(nl.Bairro),
+                Cidade = Limpar(nl.Cidade),
+                Uf = Limpar(nl.Uf)?.ToUpperInvariant(),
+                Referencia = Limpar(nl.Referencia),
+                GooglePlaceId = Limpar(nl.GooglePlaceId),
+                Latitude = nl.Latitude,
+                Longitude = nl.Longitude,
+            }).Entity;
         }
 
         var s = new Solicitacao
@@ -91,11 +113,17 @@ public class SolicitacoesController(CavaniDbContext db, IWebHostEnvironment env,
         db.Solicitacoes.Add(s);
         await db.SaveChangesAsync(ct);
 
+        // Distância até o local (para o orçamento e o aviso), calculada uma vez por local.
+        if (local is not null) await deslocamentos.GarantirDistancia(local, ct);
+
+        var linkTutor = $"{Links.Base(Request)}/autorizacao.html?t={s.TokenTutor}";
+        await avisos.NovaSolicitacao(s.Id, linkTutor, ct);
+
         return Ok(new
         {
             s.Protocolo,
             Veterinario = new { vet.Nome, vet.Crmv, vet.Uf },
-            LinkTutor = $"{Request.Scheme}://{Request.Host}/autorizacao.html?t={s.TokenTutor}",
+            LinkTutor = linkTutor,
         });
     }
 
@@ -153,4 +181,9 @@ public record SolicitacaoRequest(
 
 public record VeterinarioDados(string Nome, string Crmv, string Uf);
 
-public record NovoLocalDados(string Nome, TipoLocal Tipo, string? Cidade);
+public record NovoLocalDados(
+    string Nome, TipoLocal Tipo,
+    string? Cep, string? Rua, string? Numero, string? Complemento, string? Bairro, string? Cidade, string? Uf,
+    string? Referencia,
+    // Preenchidos quando o local foi escolhido no Google Maps.
+    string? GooglePlaceId, double? Latitude, double? Longitude);

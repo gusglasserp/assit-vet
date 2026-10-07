@@ -4,51 +4,236 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Clínica Cavani Vets</title>
+<title>Painel · Clínica Cavani Vets</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --ink:#0E3A53; --cyan:#13A9C2; --cyan-strong:#0B8AA0; --aqua:#E4F6F9; --paper:#F7FBFC; --surface:#FFFFFF;
-  --text:#14262F; --muted:#56707C; --line:#D5E5EA;
+  --text:#14262F; --muted:#56707C; --line:#D5E5EA; --danger:#B3261E; --ok:#1E7A4F; --wa:#1F8F4E;
   color-scheme:light;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--text);font-family:Figtree,system-ui,sans-serif;line-height:1.5}
-main{max-width:520px;margin:0 auto;padding:40px 16px}
-h1{font-family:"Bricolage Grotesque",sans-serif;color:var(--ink);font-size:1.6rem;margin:0 0 4px}
-p.sub{color:var(--muted);margin:0 0 28px}
-a.card{display:block;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--cyan);
-  border-radius:12px;padding:18px 20px;margin-bottom:14px;text-decoration:none;color:inherit}
-a.card:hover{border-color:var(--cyan-strong);background:var(--aqua)}
-a.card strong{display:block;color:var(--ink);font-size:1.05rem}
-a.card span{color:var(--muted);font-size:.92rem}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--text);font:400 15px/1.5 Figtree,system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,sans-serif;color:var(--ink);margin:0;line-height:1.15}
+.wrap{max-width:920px;margin:0 auto;padding:0 16px 60px}
+header.top{display:flex;align-items:center;gap:12px;padding:18px 0 14px;flex-wrap:wrap}
+header.top img{width:44px;height:44px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px var(--line)}
+header.top .t{flex:1;min-width:160px}
+header.top .t span{display:block;color:var(--muted);font-size:13px}
+.acoes{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 18px}
+button,.btn{font:inherit;font-weight:600;font-size:14.5px;border-radius:12px;min-height:44px;padding:0 16px;cursor:pointer;border:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
+.primary{background:var(--cyan-strong);color:#fff}
+.ghost{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.wa{background:var(--wa);color:#fff}
+.small{min-height:36px;font-size:13.5px;padding:0 12px;border-radius:10px}
+.caixa{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:18px}
+.caixa h2{font-size:18px;margin-bottom:4px}
+.caixa p{margin:0 0 12px;color:var(--muted);font-size:14px}
+label{display:block;font-weight:600;font-size:14px;margin-bottom:6px}
+input{width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;outline:none}
+input:focus{border-color:var(--cyan)}
+.linha{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.linha .campo{flex:1;min-width:200px}
+.resultado{margin-top:14px;padding:12px;border-radius:12px;background:var(--aqua)}
+.resultado .link{font-size:13px;word-break:break-all;color:var(--muted);margin:6px 0 10px}
+.erro{color:var(--danger);font-size:14px;margin-top:8px}
+.lista-topo{display:flex;align-items:center;justify-content:space-between;margin:8px 0 10px}
+.lista-topo h2{font-size:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:12px}
+.card .cab{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.card .proto{font-weight:700;color:var(--ink)}
+.card .quando{color:var(--muted);font-size:13px}
+.chip{font-size:12px;font-weight:600;border-radius:999px;padding:3px 10px;background:var(--aqua);color:var(--ink)}
+.chip.ok{background:#E3F4EA;color:var(--ok)}
+.chip.urg{background:#FBE4E2;color:var(--danger)}
+.chip.cli{background:#EEF0F2;color:var(--muted)}
+.grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px 16px;font-size:14px;margin-bottom:10px}
+.grade b{color:var(--muted);font-weight:500;margin-right:4px}
+.botoes{display:flex;gap:8px;flex-wrap:wrap}
+.vazio{color:var(--muted);text-align:center;padding:30px 0}
+.login{max-width:360px;margin:12vh auto 0;text-align:center}
+.login img{width:72px;height:72px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px var(--line);margin-bottom:12px}
+.login form{display:flex;flex-direction:column;gap:10px;margin-top:16px;text-align:left}
 </style>
 </head>
 <body>
-<main>
-  <h1>Clínica Cavani Vets</h1>
-  <p class="sub">Páginas do sistema (ambiente de desenvolvimento).</p>
-  <a class="card" href="/api/dev/convite?cel=11999990000">
-    <strong>Solicitação do veterinário</strong>
-    <span>Veterinário já cadastrado (Dr. Marcos, convite de teste).</span>
-  </a>
-  <a class="card" href="/api/dev/convite?cel=11955554444">
-    <strong>Solicitação: veterinário novo</strong>
-    <span>Primeiro acesso: pede nome, CRMV e UF.</span>
-  </a>
-  <a class="card" href="/api/dev/convite?cel=11999990000&amp;clinica=true">
-    <strong>Solicitação preenchida pela clínica</strong>
-    <span>A assistente preenche e já sai com o link do tutor.</span>
-  </a>
-  <a class="card" href="/api/dev/solicitacao-exemplo">
-    <strong>Autorização do tutor (caso de exemplo)</strong>
-    <span>Cria uma solicitação de teste e abre o link do tutor.</span>
-  </a>
-  <a class="card" href="autorizacao.html">
-    <strong>Autorização do tutor</strong>
-    <span>Cadastro, valores, termo e aceite da consulta pelo tutor.</span>
-  </a>
-</main>
+
+<!-- Senha da clínica (só pedida quando a API exige, ex.: acesso pelo túnel) -->
+<div class="login" id="login" hidden>
+  <img src="img/logo.png" alt="Logo Clínica Cavani Vets">
+  <h1>Painel da clínica</h1>
+  <form id="loginForm">
+    <label for="senha">Senha da clínica</label>
+    <input id="senha" type="password" autocomplete="current-password">
+    <button class="primary" type="submit">Entrar</button>
+    <div class="erro" id="loginErro" hidden></div>
+  </form>
+</div>
+
+<div class="wrap" id="painel" hidden>
+  <header class="top">
+    <img src="img/logo.png" alt="Logo Clínica Cavani Vets">
+    <div class="t"><h1>Solicitações</h1><span>Clínica Cavani Vets · painel interno</span></div>
+  </header>
+
+  <div class="acoes">
+    <button class="primary" type="button" id="abrirConvite">Convidar veterinário</button>
+    <button class="ghost" type="button" id="abrirClinica">Nova solicitação (a clínica preenche)</button>
+  </div>
+
+  <!-- Convite: link para o veterinário preencher, enviado pelo WhatsApp -->
+  <div class="caixa" id="caixaConvite" hidden>
+    <h2>Convidar veterinário</h2>
+    <p>O link reconhece o veterinário pelo celular. Se ele já tiver cadastro, só confirma e descreve o caso.</p>
+    <form class="linha" id="formConvite">
+      <div class="campo"><label for="celConvite">Celular do veterinário</label><input id="celConvite" inputmode="tel" placeholder="(11) 90000-0000"></div>
+      <button class="primary" type="submit">Gerar link</button>
+    </form>
+    <div class="erro" id="erroConvite" hidden></div>
+    <div class="resultado" id="resConvite" hidden>
+      <div id="resConviteQuem"></div>
+      <div class="link" id="resConviteLink"></div>
+      <div class="botoes">
+        <a class="btn wa small" id="resConviteWa" target="_blank" rel="noopener">Enviar pelo WhatsApp</a>
+        <button class="ghost small" type="button" id="resConviteCopiar">Copiar link</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- A clínica preenche no lugar do veterinário: abre a página e, no fim, mostra o link do tutor -->
+  <div class="caixa" id="caixaClinica" hidden>
+    <h2>Nova solicitação preenchida pela clínica</h2>
+    <p>Informe o celular do veterinário que pediu o atendimento. A página abre numa aba nova; no fim, ela mostra o link para enviar ao tutor.</p>
+    <form class="linha" id="formClinica">
+      <div class="campo"><label for="celClinica">Celular do veterinário solicitante</label><input id="celClinica" inputmode="tel" placeholder="(11) 90000-0000"></div>
+      <button class="primary" type="submit">Abrir solicitação</button>
+    </form>
+    <div class="erro" id="erroClinica" hidden></div>
+  </div>
+
+  <div class="lista-topo">
+    <h2>Últimas solicitações</h2>
+    <button class="ghost small" type="button" id="atualizar">Atualizar</button>
+  </div>
+  <div id="lista"><div class="vazio">Carregando…</div></div>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const digits=v=>(v||'').replace(/\D/g,'');
+  const tel=v=>{v=digits(v).slice(0,11);if(v.length<=10)return v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{4})(\d)/,'$1-$2');return v.replace(/(\d{2})(\d{5})(\d)/,'($1) $2-$3')};
+  const el=(tag,cls,texto)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(texto!=null)e.textContent=texto;return e};
+  ['celConvite','celClinica'].forEach(id=>$(id).addEventListener('input',e=>e.target.value=tel(e.target.value)));
+
+  // Senha da clínica: guardada só nesta aba (sessionStorage) e enviada no cabeçalho.
+  const CHAVE='cavani-senha';
+  const senha=()=>{try{return sessionStorage.getItem(CHAVE)||''}catch(e){return ''}};
+  async function api(metodo,caminho,corpo){
+    const h={'X-Senha-Clinica':senha()};if(corpo)h['Content-Type']='application/json';
+    const r=await fetch(caminho,{method:metodo,headers:h,body:corpo?JSON.stringify(corpo):undefined});
+    const txt=await r.text();let json=null;try{json=JSON.parse(txt)}catch(e){}
+    return {status:r.status,json,erro:(json&&(json.erro||json.title))||txt||('Erro '+r.status+'.')};
+  }
+
+  async function iniciar(){
+    const r=await api('GET','/api/painel/entrar');
+    if(r.status===204){$('login').hidden=true;$('painel').hidden=false;carregar();return}
+    $('painel').hidden=true;$('login').hidden=false;
+    if(senha()){$('loginErro').textContent=r.erro;$('loginErro').hidden=false}
+    $('senha').focus();
+  }
+  $('loginForm').addEventListener('submit',e=>{e.preventDefault();try{sessionStorage.setItem(CHAVE,$('senha').value)}catch(x){}iniciar()});
+
+  // Abre/fecha as caixas do topo
+  [['abrirConvite','caixaConvite','celConvite'],['abrirClinica','caixaClinica','celClinica']].forEach(([b,c,campo])=>{
+    $(b).addEventListener('click',()=>{const abrir=$(c).hidden;['caixaConvite','caixaClinica'].forEach(x=>$(x).hidden=true);$(c).hidden=!abrir;if(abrir)$(campo).focus()});
+  });
+  const primeiroNome=n=>(n||'').replace(/^Dra?\.\s*/,m=>m).split(' ').slice(0,2).join(' ');
+  function copiar(botao,texto){
+    if(!navigator.clipboard)return;
+    navigator.clipboard.writeText(texto).then(()=>{const t=botao.textContent;botao.textContent='Copiado!';setTimeout(()=>botao.textContent=t,1800)},()=>{});
+  }
+
+  // ---- Convidar veterinário ----
+  $('formConvite').addEventListener('submit',async e=>{
+    e.preventDefault();$('erroConvite').hidden=true;$('resConvite').hidden=true;
+    const cel=digits($('celConvite').value);
+    const r=await api('POST','/api/convites',{celular:cel,preenchidoPor:'Veterinario'});
+    if(r.status!==200){$('erroConvite').textContent=r.erro;$('erroConvite').hidden=false;return}
+    const v=r.json.veterinario,link=r.json.link;
+    $('resConviteQuem').textContent=v?('Já cadastrado: '+v.nome+' · CRMV-'+v.uf+' '+v.crmv):'Veterinário novo: ele informa nome, CRMV e UF na primeira vez.';
+    $('resConviteLink').textContent=link;
+    const msg='Olá'+(v?', '+primeiroNome(v.nome):'')+'! Aqui é da Clínica Cavani Vets, oftalmologia veterinária. '
+      +'Para solicitar o atendimento, é só preencher por este link (leva uns 2 minutos): '+link;
+    $('resConviteWa').href='https://wa.me/55'+cel+'?text='+encodeURIComponent(msg);
+    $('resConviteCopiar').onclick=()=>copiar($('resConviteCopiar'),link);
+    $('resConvite').hidden=false;
+  });
+
+  // ---- Nova solicitação preenchida pela clínica ----
+  $('formClinica').addEventListener('submit',async e=>{
+    e.preventDefault();$('erroClinica').hidden=true;
+    const r=await api('POST','/api/convites',{celular:digits($('celClinica').value),preenchidoPor:'Clinica'});
+    if(r.status!==200){$('erroClinica').textContent=r.erro;$('erroClinica').hidden=false;return}
+    window.open(r.json.link,'_blank','noopener');
+  });
+
+  // ---- Lista ----
+  const ESPECIE={Cao:'cão',Gato:'gato',Equino:'equino',Outro:'outro'};
+  const quando=iso=>{const d=new Date(iso);return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
+  function mensagemTutor(s){
+    const pn=(s.tutor||'').split(' ')[0];
+    return 'Olá'+(pn?', '+pn:'')+'! Aqui é da Clínica Cavani Vets, oftalmologia veterinária. '+s.veterinario.nome
+      +' solicitou um atendimento oftalmológico'+(s.animal?' para '+(/a$/i.test(s.animal)?'a ':'o ')+s.animal:'')
+      +'. Para agendarmos, preencha seus dados e autorize a consulta por este link: '+s.linkTutor;
+  }
+  function campo(grade,rotulo,valor){if(!valor)return;const d=el('div');d.append(el('b',null,rotulo),document.createTextNode(valor));grade.append(d)}
+  async function carregar(){
+    const r=await api('GET','/api/painel/solicitacoes');
+    const box=$('lista');box.innerHTML='';
+    if(r.status===401||r.status===403){iniciar();return}
+    if(r.status!==200){box.append(el('div','vazio','Não foi possível carregar: '+r.erro));return}
+    if(!r.json.length){box.append(el('div','vazio','Nenhuma solicitação ainda.'));return}
+    r.json.forEach(s=>{
+      const c=el('div','card');
+      const cab=el('div','cab');
+      cab.append(el('span','proto',s.protocolo),el('span','quando',quando(s.criadoEm)));
+      const autorizada=!!s.autorizadoEm;
+      cab.append(el('span','chip'+(autorizada?' ok':''),autorizada?'Autorizada em '+quando(s.autorizadoEm):'Aguardando tutor'));
+      if(s.prioridade==='Urgente')cab.append(el('span','chip urg','Urgente'));
+      if(s.preenchidoPor==='Clinica')cab.append(el('span','chip cli','Preenchida pela clínica'));
+      c.append(cab);
+
+      const g=el('div','grade');
+      campo(g,'Veterinário: ',s.veterinario.nome+' · '+tel(s.veterinario.celular));
+      campo(g,'Animal: ',s.animal?(s.animal+(s.especie?' ('+ESPECIE[s.especie]+')':'')):null);
+      campo(g,'Local: ',s.local?(s.local.nome+(s.local.cidade?', '+s.local.cidade:'')+(s.local.kmIdaVolta?' · '+s.local.kmIdaVolta+' km ida e volta':'')):null);
+      campo(g,'Tutor: ',s.tutor?(s.tutor+(s.tutorCelular?' · '+tel(s.tutorCelular):'')):(s.tutorCelular?tel(s.tutorCelular):'não informado'));
+      c.append(g);
+
+      const b=el('div','botoes');
+      if(!autorizada){
+        const wa=el('a','btn wa small','Enviar link ao tutor');wa.target='_blank';wa.rel='noopener';
+        wa.href='https://wa.me/'+(s.tutorCelular?'55'+s.tutorCelular:'')+'?text='+encodeURIComponent(mensagemTutor(s));
+        b.append(wa);
+      }
+      const cp=el('button','ghost small','Copiar link do tutor');cp.type='button';cp.onclick=()=>copiar(cp,s.linkTutor);b.append(cp);
+      const ab=el('a','btn ghost small','Abrir página do tutor');ab.href=s.linkTutor;ab.target='_blank';ab.rel='noopener';b.append(ab);
+      if(s.termoPdf){const t=el('a','btn ghost small','Termo (PDF)');t.href=s.termoPdf;t.target='_blank';b.append(t)}
+      if(s.orcamentoPdf){const o=el('a','btn ghost small','Orçamento (PDF)');o.href=s.orcamentoPdf;o.target='_blank';b.append(o)}
+      c.append(b);
+      box.append(c);
+    });
+  }
+  $('atualizar').addEventListener('click',carregar);
+  // Atualiza sozinho a cada 30 s (ex.: quando um tutor autoriza).
+  setInterval(()=>{if(!$('painel').hidden&&!document.hidden)carregar()},30000);
+
+  iniciar();
+})();
+</script>
 </body>
 </html>

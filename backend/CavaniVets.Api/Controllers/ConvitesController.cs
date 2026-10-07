@@ -1,5 +1,6 @@
 using CavaniVets.Api.Data;
 using CavaniVets.Api.Domain;
+using CavaniVets.Api.Servicos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,13 +9,14 @@ namespace CavaniVets.Api.Controllers;
 /// <summary>
 /// Gera o link de solicitação para um veterinário a partir do celular dele.
 /// Hoje é chamado pela clínica; depois, pela integração com o WhatsApp.
-/// TODO: proteger com login da clínica antes de publicar (revela o nome do veterinário pelo celular).
+/// Criar convite exige a senha da clínica (revela o nome do veterinário pelo celular); ler o convite é público.
 /// </summary>
 [ApiController]
 [Route("api/convites")]
 public class ConvitesController(CavaniDbContext db) : ControllerBase
 {
     [HttpPost]
+    [SenhaClinica]
     public async Task<IActionResult> Criar(ConviteRequest req, CancellationToken ct)
     {
         var celular = Documentos.SoDigitos(req.Celular);
@@ -33,7 +35,7 @@ public class ConvitesController(CavaniDbContext db) : ControllerBase
         return Ok(new
         {
             convite.Token,
-            Link = $"{Request.Scheme}://{Request.Host}/solicitacao.html?c={convite.Token}",
+            Link = $"{Links.Base(Request)}/solicitacao.html?c={convite.Token}",
             Veterinario = vet is null ? null : new { vet.Nome, vet.Crmv, vet.Uf },
         });
     }

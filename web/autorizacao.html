@@ -80,6 +80,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--cyan)}
 .note{display:flex;gap:10px;background:var(--aqua);border-radius:14px;padding:14px;font-size:14.5px;color:var(--text)}
 .note svg{flex:none;color:var(--cyan-strong);margin-top:2px}
 [hidden]{display:none!important}
+.termo .versao{margin:12px 0 0;color:var(--muted);font-size:13px}
+#codigo{font-size:22px;letter-spacing:8px;text-align:center;max-width:220px}
+.codigo-acoes{margin:10px 0 0;font-size:14px;color:var(--muted)}
+.linkbtn{background:none;border:0;padding:0;min-height:0;font:inherit;font-weight:600;color:var(--cyan-strong);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.pdfwrap{text-align:center;margin:16px 0 0}
+.pdfwrap .pdf{margin:4px}
+.pdf{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border:1.5px solid var(--line);border-radius:14px;color:var(--ink);font-weight:600;text-decoration:none;background:var(--surface)}
 section.step .note{margin-bottom:18px}
 .note.err{background:color-mix(in srgb,var(--danger) 10%,transparent)}
 .note.err svg{color:var(--danger)}
@@ -149,6 +156,13 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-
     <!-- Começa pelo documento: se já tem cadastro, o restante vem preenchido. -->
     <div class="field" data-req data-check="doc"><label for="doc">CPF ou CNPJ</label><input id="doc" inputmode="numeric" placeholder="000.000.000-00" maxlength="18" autocomplete="off"><div class="msg" id="docMsg">CPF ou CNPJ inválido. Confira os números.</div></div>
     <div class="note" id="docNote" hidden></div>
+    <!-- Cadastro encontrado, mas o celular do link não confirma: código enviado ao e-mail do cadastro. -->
+    <div class="field" id="codigoF" hidden>
+      <label for="codigo">Código recebido no e-mail</label>
+      <input id="codigo" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000">
+      <div class="msg" id="codigoMsg"></div>
+      <p class="codigo-acoes"><button class="linkbtn" type="button" id="reenviar">Reenviar código</button> · <button class="linkbtn" type="button" id="semCodigo">Preencher meus dados sem o código</button></p>
+    </div>
     <div id="resto" hidden>
     <div class="field" data-req data-check="nome"><label for="nome" id="nomeLabel">Nome completo</label><input id="nome" autocomplete="name"><div class="msg" id="nomeMsg">Informe seu nome completo.</div></div>
     <div class="field" data-req data-check="tel"><label for="tel">Celular com WhatsApp</label><input id="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 90000-0000" maxlength="15"><div class="msg">Informe um celular com DDD.</div></div>
@@ -199,37 +213,9 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-
   <section class="step" data-step="3" data-title="Valores">
     <h2>Valores do atendimento</h2>
     <p class="lead">Nesta etapa você autoriza apenas a consulta inicial. Os demais itens dependem do que for encontrado no exame.</p>
-    <div class="now">
-      <div class="lbl">O que você autoriza agora</div>
-      <div class="price">R$ 800,00</div>
-      <div>Consulta oftalmológica inicial</div>
-      <ul>
-        <li>Medicamentos para diagnóstico incluídos</li>
-        <li>Deslocamento: R$ 2,50 por km rodado + pedágio</li>
-        <li>Materiais estéreis para diagnóstico, se usados, são cobrados à parte</li>
-      </ul>
-    </div>
-
-    <div class="group">
-      <h3>Se forem indicados após a consulta</h3>
-      <p>Você será informado antes de qualquer um destes ser realizado.</p>
-      <div class="list">
-        <div class="item"><span>Exame ultrassonográfico oftalmológico</span><span class="v">R$ 550,00</span></div>
-        <div class="item"><span>Acompanhamento oftálmico, até a alta clínica</span><span class="v">R$ 300,00<small>por visita</small></span></div>
-        <div class="item"><span>Medicamentos e materiais para tratamento</span><span class="v">à parte</span></div>
-        <div class="item"><span>Procedimentos cirúrgicos</span><span class="v">sob orçamento</span></div>
-      </div>
-    </div>
-    <div class="group">
-      <h3>Infiltrações</h3>
-      <p>Valores por aplicação.</p>
-      <div class="list">
-        <div class="item"><span>Subconjuntival</span><span class="v">R$ 350,00</span></div>
-        <div class="item"><span>Retrobulbar</span><span class="v">R$ 450,00</span></div>
-        <div class="item"><span>Intravítrea</span><span class="v">R$ 700,00</span></div>
-        <div class="item"><span>Intralesional</span><span class="v">R$ 750,00</span></div>
-      </div>
-    </div>
+    <!-- Preenchidos pela tabela de valores do banco (Grupo "Agora" no bloco escuro; demais grupos em listas). -->
+    <div class="now" id="agora"></div>
+    <div id="grupos"></div>
     <div class="note">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
       <div>Se for necessário encaminhar o animal a um hospital parceiro ou centro de reabilitação, isso só acontece com a sua concordância, e o acompanhamento oftálmico segue no mesmo valor até a alta clínica.</div>
@@ -242,20 +228,15 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-
     <p class="lead">Leia o termo abaixo e confirme para liberar o atendimento.</p>
     <div class="termo" tabindex="0" aria-label="Termo de autorização">
       <h3>Termo de autorização e responsabilidade financeira</h3>
-      <ol>
-        <li>Autorizo a M.V. Juliane Cavani Pimentel (CRMV-SP 11.064), da Clínica Cavani Vets, a realizar consulta oftalmológica no animal <strong class="tPet">Thor</strong>, a pedido do médico-veterinário solicitante.</li>
-        <li>Declaro estar ciente de que a consulta inicial custa R$ 800,00, com medicamentos para diagnóstico incluídos, acrescida das despesas de deslocamento (R$ 2,50 por km rodado + pedágio) e dos materiais estéreis para diagnóstico, se utilizados.</li>
-        <li>Estou ciente da tabela de valores de exames, infiltrações e acompanhamento apresentada nesta página, e de que procedimentos adicionais, medicamentos de tratamento e cirurgias serão informados antes de sua realização.</li>
-        <li>Assumo a responsabilidade pelo pagamento dos valores referentes ao atendimento do animal, nas condições informadas pela clínica.</li>
-        <li>Estou ciente de que a medicina veterinária não é uma ciência exata e de que a resposta ao diagnóstico e ao tratamento varia de acordo com cada paciente.</li>
-        <li>Autorizo o uso dos meus dados pessoais para cadastro, faturamento, emissão de documentos fiscais e comunicação sobre o atendimento, incluindo o compartilhamento com o veterinário solicitante e, quando necessário, com hospitais parceiros, conforme a Lei Geral de Proteção de Dados (Lei 13.709/2018).</li>
-        <li>Esta autorização é registrada eletronicamente com data, hora e dados do dispositivo utilizado, e vale como minha assinatura.</li>
-      </ol>
+      <!-- Texto da versão vigente do termo, vindo do banco. -->
+      <ol id="termoTexto"></ol>
+      <p class="versao" id="termoVersao"></p>
     </div>
     <label class="check" id="c1w"><input type="checkbox" id="c1"><span>Li o termo e autorizo a consulta oftalmológica.</span></label>
     <label class="check" id="c2w"><input type="checkbox" id="c2"><span>Assumo a responsabilidade financeira pelo atendimento.</span></label>
     <label class="check" id="c3w"><input type="checkbox" id="c3"><span>Concordo com o uso dos meus dados como descrito no item 6.</span></label>
     <div class="field" id="sigF" style="margin-top:12px"><label for="sig">Para assinar, digite seu nome completo</label><input id="sig" class="sig" autocomplete="off"><div class="msg">O nome precisa ser igual ao informado no cadastro.</div></div>
+    <div class="note err" id="aceiteErro" hidden></div>
   </section>
 
   <!-- 5. Confirmação -->
@@ -266,6 +247,7 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-
       <p class="lead" style="margin-top:8px">Obrigado! Já avisamos a Dra. Juliane, e ela entrará em contato para combinar o horário.</p>
     </div>
     <div class="receipt list" id="receipt"></div>
+    <p class="pdfwrap"><a class="pdf" id="pdfBtn" target="_blank" rel="noopener">Baixar termo assinado (PDF)</a> <a class="pdf" id="orcBtn" target="_blank" rel="noopener" hidden>Ver orçamento (PDF)</a></p>
     <div class="next">
       <h3>Próximos passos</h3>
       <ol>
@@ -277,7 +259,7 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-
     </div>
   </section>
 
-  <footer>Clínica Cavani Vets · M.V. Juliane Cavani Pimentel · CRMV-SP 11.064<br>Rua Quintana, 206, Brooklin Paulista, São Paulo · (11) 98288-5882</footer>
+  <footer>Clínica Cavani Vets · M.V. Juliane Cavani Pimentel · CRMV-SP 11.064<br>Rua Arandu, 885, Brooklin Paulista, São Paulo · (11) 94767-0145</footer>
 </div>
 
 <div class="actions" id="actions"><div class="in">
@@ -288,18 +270,20 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-
 <script>
 (function(){
   const qs=new URLSearchParams(location.search);
-  // Link enviado ao tutor: autorizacao.html?t=TOKEN. Sem token, a página funciona como demonstração (nada da etapa 2 em diante é gravado).
+  // Link enviado ao tutor: autorizacao.html?t=TOKEN. Sem token a página não abre.
   const token=qs.get('t');
-  const caso={pet:qs.get('pet')||'Thor',vet:qs.get('vet')||'Dr. Marcos Almeida',clinica:qs.get('clinica')||'Clínica Vet Jundiaí',protocolo:null};
+  // Preenchido por carregarCaso() com os dados da solicitação.
+  const caso={pet:'',vet:'',clinica:'',protocolo:null,reconhecido:null};
   const $=id=>document.getElementById(id);
   const UFS='AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO'.split(' ');
   UFS.forEach(u=>{const o=document.createElement('option');o.value=o.textContent=u;$('uf').appendChild(o)});
   function mostrarCaso(){
-    $('heroTitle').textContent='Consulta oftalmológica para '+(/a$/i.test(caso.pet)?'a ':'o ')+caso.pet;
+    $('heroTitle').textContent='Consulta oftalmológica'+(caso.pet?' para '+(/a$/i.test(caso.pet)?'a ':'o ')+caso.pet:'');
     $('refVet').textContent=caso.vet;$('refClinic').textContent=caso.clinica;
+    $('hero').querySelector('.ref').hidden=!caso.vet;
   }
   mostrarCaso();
-  let preTutor=qs.get('tutor'),preTel=qs.get('tel');
+  let preTutor=null,preTel=null;
 
   // Valores dos chips na página ↔ nomes na API.
   const ESPECIE={'Cão':'Cao','Gato':'Gato','Equino':'Equino','Outro':'Outro'};
@@ -408,10 +392,14 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-
     $('nomeMsg').textContent=juridica()?'Informe a razão social.':'Informe seu nome completo.';
   }
   function rotuloBotao(){
-    $('next').textContent=cur===1&&docBuscado?'Salvar e continuar':cur===3?'Entendi os valores':cur===4?'Autorizar a consulta':'Continuar';
+    $('next').textContent=cur===1&&aguardandoCodigo?'Confirmar código':cur===1&&docBuscado?'Salvar e continuar':cur===3?'Entendi os valores':cur===4?'Autorizar a consulta':'Continuar';
   }
   function mostrarResto(texto){ajustarTipo();nota($('docNote'),texto);$('resto').hidden=false;rotuloBotao()}
-  function esconderResto(){$('resto').hidden=true;$('docNote').hidden=true;$('salvarErro').hidden=true;docBuscado=null;rotuloBotao()}
+  function esconderResto(){$('resto').hidden=true;$('docNote').hidden=true;$('salvarErro').hidden=true;$('codigoF').hidden=true;aguardandoCodigo=null;docBuscado=null;boasVindas();rotuloBotao()}
+  // Celular do link já conhecido: cumprimenta pelo nome, mas os dados só aparecem depois do CPF/CNPJ.
+  function boasVindas(){
+    if(caso.reconhecido)nota($('docNote'),'Olá, '+caso.reconhecido+'! Encontramos seu cadastro pelo seu celular. Para sua segurança, confirme seu CPF ou CNPJ.');
+  }
 
   async function buscarDocumento(){
     const f=$('doc').closest('.field');
@@ -419,19 +407,15 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-
     const doc=digits($('doc').value);
     ocupado(true);
     try{
-      const r=await api('GET','/api/clientes/'+doc);
+      // Pelo link: a API só devolve os dados se o cadastro tiver o celular informado para este link.
+      const r=await api('GET','/api/autorizacoes/'+encodeURIComponent(token)+'/cliente/'+doc);
       if(r.status===200){
-        const c=r.json;
-        $('nome').value=c.nome||'';$('tel').value=masks.tel(c.celular||'');$('email').value=c.email||'';
-        $('cep').value=masks.cep(c.cep||'');cepBuscado=digits($('cep').value);
-        $('uf').value=UFS.includes((c.uf||'').toUpperCase())?c.uf.toUpperCase():'';
-        $('cidade').value=c.cidade||'';$('rua').value=c.rua||'';$('bairro').value=c.bairro||'';
-        $('num').value=c.numero||'';$('comp').value=c.complemento||'';
-        docBuscado=doc;mostrarResto('Encontramos seu cadastro. Confira os dados abaixo e corrija se precisar.');
+        preencherCliente(r.json,doc);
+      }else if(r.status===404&&r.json&&r.json.documento){
+        if(r.json.existe&&r.json.emailMascarado)await pedirCodigo(doc);
+        else preencherManual(doc,r.json.existe);
       }else if(r.status===404){
-        docBuscado=doc;
-        mostrarResto('Primeiro cadastro'+(juridica()?' de empresa':'')+'. Comece pelo CEP: rua, bairro e cidade são preenchidos sozinhos.');
-        $('nome').focus();
+        linkInvalido(true);
       }else if(r.status===400){
         f.classList.add('err');
       }else{
@@ -441,8 +425,58 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-
       nota($('docNote'),'Não foi possível consultar agora. Verifique sua internet e tente de novo.','err');
     }finally{ocupado(false)}
   }
+  function preencherCliente(c,doc){
+    $('nome').value=c.nome||'';$('tel').value=masks.tel(c.celular||'');$('email').value=c.email||'';
+    $('cep').value=masks.cep(c.cep||'');cepBuscado=digits($('cep').value);
+    $('uf').value=UFS.includes((c.uf||'').toUpperCase())?c.uf.toUpperCase():'';
+    $('cidade').value=c.cidade||'';$('rua').value=c.rua||'';$('bairro').value=c.bairro||'';
+    $('num').value=c.numero||'';$('comp').value=c.complemento||'';
+    aguardandoCodigo=null;$('codigoF').hidden=true;
+    docBuscado=doc;mostrarResto('Encontramos seu cadastro. Confira os dados abaixo e corrija se precisar.');
+  }
+  function preencherManual(doc,existe){
+    aguardandoCodigo=null;$('codigoF').hidden=true;docBuscado=doc;
+    // Nome e celular podem ter vindo da solicitação (informados pelo veterinário): deixar isso claro.
+    const doVet=!!preTutor&&$('nome').value.trim()===preTutor.trim();
+    mostrarResto((existe?'Preencha seus dados para atualizar o cadastro':'Preencha seus dados')+(juridica()?' da empresa':'')+'. '
+      +(doVet?'O nome e o celular foram informados pelo veterinário: confira e corrija se precisar. ':'')
+      +'Comece pelo CEP: rua, bairro e cidade são preenchidos sozinhos.');
+    $('nome').focus();
+  }
+
+  // ---- Código por e-mail: libera os dados de um cadastro que o celular do link não confirma ----
+  let aguardandoCodigo=null;
+  const urlCliente=s=>'/api/autorizacoes/'+encodeURIComponent(token)+'/cliente/'+s;
+  async function pedirCodigo(doc){
+    const r=await fetch(API+urlCliente('codigo'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({documento:doc})});
+    const txt=await r.text();let json=null;try{json=JSON.parse(txt)}catch(e){}
+    if(r.status!==200){
+      // Não deu para enviar (limite, sem e-mail): segue preenchendo à mão.
+      preencherManual(doc,true);nota($('docNote'),(json&&json.erro)||txt||'Não foi possível enviar o código.','err');return;
+    }
+    aguardandoCodigo=doc;
+    nota($('docNote'),'Encontramos seu cadastro. Para sua segurança, enviamos um código de confirmação para o e-mail '+json.emailMascarado+'. Digite-o abaixo.');
+    $('codigoF').hidden=false;$('codigoF').classList.remove('err');$('codigo').value='';$('codigo').focus();rotuloBotao();
+  }
+  async function confirmarCodigo(){
+    const codigo=digits($('codigo').value);
+    if(codigo.length!==6){$('codigoMsg').textContent='Digite os 6 números do código.';$('codigoF').classList.add('err');return}
+    ocupado(true);
+    try{
+      const r=await fetch(API+urlCliente('verificar'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({documento:aguardandoCodigo,codigo})});
+      const txt=await r.text();let json=null;try{json=JSON.parse(txt)}catch(e){}
+      if(r.status===200){preencherCliente(json,aguardandoCodigo);return}
+      $('codigoMsg').textContent=(json&&json.erro)||txt||'Código incorreto.';$('codigoF').classList.add('err');
+    }catch(e){$('codigoMsg').textContent='Sem conexão. Tente de novo.';$('codigoF').classList.add('err')}
+    finally{ocupado(false)}
+  }
+  $('codigo').addEventListener('input',e=>{e.target.value=digits(e.target.value).slice(0,6);$('codigoF').classList.remove('err');if(e.target.value.length===6)confirmarCodigo()});
+  $('codigo').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();confirmarCodigo()}});
+  $('reenviar').addEventListener('click',()=>{if(aguardandoCodigo)pedirCodigo(aguardandoCodigo)});
+  $('semCodigo').addEventListener('click',()=>{if(aguardandoCodigo)preencherManual(aguardandoCodigo,true)});
+
   // Mudou o documento depois da busca: os dados abaixo deixam de valer.
-  $('doc').addEventListener('input',()=>{if(docBuscado&&digits($('doc').value)!==docBuscado)esconderResto()});
+  $('doc').addEventListener('input',()=>{const d=digits($('doc').value);if((docBuscado&&d!==docBuscado)||(aguardandoCodigo&&d!==aguardandoCodigo))esconderResto()});
   $('doc').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();buscarDocumento()}});
 
   let cepBuscado='';
@@ -463,7 +497,7 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-
   async function salvarCliente(){
     $('salvarErro').hidden=true;ocupado(true);
     try{
-      const r=await api('POST','/api/clientes',{
+      const r=await api('POST','/api/autorizacoes/'+encodeURIComponent(token)+'/cliente',{
         documento:digits($('doc').value),nome:$('nome').value.trim(),celular:digits($('tel').value),email:$('email').value.trim(),
         cep:digits($('cep').value),uf:$('uf').value,cidade:$('cidade').value.trim(),rua:$('rua').value.trim(),
         bairro:$('bairro').value.trim(),numero:$('num').value.trim(),complemento:$('comp').value.trim()||null
@@ -501,7 +535,7 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-
     if(r.status!==200){linkInvalido(r.status===404);return}
     const c=r.json,a=c.animal||{};
     caso.protocolo=c.protocolo;
-    caso.pet=a.nome||'seu animal';caso.vet=c.veterinario.nome;
+    caso.pet=a.nome||'';caso.vet=c.veterinario.nome;
     caso.clinica=c.local?(c.local.nome+(c.local.cidade?' ('+c.local.cidade+')':'')):'';
     $('refClinic').previousSibling.textContent=caso.clinica?', ':'';
     mostrarCaso();
@@ -511,45 +545,119 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-
     if(a.especie&&!marcado('especie'))marcar('especie',chave(ESPECIE,a.especie));
     if(a.sexo&&!marcado('sexo'))marcar('sexo',chave(SEXO,a.sexo));
     if(a.nome)nota($('petNote'),caso.vet+' já nos passou estes dados. Confira e complete o que faltar.');
+    mostrarValores(c.valores||[]);
+    if(c.termo)mostrarTermo(c.termo);
+    if(c.autorizacao){jaAutorizada(c);return}
+    caso.reconhecido=c.reconhecido;if(!docBuscado)boasVindas();
     preTutor=preTutor||c.tutor.nome;preTel=preTel||c.tutor.celular;
     if(preTutor&&!$('nome').value)$('nome').value=preTutor;
     if(preTel&&!$('tel').value)$('tel').value=masks.tel(preTel);
     render();
   }
+  // ---- Etapa 3: valores (tabela configurável do banco) ----
+  const brl=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const GRUPOS={
+    'Indicados':['Se forem indicados após a consulta','Você será informado antes de qualquer um destes ser realizado.'],
+    'Infiltrações':['Infiltrações','Valores por aplicação.']
+  };
+  const el=(tag,cls,texto)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(texto!=null)e.textContent=texto;return e};
+  function mostrarValores(lista){
+    const agora=lista.filter(x=>x.grupo==='Agora');
+    const consulta=agora.find(x=>x.codigo==='consulta')||agora[0];
+    caso.consulta=consulta;
+    const box=$('agora');box.innerHTML='';
+    if(consulta){
+      box.append(el('div','lbl','O que você autoriza agora'),el('div','price',consulta.valor!=null?brl(consulta.valor):(consulta.observacao||'')),el('div',null,consulta.descricao));
+      const ul=el('ul');
+      if(consulta.observacao&&consulta.valor!=null)ul.append(el('li',null,consulta.observacao));
+      agora.filter(x=>x!==consulta).forEach(x=>ul.append(el('li',null,x.descricao+': '+[x.valor!=null?brl(x.valor):'',x.observacao||''].join(' ').trim())));
+      box.append(ul);
+    }
+    const grupos=$('grupos');grupos.innerHTML='';
+    [...new Set(lista.map(x=>x.grupo))].filter(g=>g!=='Agora').forEach(g=>{
+      const [titulo,sub]=GRUPOS[g]||[g,''];
+      const div=el('div','group');div.append(el('h3',null,titulo));if(sub)div.append(el('p',null,sub));
+      const list=el('div','list');
+      lista.filter(x=>x.grupo===g).forEach(x=>{
+        const item=el('div','item');const v=el('span','v',x.valor!=null?brl(x.valor):(x.observacao||'—'));
+        if(x.valor!=null&&x.observacao)v.append(el('small',null,x.observacao));
+        item.append(el('span',null,x.descricao),v);list.append(item);
+      });
+      div.append(list);grupos.append(div);
+    });
+  }
+
+  // ---- Etapa 4: termo (versão vigente) e aceite ----
+  function mostrarTermo(t){
+    caso.versaoTermo=t.versao;
+    const ol=$('termoTexto');ol.innerHTML='';
+    t.texto.split('\n').map(l=>l.trim()).filter(Boolean).forEach(l=>{
+      const li=el('li');
+      l.replace(/^\d+\.\s*/,'').split('{animal}').forEach((parte,i)=>{if(i>0)li.append(el('strong','tPet',$('pet').value||caso.pet));li.append(parte)});
+      ol.append(li);
+    });
+    $('termoVersao').textContent='Versão '+t.versao;
+  }
+  async function autorizar(){
+    $('aceiteErro').hidden=true;ocupado(true);
+    try{
+      const body=JSON.stringify({aceitouTermo:$('c1').checked,aceitouResponsabilidadeFinanceira:$('c2').checked,aceitouLgpd:$('c3').checked,
+        nomeAssinado:$('sig').value.trim(),versaoTermo:caso.versaoTermo});
+      const r=await fetch(API+'/api/autorizacoes/'+encodeURIComponent(token)+'/aceite',{method:'POST',headers:{'Content-Type':'application/json'},body});
+      const txt=await r.text();let json=null;try{json=JSON.parse(txt)}catch(e){}
+      if(r.status===200){caso.protocolo=json.protocolo;caso.aceitoEm=json.aceitoEm;$('orcBtn').hidden=!json.orcamento;return true}
+      nota($('aceiteErro'),(json&&(json.erro||json.title))||txt||'Não foi possível registrar a autorização.','err');
+    }catch(e){
+      nota($('aceiteErro'),'Não foi possível registrar a autorização. Verifique sua internet e tente de novo.','err');
+    }finally{ocupado(false)}
+    return false;
+  }
+  const quando=iso=>{const d=new Date(iso);return d.toLocaleDateString('pt-BR')+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
+  function comprovante(rows){
+    $('receipt').innerHTML='';
+    rows.forEach(([a,b])=>{const d=el('div','item');d.append(el('span',null,a),el('span','v',b));$('receipt').appendChild(d)});
+  }
+  // Link já usado: mostra o comprovante (documento mascarado) em vez de deixar assinar de novo.
+  function jaAutorizada(c){
+    const doc=c.autorizacao.documento;$('orcBtn').hidden=!c.autorizacao.orcamento;
+    const mascara=doc.length===11?'***.'+doc.slice(3,6)+'.'+doc.slice(6,9)+'-**':'**.'+doc.slice(2,5)+'.'+doc.slice(5,8)+'/****-**';
+    comprovante([['Protocolo',c.protocolo],['Tutor',c.autorizacao.tutor],['CPF/CNPJ',mascara],['Animal',caso.pet],['Assinado em',quando(c.autorizacao.aceitoEm)]]);
+    cur=5;render();
+  }
+
   function linkInvalido(naoExiste){
     ['progress','actions'].forEach(id=>$(id).style.display='none');
     steps.forEach(s=>s.classList.remove('active'));
     $('heroTitle').textContent=naoExiste?'Link inválido ou expirado':'Não foi possível abrir agora';
     $('hero').querySelector('p').textContent=naoExiste
-      ?'Peça um novo link para a Clínica Cavani Vets pelo WhatsApp (11) 98288-5882.'
+      ?'Peça um novo link para a Clínica Cavani Vets pelo WhatsApp (11) 94767-0145.'
       :'Verifique sua internet e tente de novo em instantes.';
     $('hero').querySelector('.ref').hidden=true;
   }
 
   $('next').addEventListener('click',async()=>{
+    if(cur===1&&aguardandoCodigo){confirmarCodigo();return}
     if(cur===1&&!docBuscado){buscarDocumento();return}
     if(!validStep(cur))return;
     if(cur===1&&!await salvarCliente())return;
     if(cur===2&&!await salvarAnimal())return;
-    if(cur===4){finish();}
+    if(cur===4){if(!await autorizar())return;finish();}
     cur++;render();
   });
   $('back').addEventListener('click',()=>{if(cur>1){cur--;render()}});
 
+  // Comprovante com os dados que o servidor registrou (protocolo e horário do aceite).
   function finish(){
-    const now=new Date();
-    const proto=caso.protocolo||('CV-'+now.getFullYear()+String(now.getMonth()+1).padStart(2,'0')+'-'+Math.random().toString(36).slice(2,7).toUpperCase());
     const esp=(document.querySelector('input[name="especie"]:checked')||{}).value||'';
-    const rows=[['Protocolo',proto],['Tutor',$('nome').value],['CPF/CNPJ',$('doc').value],['Animal',$('pet').value+(esp?' ('+esp.toLowerCase()+')':'')],
-      ['Autorizado','Consulta inicial, R$ 800,00 + deslocamento'],['Assinado em',now.toLocaleDateString('pt-BR')+' às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})]];
-    $('receipt').innerHTML='';
-    rows.forEach(([a,b])=>{const d=document.createElement('div');d.className='item';const x=document.createElement('span');x.textContent=a;const y=document.createElement('span');y.className='v';y.textContent=b;d.append(x,y);$('receipt').appendChild(d)});
+    const c=caso.consulta;
+    comprovante([['Protocolo',caso.protocolo],['Tutor',$('nome').value],['CPF/CNPJ',$('doc').value],['Animal',$('pet').value+(esp?' ('+esp.toLowerCase()+')':'')],
+      ['Autorizado',c?(c.descricao+(c.valor!=null?', '+brl(c.valor):'')+' + deslocamento'):'Consulta inicial'],['Assinado em',quando(caso.aceitoEm)]]);
     try{localStorage.removeItem(KEY)}catch(e){}
   }
 
   load();
-  if(token){render();carregarCaso()}
-  else{if(!$('pet').value)$('pet').value=caso.pet;if(preTutor&&!$('nome').value)$('nome').value=preTutor;if(preTel&&!$('tel').value)$('tel').value=masks.tel(preTel);render()}
+  render();
+  if(token){$('pdfBtn').href=API+'/api/autorizacoes/'+encodeURIComponent(token)+'/termo.pdf';$('orcBtn').href=API+'/api/autorizacoes/'+encodeURIComponent(token)+'/orcamento.pdf';carregarCaso()}else linkInvalido(true);
 })();
 </script>
 </body>

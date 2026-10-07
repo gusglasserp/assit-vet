@@ -1,6 +1,7 @@
 using CavaniVets.Api.Data;
 using CavaniVets.Api.Domain;
 using CavaniVets.Api.Integracoes.ContaAzul;
+using CavaniVets.Api.Servicos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -13,6 +14,7 @@ public class ContaAzulController(ContaAzulClient contaAzul, CavaniDbContext db, 
 {
     /// <summary>Abre o login do Conta Azul. Depois de autorizar, o Conta Azul redireciona com ?code=...&state=...</summary>
     [HttpGet("conectar")]
+    [SenhaClinica(SomenteLocal = true)]
     public IActionResult Conectar()
     {
         var state = Guid.NewGuid().ToString("N");
@@ -25,6 +27,7 @@ public class ContaAzulController(ContaAzulClient contaAzul, CavaniDbContext db, 
     /// redireciona para https://www.contaazul.com; troque esse endereço por este endpoint na barra do navegador.
     /// </summary>
     [HttpGet("callback")]
+    [SenhaClinica(SomenteLocal = true)]
     public async Task<IActionResult> Callback(string? code, string? state, CancellationToken ct)
     {
         log.LogInformation("Callback Conta Azul recebido (code: {TemCode}, state: {State})", !string.IsNullOrEmpty(code), state);
@@ -40,6 +43,7 @@ public class ContaAzulController(ContaAzulClient contaAzul, CavaniDbContext db, 
     }
 
     [HttpGet("status")]
+    [SenhaClinica]
     public async Task<IActionResult> Status(CancellationToken ct)
     {
         var conexao = await contaAzul.ObterConexao(ct);
@@ -48,10 +52,12 @@ public class ContaAzulController(ContaAzulClient contaAzul, CavaniDbContext db, 
 
     /// <summary>Serviços cadastrados no Conta Azul, para ligar cada item da tabela de valores ao serviço certo.</summary>
     [HttpGet("servicos")]
+    [SenhaClinica]
     public async Task<IActionResult> Servicos(CancellationToken ct) => Ok(await contaAzul.ListarServicos(ct));
 
     /// <summary>Liga um item da tabela de valores (ex.: "consulta") a um serviço do Conta Azul.</summary>
     [HttpPut("precos/{codigo}")]
+    [SenhaClinica]
     public async Task<IActionResult> LigarServico(string codigo, LigarServicoRequest req, CancellationToken ct)
     {
         var item = await db.ItensPreco.SingleOrDefaultAsync(x => x.Codigo == codigo, ct);
@@ -66,6 +72,7 @@ public class ContaAzulController(ContaAzulClient contaAzul, CavaniDbContext db, 
     /// O valor de cada item vem da tabela, a não ser que seja informado (obrigatório para itens sem valor fixo).
     /// </summary>
     [HttpPost("orcamentos")]
+    [SenhaClinica]
     public async Task<IActionResult> CriarOrcamento(OrcamentoRequest req, CancellationToken ct)
     {
         var documento = Documentos.SoDigitos(req.Documento);
