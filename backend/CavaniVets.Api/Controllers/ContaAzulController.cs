@@ -15,11 +15,21 @@ public class ContaAzulController(ContaAzulClient contaAzul, CavaniDbContext db, 
     /// <summary>Abre o login do Conta Azul. Depois de autorizar, o Conta Azul redireciona com ?code=...&state=...</summary>
     [HttpGet("conectar")]
     [SenhaClinica(SomenteLocal = true)]
-    public IActionResult Conectar()
+    public IActionResult Conectar() => Redirect(NovaUrlDeLogin());
+
+    /// <summary>
+    /// Mesmo que "conectar", para o botão do painel (exige a senha da clínica): devolve o endereço do login
+    /// e a página vai até ele. O retorno (callback) é protegido pelo state, que só sai daqui.
+    /// </summary>
+    [HttpGet("conectar-url")]
+    [SenhaClinica]
+    public IActionResult ConectarUrl() => Ok(new { url = NovaUrlDeLogin() });
+
+    string NovaUrlDeLogin()
     {
         var state = Guid.NewGuid().ToString("N");
         cache.Set(ChaveState(state), true, TimeSpan.FromMinutes(15));
-        return Redirect(contaAzul.MontarUrlLogin(state));
+        return contaAzul.MontarUrlLogin(state);
     }
 
     /// <summary>
@@ -27,7 +37,7 @@ public class ContaAzulController(ContaAzulClient contaAzul, CavaniDbContext db, 
     /// redireciona para https://www.contaazul.com; troque esse endereço por este endpoint na barra do navegador.
     /// </summary>
     [HttpGet("callback")]
-    [SenhaClinica(SomenteLocal = true)]
+    // Sem senha: o state só é emitido por conectar/conectar-url (protegidos) e vale uma vez, por 15 minutos.
     public async Task<IActionResult> Callback(string? code, string? state, CancellationToken ct)
     {
         log.LogInformation("Callback Conta Azul recebido (code: {TemCode}, state: {State})", !string.IsNullOrEmpty(code), state);

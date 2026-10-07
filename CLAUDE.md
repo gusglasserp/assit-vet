@@ -17,8 +17,18 @@ Hoje a coleta de dados do tutor, o envio do orçamento e a autorização são fe
 
 - PostgreSQL 17 portátil em `C:\dev\pgsql` (sem serviço do Windows). Iniciar com `scripts\banco-iniciar.ps1` após reiniciar o PC; parar com `scripts\banco-parar.ps1`. Banco `cavani_vets`, usuário `postgres`, senha `cavani_dev` (só desenvolvimento).
 - As DLLs do Visual C++ (`msvcp140.dll`, `vcruntime140*.dll`) foram copiadas para `C:\dev\pgsql\bin` porque o Redistributable não está instalado.
-- Em desenvolvimento a API serve as páginas de `web/`: com `dotnet run` rodando, abrir http://localhost:5273/. Página e API no mesmo endereço, sem CORS. Em produção as páginas vão para o Netlify e `/api/*` é redirecionado para a API.
+- A API serve as páginas de `web/`: em desenvolvimento direto da pasta (http://localhost:5273/; edições valem na hora); na publicação, `web/` é copiada para `wwwroot`. Página e API no mesmo endereço, sem CORS. Painel interno em `/` (index.html).
 - Migrações: `dotnet ef migrations add <Nome> -o Data/Migrations` e `dotnet ef database update`, dentro de `backend\CavaniVets.Api`.
+
+## Publicação (Azure)
+
+- App Service **Windows**, .NET 10, com a API servindo as páginas. Banco: **Azure Database for PostgreSQL** (flexible server). Decidido manter PostgreSQL (out/2026); Azure SQL foi avaliado e descartado.
+- Em produção, as migrações rodam sozinhas ao iniciar (`Database.Migrate()` no Program.cs). Os atalhos `/api/dev/*` ficam desligados.
+- Configurações do App Service (variáveis de ambiente; segredos nunca no código):
+  - `ConnectionStrings__Cavani` (com `Ssl Mode=Require`), `Clinica__Senha` (senha do painel), `Email__SenhaApp`, `GoogleMaps__ChaveApi`, `ContaAzul__ClientId`, `ContaAzul__ClientSecret`, `ContaAzul__RedirectUri`
+  - `Site__UrlPublica` (base dos links enviados por WhatsApp e e-mail) e `Armazenamento__Pasta` = `D:\home\dados` (fora da pasta publicada, senão os arquivos somem a cada publicação).
+- Rotas internas exigem a senha da clínica (`X-Senha-Clinica`); sem senha configurada, só funcionam na própria máquina.
+- O Conta Azul é conectado pelo botão do painel. Os tokens ficam no banco; o refresh token muda a cada renovação, então o mesmo token não pode ser usado em dois bancos ao mesmo tempo.
 
 ## Protótipos aprovados (HTML, na pasta `prototipos/`)
 

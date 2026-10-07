@@ -6,6 +6,7 @@ using CavaniVets.Api.Integracoes.Email;
 using CavaniVets.Api.Integracoes.Mapas;
 using CavaniVets.Api.Servicos;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 
@@ -30,11 +31,20 @@ builder.Services.AddScoped<Deslocamentos>();
 builder.Services.AddScoped<OrcamentosContaAzul>();
 builder.Services.AddSingleton<ConfirmacaoPorEmail>();
 
-// Em produção as páginas ficam no Netlify (outra origem). No desenvolvimento libera o localhost.
+// No Azure (e no túnel de teste) as requisições chegam por um proxy: o IP real do tutor e o https vêm nos
+// cabeçalhos X-Forwarded-*. Necessário para gravar o IP certo no aceite. Só o proxy alcança a aplicação,
+// então os cabeçalhos são aceitos de qualquer origem.
+builder.Services.Configure<ForwardedHeadersOptions>(o =>
+{
+    o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    o.KnownIPNetworks.Clear();
+    o.KnownProxies.Clear();
+});
+
+// Páginas e API ficam no mesmo endereço; CORS só para testes locais em outra porta.
 builder.Services.AddCors(o => o.AddDefaultPolicy(p => p
     .SetIsOriginAllowed(origem => builder.Environment.IsDevelopment()
-        ? Uri.TryCreate(origem, UriKind.Absolute, out var u) && u.Host == "localhost"
-        : origem == "https://assist-vet.netlify.app")
+        && Uri.TryCreate(origem, UriKind.Absolute, out var u) && u.Host == "localhost")
     .AllowAnyHeader()
     .AllowAnyMethod()));
 
@@ -44,6 +54,16 @@ builder.Services.AddControllers()
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
+
+// Em produção, cria/atualiza as tabelas ao iniciar (uma instância só). No desenvolvimento,
+// as migrações continuam manuais (dotnet ef database update).
+if (!app.Environment.IsDevelopment())
+{
+    using var escopo = app.Services.CreateScope();
+    escopo.ServiceProvider.GetRequiredService<CavaniDbContext>().Database.Migrate();
+}
 
 // Erros do Conta Azul voltam como 502 com a mensagem dele, para facilitar o diagnóstico.
 app.UseExceptionHandler(e => e.Run(async ctx =>
@@ -58,16 +78,19 @@ app.UseExceptionHandler(e => e.Run(async ctx =>
     await ctx.Response.WriteAsJsonAsync(new { erro = "Erro interno." });
 }));
 
-// Configure the HTTP request pipeline.
+// A API também serve as páginas (web/). No desenvolvimento, direto da pasta web/ (edições valem na hora);
+// na publicação, a pasta web/ é copiada para wwwroot (ver .csproj).
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-
-    // No desenvolvimento a API também serve as páginas da pasta web/ (http://localhost:5273/),
-    // assim página e API ficam no mesmo endereço. Em produção as páginas ficam no Netlify.
     var paginas = new PhysicalFileProvider(Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "..", "..", "web")));
     app.UseDefaultFiles(new DefaultFilesOptions { FileProvider = paginas });
     app.UseStaticFiles(new StaticFileOptions { FileProvider = paginas });
+}
+else
+{
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
 }
 
 app.UseHttpsRedirection();

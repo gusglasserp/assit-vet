@@ -22,4 +22,14 @@
     <None Update="Recursos\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <!-- As páginas (pasta web/ na raiz do repositório) vão junto na publicação, como wwwroot.
+       Cópia simples depois do publish: incluir como Content ativaria o pipeline de static web assets,
+       que exige uma pasta wwwroot no projeto e quebra o dotnet run. -->
+  <Target Name="CopiarPaginas" AfterTargets="Publish">
+    <ItemGroup>
+      <Paginas Include="..\..\web\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(Paginas)" DestinationFiles="@(Paginas->'$(PublishDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+
 </Project>

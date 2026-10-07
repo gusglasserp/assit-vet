@@ -148,15 +148,13 @@ public class AutorizacoesController(CavaniDbContext db, CadastroClientes cadastr
         db.VersoesTermo.Where(x => x.Ativa).OrderByDescending(x => x.VigenteDesde).FirstOrDefaultAsync(ct);
 
     /// <summary>
-    /// IP de quem aceitou. Atrás de proxy (ex.: Netlify repassando /api), o IP real vem em X-Forwarded-For;
-    /// guarda os dois para não perder a informação.
-    /// TODO: ao publicar, configurar ForwardedHeaders confiando só no proxy, e gravar só o IP real.
+    /// IP de quem aceitou. Atrás do proxy do Azure, o UseForwardedHeaders (Program.cs) já troca o IP do proxy
+    /// pelo IP real que vem em X-Forwarded-For.
     /// </summary>
     string IpDoCliente()
     {
-        var remoto = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "desconhecido";
-        var repassado = Request.Headers["X-Forwarded-For"].ToString();
-        return string.IsNullOrWhiteSpace(repassado) ? remoto : $"{repassado} (via {remoto})";
+        var ip = HttpContext.Connection.RemoteIpAddress;
+        return ip is null ? "desconhecido" : (ip.IsIPv4MappedToIPv6 ? ip.MapToIPv4() : ip).ToString();
     }
 
     /// <summary>

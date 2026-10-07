@@ -53,6 +53,7 @@ input:focus{border-color:var(--cyan)}
 .grade b{color:var(--muted);font-weight:500;margin-right:4px}
 .botoes{display:flex;gap:8px;flex-wrap:wrap}
 .vazio{color:var(--muted);text-align:center;padding:30px 0}
+.conta-azul{display:flex;align-items:center;gap:8px}
 .login{max-width:360px;margin:12vh auto 0;text-align:center}
 .login img{width:72px;height:72px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px var(--line);margin-bottom:12px}
 .login form{display:flex;flex-direction:column;gap:10px;margin-top:16px;text-align:left}
@@ -76,6 +77,8 @@ input:focus{border-color:var(--cyan)}
   <header class="top">
     <img src="img/logo.png" alt="Logo Clínica Cavani Vets">
     <div class="t"><h1>Solicitações</h1><span>Clínica Cavani Vets · painel interno</span></div>
+    <!-- Situação da conexão com o Conta Azul (orçamentos e cadastro de clientes dependem dela). -->
+    <div class="conta-azul"><span class="chip" id="caStatus">Conta Azul…</span> <button class="ghost small" type="button" id="caConectar" hidden>Conectar Conta Azul</button></div>
   </header>
 
   <div class="acoes">
@@ -140,7 +143,7 @@ input:focus{border-color:var(--cyan)}
 
   async function iniciar(){
     const r=await api('GET','/api/painel/entrar');
-    if(r.status===204){$('login').hidden=true;$('painel').hidden=false;carregar();return}
+    if(r.status===204){$('login').hidden=true;$('painel').hidden=false;carregar();statusContaAzul();return}
     $('painel').hidden=true;$('login').hidden=false;
     if(senha()){$('loginErro').textContent=r.erro;$('loginErro').hidden=false}
     $('senha').focus();
@@ -228,6 +231,19 @@ input:focus{border-color:var(--cyan)}
       box.append(c);
     });
   }
+  // ---- Conta Azul ----
+  async function statusContaAzul(){
+    const r=await api('GET','/api/conta-azul/status');
+    const ok=r.status===200&&r.json.conectado;
+    $('caStatus').textContent=ok?'Conta Azul conectado':'Conta Azul desconectado';
+    $('caStatus').className='chip'+(ok?' ok':' urg');
+    $('caConectar').hidden=ok;
+  }
+  $('caConectar').addEventListener('click',async()=>{
+    const r=await api('GET','/api/conta-azul/conectar-url');
+    if(r.status===200)location.href=r.json.url;
+  });
+
   $('atualizar').addEventListener('click',carregar);
   // Atualiza sozinho a cada 30 s (ex.: quando um tutor autoriza).
   setInterval(()=>{if(!$('painel').hidden&&!document.hidden)carregar()},30000);
