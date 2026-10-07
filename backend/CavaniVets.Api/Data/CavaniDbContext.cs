@@ -1,0 +1,91 @@
+using CavaniVets.Api.Domain;
+using Microsoft.EntityFrameworkCore;
+
+namespace CavaniVets.Api.Data;
+
+public class CavaniDbContext(DbContextOptions<CavaniDbContext> options) : DbContext(options)
+{
+    public DbSet<Veterinario> Veterinarios => Set<Veterinario>();
+    public DbSet<Local> Locais => Set<Local>();
+    public DbSet<Solicitacao> Solicitacoes => Set<Solicitacao>();
+    public DbSet<Tutor> Tutores => Set<Tutor>();
+    public DbSet<Animal> Animais => Set<Animal>();
+    public DbSet<VersaoTermo> VersoesTermo => Set<VersaoTermo>();
+    public DbSet<ItemPreco> ItensPreco => Set<ItemPreco>();
+    public DbSet<Autorizacao> Autorizacoes => Set<Autorizacao>();
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder b)
+    {
+        // Enums gravados como texto: o banco fica legível e não quebra se a ordem mudar.
+        b.Properties<Enum>().HaveConversion<string>().HaveMaxLength(20);
+    }
+
+    protected override void OnModelCreating(ModelBuilder m)
+    {
+        m.Entity<Veterinario>(e =>
+        {
+            e.HasIndex(x => x.Celular).IsUnique();
+            e.Property(x => x.Celular).HasMaxLength(11);
+            e.Property(x => x.Uf).HasMaxLength(2);
+        });
+
+        m.Entity<Solicitacao>(e =>
+        {
+            e.HasIndex(x => x.Protocolo).IsUnique();
+            e.HasIndex(x => x.TokenTutor).IsUnique();
+            e.HasOne(x => x.Autorizacao).WithOne(x => x.Solicitacao).HasForeignKey<Autorizacao>(x => x.SolicitacaoId);
+        });
+
+        m.Entity<Tutor>(e =>
+        {
+            e.HasIndex(x => x.Cpf).IsUnique();
+            e.Property(x => x.Cpf).HasMaxLength(11);
+            e.Property(x => x.Uf).HasMaxLength(2);
+        });
+
+        m.Entity<ItemPreco>(e =>
+        {
+            e.HasIndex(x => x.Codigo).IsUnique();
+            e.Property(x => x.Valor).HasPrecision(10, 2);
+        });
+
+        m.Entity<VersaoTermo>().HasIndex(x => x.Versao).IsUnique();
+
+        Seed(m);
+    }
+
+    static void Seed(ModelBuilder m)
+    {
+        m.Entity<ItemPreco>().HasData(
+            new ItemPreco { Id = 1, Codigo = "consulta", Grupo = "Agora", Descricao = "Consulta oftalmológica inicial", Valor = 800m, Observacao = "Medicamentos para diagnóstico incluídos", Ordem = 1 },
+            new ItemPreco { Id = 2, Codigo = "km", Grupo = "Agora", Descricao = "Deslocamento", Valor = 2.50m, Observacao = "por km rodado + pedágio", Ordem = 2 },
+            new ItemPreco { Id = 3, Codigo = "materiais-diagnostico", Grupo = "Agora", Descricao = "Materiais estéreis para diagnóstico", Observacao = "cobrados à parte, se usados", Ordem = 3 },
+            new ItemPreco { Id = 4, Codigo = "ultrassom", Grupo = "Indicados", Descricao = "Exame ultrassonográfico oftalmológico", Valor = 550m, Ordem = 10 },
+            new ItemPreco { Id = 5, Codigo = "acompanhamento", Grupo = "Indicados", Descricao = "Acompanhamento oftálmico, até a alta clínica", Valor = 300m, Observacao = "por visita", Ordem = 11 },
+            new ItemPreco { Id = 6, Codigo = "medicamentos-tratamento", Grupo = "Indicados", Descricao = "Medicamentos e materiais para tratamento", Observacao = "à parte", Ordem = 12 },
+            new ItemPreco { Id = 7, Codigo = "cirurgia", Grupo = "Indicados", Descricao = "Procedimentos cirúrgicos", Observacao = "sob orçamento", Ordem = 13 },
+            new ItemPreco { Id = 8, Codigo = "inf-subconjuntival", Grupo = "Infiltrações", Descricao = "Subconjuntival", Valor = 350m, Ordem = 20 },
+            new ItemPreco { Id = 9, Codigo = "inf-retrobulbar", Grupo = "Infiltrações", Descricao = "Retrobulbar", Valor = 450m, Ordem = 21 },
+            new ItemPreco { Id = 10, Codigo = "inf-intravitrea", Grupo = "Infiltrações", Descricao = "Intravítrea", Valor = 700m, Ordem = 22 },
+            new ItemPreco { Id = 11, Codigo = "inf-intralesional", Grupo = "Infiltrações", Descricao = "Intralesional", Valor = 750m, Ordem = 23 }
+        );
+
+        m.Entity<VersaoTermo>().HasData(new VersaoTermo
+        {
+            Id = 1,
+            Versao = "2026.1-rascunho",
+            VigenteDesde = new DateTimeOffset(2026, 10, 6, 0, 0, 0, TimeSpan.Zero),
+            Ativa = true,
+            // {animal} é substituído pelo nome do animal na exibição e na cópia gravada no aceite.
+            Texto = """
+                1. Autorizo a M.V. Juliane Cavani Pimentel (CRMV-SP 11.064), da Clínica Cavani Vets, a realizar consulta oftalmológica no animal {animal}, a pedido do médico-veterinário solicitante.
+                2. Declaro estar ciente de que a consulta inicial custa R$ 800,00, com medicamentos para diagnóstico incluídos, acrescida das despesas de deslocamento (R$ 2,50 por km rodado + pedágio) e dos materiais estéreis para diagnóstico, se utilizados.
+                3. Estou ciente da tabela de valores de exames, infiltrações e acompanhamento apresentada nesta página, e de que procedimentos adicionais, medicamentos de tratamento e cirurgias serão informados antes de sua realização.
+                4. Assumo a responsabilidade pelo pagamento dos valores referentes ao atendimento do animal, nas condições informadas pela clínica.
+                5. Estou ciente de que a medicina veterinária não é uma ciência exata e de que a resposta ao diagnóstico e ao tratamento varia de acordo com cada paciente.
+                6. Autorizo o uso dos meus dados pessoais para cadastro, faturamento, emissão de documentos fiscais e comunicação sobre o atendimento, incluindo o compartilhamento com o veterinário solicitante e, quando necessário, com hospitais parceiros, conforme a Lei Geral de Proteção de Dados (Lei 13.709/2018).
+                7. Esta autorização é registrada eletronicamente com data, hora e dados do dispositivo utilizado, e vale como minha assinatura.
+                """
+        });
+    }
+}
