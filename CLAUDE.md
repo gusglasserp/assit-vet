@@ -9,14 +9,15 @@ Hoje a coleta de dados do tutor, o envio do orçamento e a autorização são fe
 ## Stack
 
 - Backend: ASP.NET Core Web API (.NET 10), EF Core, PostgreSQL. Pasta `backend/`.
-- Frontend: Flutter (web, mobile first). Mesmo código pode gerar app Android/iOS no futuro. Pasta `app/`.
+- Frontend: HTML, CSS e JavaScript puros, mobile first, partindo dos protótipos aprovados. Pasta `web/`. Flutter foi descartado (out/2026): as páginas são abertas por links do WhatsApp no 4G, e o Flutter web baixava 5 a 9 MB contra cerca de 0,1 MB do HTML. Se um dia precisar de app instalável, o caminho é PWA; app de loja só com necessidade concreta (offline pesado, Bluetooth).
+- Integrações: Conta Azul API v2 (OAuth, cadastro de clientes e orçamentos; tokens na tabela `ContaAzulConexoes`; credenciais em `dotnet user-secrets`), CEP via ViaCEP com BrasilAPI de reserva.
 - Editor: VS Code.
 
 ## Ambiente de desenvolvimento (máquina local)
 
 - PostgreSQL 17 portátil em `C:\dev\pgsql` (sem serviço do Windows). Iniciar com `scripts\banco-iniciar.ps1` após reiniciar o PC; parar com `scripts\banco-parar.ps1`. Banco `cavani_vets`, usuário `postgres`, senha `cavani_dev` (só desenvolvimento).
 - As DLLs do Visual C++ (`msvcp140.dll`, `vcruntime140*.dll`) foram copiadas para `C:\dev\pgsql\bin` porque o Redistributable não está instalado.
-- Flutter em `C:\dev\flutter` (canal stable). Testar o app web no Edge: `flutter run -d edge`.
+- Em desenvolvimento a API serve as páginas de `web/`: com `dotnet run` rodando, abrir http://localhost:5273/. Página e API no mesmo endereço, sem CORS. Em produção as páginas vão para o Netlify e `/api/*` é redirecionado para a API.
 - Migrações: `dotnet ef migrations add <Nome> -o Data/Migrations` e `dotnet ef database update`, dentro de `backend\CavaniVets.Api`.
 
 ## Protótipos aprovados (HTML, na pasta `prototipos/`)

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Clínica Cavani Vets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E3A53; --cyan:#13A9C2; --cyan-strong:#0B8AA0; --aqua:#E4F6F9; --paper:#F7FBFC; --surface:#FFFFFF;
+  --text:#14262F; --muted:#56707C; --line:#D5E5EA;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--text);font-family:Figtree,system-ui,sans-serif;line-height:1.5}
+main{max-width:520px;margin:0 auto;padding:40px 16px}
+h1{font-family:"Bricolage Grotesque",sans-serif;color:var(--ink);font-size:1.6rem;margin:0 0 4px}
+p.sub{color:var(--muted);margin:0 0 28px}
+a.card{display:block;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--cyan);
+  border-radius:12px;padding:18px 20px;margin-bottom:14px;text-decoration:none;color:inherit}
+a.card:hover{border-color:var(--cyan-strong);background:var(--aqua)}
+a.card strong{display:block;color:var(--ink);font-size:1.05rem}
+a.card span{color:var(--muted);font-size:.92rem}
+</style>
+</head>
+<body>
+<main>
+  <h1>Clínica Cavani Vets</h1>
+  <p class="sub">Páginas do sistema (ambiente de desenvolvimento).</p>
+  <a class="card" href="/api/dev/convite?cel=11999990000">
+    <strong>Solicitação do veterinário</strong>
+    <span>Veterinário já cadastrado (Dr. Marcos, convite de teste).</span>
+  </a>
+  <a class="card" href="/api/dev/convite?cel=11955554444">
+    <strong>Solicitação: veterinário novo</strong>
+    <span>Primeiro acesso: pede nome, CRMV e UF.</span>
+  </a>
+  <a class="card" href="/api/dev/convite?cel=11999990000&amp;clinica=true">
+    <strong>Solicitação preenchida pela clínica</strong>
+    <span>A assistente preenche e já sai com o link do tutor.</span>
+  </a>
+  <a class="card" href="/api/dev/solicitacao-exemplo">
+    <strong>Autorização do tutor (caso de exemplo)</strong>
+    <span>Cria uma solicitação de teste e abre o link do tutor.</span>
+  </a>
+  <a class="card" href="autorizacao.html">
+    <strong>Autorização do tutor</strong>
+    <span>Cadastro, valores, termo e aceite da consulta pelo tutor.</span>
+  </a>
+</main>
+</body>
+</html>

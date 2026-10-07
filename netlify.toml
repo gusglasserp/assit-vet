@@ -1,18 +1,15 @@
 # Por enquanto o Netlify publica só os protótipos HTML (pasta prototipos/), sem build.
-# Quando o app Flutter tiver as telas, trocar pela configuração abaixo (comentada).
+# Quando a API estiver hospedada, trocar para a pasta web/ e redirecionar /api para ela:
+#
+# [build]
+#   publish = "web"
+#   command = ""
+#
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://ENDERECO-DA-API/api/:splat"
+#   status = 200
+#   force = true
 [build]
   publish = "prototipos"
   command = ""
-
-# --- App Flutter (pasta app/) ---
-# O Netlify não tem Flutter instalado, então o build baixa o SDK (canal stable).
-# [build]
-#   base = "app"
-#   command = "git clone https://github.com/flutter/flutter.git -b stable --depth 1 $HOME/flutter && $HOME/flutter/bin/flutter build web --release"
-#   publish = "build/web"
-#
-# # Qualquer rota (ex.: /autorizacao?id=...) cai no index.html do Flutter.
-# [[redirects]]
-#   from = "/*"
-#   to = "/index.html"
-#   status = 200

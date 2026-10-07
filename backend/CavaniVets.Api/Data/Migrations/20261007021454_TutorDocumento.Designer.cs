@@ -3,6 +3,7 @@ using System;
 using CavaniVets.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CavaniVets.Api.Data.Migrations
 {
     [DbContext(typeof(CavaniDbContext))]
-    partial class CavaniDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261007021454_TutorDocumento")]
+    partial class TutorDocumento
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -151,39 +154,6 @@ namespace CavaniVets.Api.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ContaAzulConexoes");
-                });
-
-            modelBuilder.Entity("CavaniVets.Api.Domain.Convite", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Celular")
-                        .IsRequired()
-                        .HasMaxLength(11)
-                        .HasColumnType("character varying(11)");
-
-                    b.Property<DateTimeOffset>("CriadoEm")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("PreenchidoPor")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Token")
-                        .IsUnique();
-
-                    b.ToTable("Convites");
                 });
 
             modelBuilder.Entity("CavaniVets.Api.Domain.ItemPreco", b =>
@@ -381,9 +351,6 @@ namespace CavaniVets.Api.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AnimalId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("AudioArquivo")
                         .HasColumnType("text");
 
@@ -453,9 +420,6 @@ namespace CavaniVets.Api.Data.Migrations
                     b.Property<bool?>("TutorCienteCusto")
                         .HasColumnType("boolean");
 
-                    b.Property<int?>("TutorId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("TutorNome")
                         .HasColumnType("text");
 
@@ -467,8 +431,6 @@ namespace CavaniVets.Api.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AnimalId");
-
                     b.HasIndex("LocalId");
 
                     b.HasIndex("Protocolo")
@@ -476,8 +438,6 @@ namespace CavaniVets.Api.Data.Migrations
 
                     b.HasIndex("TokenTutor")
                         .IsUnique();
-
-                    b.HasIndex("TutorId");
 
                     b.HasIndex("VeterinarioId");
 
@@ -684,17 +644,9 @@ namespace CavaniVets.Api.Data.Migrations
 
             modelBuilder.Entity("CavaniVets.Api.Domain.Solicitacao", b =>
                 {
-                    b.HasOne("CavaniVets.Api.Domain.Animal", "Animal")
-                        .WithMany()
-                        .HasForeignKey("AnimalId");
-
                     b.HasOne("CavaniVets.Api.Domain.Local", "Local")
                         .WithMany()
                         .HasForeignKey("LocalId");
-
-                    b.HasOne("CavaniVets.Api.Domain.Tutor", "Tutor")
-                        .WithMany()
-                        .HasForeignKey("TutorId");
 
                     b.HasOne("CavaniVets.Api.Domain.Veterinario", "Veterinario")
                         .WithMany()
@@ -702,11 +654,7 @@ namespace CavaniVets.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Animal");
-
                     b.Navigation("Local");
-
-                    b.Navigation("Tutor");
 
                     b.Navigation("Veterinario");
                 });

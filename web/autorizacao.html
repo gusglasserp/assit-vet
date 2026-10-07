@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clínica Cavani Vets · Autorização de consulta</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E3A53; --cyan:#13A9C2; --cyan-strong:#0B8AA0; --aqua:#E4F6F9; --paper:#F7FBFC; --surface:#FFFFFF;
+  --text:#14262F; --muted:#56707C; --line:#D5E5EA; --danger:#B3261E; --ok:#1E7A4F;
+  --disc:#FFFFFF;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ink:#BFE9F2; --cyan:#3CC7DD; --cyan-strong:#6BD8EA; --aqua:#123540; --paper:#0A1A21; --surface:#10252E;
+  --text:#E3EEF1; --muted:#93AEB8; --line:#22404B; --danger:#FF8A80; --ok:#6FD6A0; --disc:#F2FAFC; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --ink:#BFE9F2; --cyan:#3CC7DD; --cyan-strong:#6BD8EA; --aqua:#123540; --paper:#0A1A21; --surface:#10252E;
+  --text:#E3EEF1; --muted:#93AEB8; --line:#22404B; --danger:#FF8A80; --ok:#6FD6A0; --disc:#F2FAFC; color-scheme:dark;}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--text);font:400 16px/1.55 Figtree,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif;color:var(--ink);line-height:1.15;margin:0}
+.wrap{max-width:560px;margin:0 auto;padding:0 20px 120px}
+.proto{background:var(--aqua);color:var(--ink);font-size:13px;padding:8px 20px;text-align:center}
+header.brand{display:flex;align-items:center;gap:14px;padding:22px 0 8px}
+.disc{width:58px;height:58px;border-radius:50%;background:var(--disc);display:grid;place-items:center;flex:none;box-shadow:0 0 0 1px var(--line)}
+.disc img{width:50px;height:50px}
+.brand b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:19px;color:var(--ink);font-weight:700}
+.brand span{color:var(--muted);font-size:14px}
+.hero{padding:26px 0 18px;border-bottom:1px solid var(--line)}
+.hero h1{font-size:clamp(28px,8vw,38px);font-weight:700;letter-spacing:-.01em}
+.hero p{margin:12px 0 0;color:var(--muted)}
+.hero .ref{margin-top:16px;display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:14px}
+.hero .ref svg{flex:none;margin-top:2px;color:var(--cyan-strong)}
+.steps{display:flex;gap:6px;margin:22px 0 6px}
+.steps i{flex:1;height:5px;border-radius:5px;background:var(--line);transition:background .3s}
+.steps i.on{background:var(--cyan)}
+.steplabel{font-size:14px;color:var(--muted);margin-bottom:18px}
+section.step{display:none}
+section.step.active{display:block}
+section.step h2{font-size:24px;margin-bottom:6px}
+.lead{color:var(--muted);margin:0 0 20px}
+.field{margin-bottom:16px}
+.field label{display:block;font-weight:600;font-size:15px;margin-bottom:6px}
+.field small{color:var(--muted);font-weight:400}
+input,select,textarea{width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;min-height:50px;outline:none;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--cyan)}
+.field.err input,.field.err select{border-color:var(--danger)}
+.field .msg{display:none;color:var(--danger);font-size:13.5px;margin-top:5px}
+.field.err .msg{display:block}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row.r31{grid-template-columns:2fr 1fr}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips label{margin:0;font-weight:500}
+.chips input{position:absolute;opacity:0;width:1px;height:1px}
+.chips span{display:inline-block;padding:10px 16px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface);cursor:pointer}
+.chips input:checked+span{border-color:var(--cyan);background:var(--aqua);color:var(--ink);font-weight:600}
+.chips input:focus-visible+span{outline:2px solid var(--cyan);outline-offset:2px}
+/* Valores */
+.now{background:var(--ink);color:var(--paper);border-radius:20px;padding:22px 20px;margin-bottom:22px}
+:root[data-theme="dark"] .now{background:var(--aqua);color:var(--text)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .now{background:var(--aqua);color:var(--text)}}
+.now .lbl{font-size:14px;opacity:.85}
+.now .price{font-family:"Bricolage Grotesque",sans-serif;font-size:44px;font-weight:700;line-height:1.1;margin:4px 0 8px}
+.now ul{margin:10px 0 0;padding-left:18px;font-size:14.5px}
+.now li{margin:3px 0}
+.group{margin-bottom:22px}
+.group h3{font-size:17px;margin-bottom:4px}
+.group p{margin:0 0 8px;color:var(--muted);font-size:14.5px}
+.list{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.item{display:flex;justify-content:space-between;gap:12px;padding:13px 16px;border-top:1px solid var(--line);font-size:15px}
+.item:first-child{border-top:0}
+.item .v{font-weight:600;white-space:nowrap;text-align:right;color:var(--ink)}
+.item .v small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.note{display:flex;gap:10px;background:var(--aqua);border-radius:14px;padding:14px;font-size:14.5px;color:var(--text)}
+.note svg{flex:none;color:var(--cyan-strong);margin-top:2px}
+[hidden]{display:none!important}
+section.step .note{margin-bottom:18px}
+.note.err{background:color-mix(in srgb,var(--danger) 10%,transparent)}
+.note.err svg{color:var(--danger)}
+.primary:disabled{opacity:.6;cursor:progress}
+/* Termo */
+.termo{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;max-height:340px;overflow:auto;font-size:14.5px;margin-bottom:18px}
+.termo h3{font-size:16px;margin:0 0 10px}
+.termo ol{padding-left:20px;margin:0}
+.termo li{margin-bottom:9px}
+.check{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);cursor:pointer;font-size:15px}
+.check input{width:22px;height:22px;min-height:0;flex:none;margin:1px 0 0;accent-color:var(--cyan-strong)}
+.check.err{color:var(--danger)}
+.sig{font-family:"Bricolage Grotesque",sans-serif;font-size:20px}
+/* Rodapé de ações */
+.actions{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px))}
+.actions .in{max-width:560px;margin:0 auto;display:flex;gap:10px}
+button{font:inherit;font-weight:600;font-size:16px;border-radius:14px;min-height:52px;padding:0 18px;cursor:pointer;border:0}
+.primary{flex:1;background:var(--cyan-strong);color:#fff}
+:root[data-theme="dark"] .primary{color:#062029}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .primary{color:#062029}}
+.primary:active{transform:scale(.99)}
+.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+button:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+/* Confirmação */
+.done{text-align:center;padding:30px 0 10px}
+.done .ok{width:72px;height:72px;border-radius:50%;background:var(--aqua);display:grid;place-items:center;margin:0 auto 18px;color:var(--ok)}
+.done h2{font-size:28px}
+.receipt{background:var(--surface);border:1px solid var(--line);border-radius:18px;margin-top:22px;text-align:left}
+.receipt .item span:first-child{color:var(--muted)}
+.receipt .item .v{white-space:normal}
+.chips[style*="column"] label{display:block}
+.chips[style*="column"] span{border-radius:14px;width:100%}
+.next{margin-top:22px;text-align:left}
+.next h3{font-size:17px;margin-bottom:10px}
+.next ol{margin:0;padding-left:20px;color:var(--text)}
+.next li{margin-bottom:8px}
+footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-height:1.6}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (min-width:600px){.wrap{padding-bottom:140px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="brand">
+    <div class="disc"><img alt="Logo Clínica Cavani Vets" src="img/logo.png"></div>
+    <div><b>Clínica Cavani Vets</b><span>Oftalmologia Veterinária</span></div>
+  </header>
+
+  <div class="hero" id="hero">
+    <h1 id="heroTitle">Consulta oftalmológica para o Thor</h1>
+    <p>Para agendarmos o atendimento, precisamos dos seus dados, da sua ciência sobre os valores e da sua autorização. Leva cerca de 3 minutos.</p>
+    <div class="ref">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+      <div>Atendimento solicitado por <strong id="refVet">Dr. Marcos Almeida</strong>, <span id="refClinic">Clínica Vet Jundiaí</span>.</div>
+    </div>
+  </div>
+
+  <div id="progress">
+    <div class="steps" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div class="steplabel" id="stepLabel"></div>
+  </div>
+
+  <!-- 1. Tutor -->
+  <section class="step" data-step="1" data-title="Seus dados">
+    <h2>Seus dados</h2>
+    <p class="lead">Usamos estes dados para o cadastro, a nota fiscal e para te enviar o relatório do atendimento.</p>
+    <!-- Começa pelo documento: se já tem cadastro, o restante vem preenchido. -->
+    <div class="field" data-req data-check="doc"><label for="doc">CPF ou CNPJ</label><input id="doc" inputmode="numeric" placeholder="000.000.000-00" maxlength="18" autocomplete="off"><div class="msg" id="docMsg">CPF ou CNPJ inválido. Confira os números.</div></div>
+    <div class="note" id="docNote" hidden></div>
+    <div id="resto" hidden>
+    <div class="field" data-req data-check="nome"><label for="nome" id="nomeLabel">Nome completo</label><input id="nome" autocomplete="name"><div class="msg" id="nomeMsg">Informe seu nome completo.</div></div>
+    <div class="field" data-req data-check="tel"><label for="tel">Celular com WhatsApp</label><input id="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 90000-0000" maxlength="15"><div class="msg">Informe um celular com DDD.</div></div>
+    <div class="field" data-req data-check="email"><label for="email">E-mail</label><input id="email" type="email" inputmode="email" autocomplete="email"><div class="msg">Informe um e-mail válido.</div></div>
+    <div class="row">
+      <div class="field" data-req data-check="cep"><label for="cep">CEP <small id="cepStatus"></small></label><input id="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9"><div class="msg">CEP inválido.</div></div>
+      <div class="field" data-req><label for="uf">Estado</label>
+        <select id="uf"><option value="">—</option></select><div class="msg">Escolha o estado.</div></div>
+    </div>
+    <div class="field" data-req><label for="cidade">Cidade</label><input id="cidade" autocomplete="address-level2"><div class="msg">Informe a cidade.</div></div>
+    <div class="field" data-req><label for="rua">Rua</label><input id="rua" autocomplete="address-line1"><div class="msg">Informe a rua.</div></div>
+    <div class="row r31">
+      <div class="field" data-req><label for="bairro">Bairro</label><input id="bairro"><div class="msg">Informe o bairro.</div></div>
+      <div class="field" data-req><label for="num">Número</label><input id="num" inputmode="numeric"><div class="msg">Nº</div></div>
+    </div>
+    <div class="field"><label for="comp">Complemento <small>(opcional)</small></label><input id="comp" autocomplete="address-line2"></div>
+    <div class="note err" id="salvarErro" hidden></div>
+    </div>
+  </section>
+
+  <!-- 2. Animal -->
+  <section class="step" data-step="2" data-title="Sobre o animal">
+    <h2>Sobre o animal</h2>
+    <p class="lead">O veterinário que indicou já nos passou o histórico clínico. Aqui só precisamos da identificação.</p>
+    <div class="note" id="petNote" hidden></div>
+    <div class="field" data-req><label for="pet">Nome do animal</label><input id="pet"><div class="msg">Informe o nome do animal.</div></div>
+    <div class="field" data-req data-check="radio" data-name="especie"><label>Espécie</label>
+      <div class="chips">
+        <label><input type="radio" name="especie" value="Cão"><span>Cão</span></label>
+        <label><input type="radio" name="especie" value="Gato"><span>Gato</span></label>
+        <label><input type="radio" name="especie" value="Equino"><span>Equino</span></label>
+        <label><input type="radio" name="especie" value="Outro"><span>Outro</span></label>
+      </div><div class="msg">Escolha a espécie.</div></div>
+    <div class="field" data-req data-check="radio" data-name="sexo"><label>Sexo</label>
+      <div class="chips">
+        <label><input type="radio" name="sexo" value="Macho"><span>Macho</span></label>
+        <label><input type="radio" name="sexo" value="Fêmea"><span>Fêmea</span></label>
+      </div><div class="msg">Escolha o sexo.</div></div>
+    <div class="field"><label for="raca">Raça <small>(opcional)</small></label><input id="raca" placeholder="Ex.: Shih-tzu, SRD"></div>
+    <div class="row">
+      <div class="field"><label for="idade">Idade <small>(aprox.)</small></label><input id="idade" placeholder="Ex.: 8 anos"></div>
+      <div class="field"><label for="peso">Peso <small>(aprox.)</small></label><input id="peso" placeholder="Ex.: 6 kg"></div>
+    </div>
+    <div class="note err" id="petErro" hidden></div>
+  </section>
+
+  <!-- 3. Valores -->
+  <section class="step" data-step="3" data-title="Valores">
+    <h2>Valores do atendimento</h2>
+    <p class="lead">Nesta etapa você autoriza apenas a consulta inicial. Os demais itens dependem do que for encontrado no exame.</p>
+    <div class="now">
+      <div class="lbl">O que você autoriza agora</div>
+      <div class="price">R$ 800,00</div>
+      <div>Consulta oftalmológica inicial</div>
+      <ul>
+        <li>Medicamentos para diagnóstico incluídos</li>
+        <li>Deslocamento: R$ 2,50 por km rodado + pedágio</li>
+        <li>Materiais estéreis para diagnóstico, se usados, são cobrados à parte</li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <h3>Se forem indicados após a consulta</h3>
+      <p>Você será informado antes de qualquer um destes ser realizado.</p>
+      <div class="list">
+        <div class="item"><span>Exame ultrassonográfico oftalmológico</span><span class="v">R$ 550,00</span></div>
+        <div class="item"><span>Acompanhamento oftálmico, até a alta clínica</span><span class="v">R$ 300,00<small>por visita</small></span></div>
+        <div class="item"><span>Medicamentos e materiais para tratamento</span><span class="v">à parte</span></div>
+        <div class="item"><span>Procedimentos cirúrgicos</span><span class="v">sob orçamento</span></div>
+      </div>
+    </div>
+    <div class="group">
+      <h3>Infiltrações</h3>
+      <p>Valores por aplicação.</p>
+      <div class="list">
+        <div class="item"><span>Subconjuntival</span><span class="v">R$ 350,00</span></div>
+        <div class="item"><span>Retrobulbar</span><span class="v">R$ 450,00</span></div>
+        <div class="item"><span>Intravítrea</span><span class="v">R$ 700,00</span></div>
+        <div class="item"><span>Intralesional</span><span class="v">R$ 750,00</span></div>
+      </div>
+    </div>
+    <div class="note">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <div>Se for necessário encaminhar o animal a um hospital parceiro ou centro de reabilitação, isso só acontece com a sua concordância, e o acompanhamento oftálmico segue no mesmo valor até a alta clínica.</div>
+    </div>
+  </section>
+
+  <!-- 4. Termo -->
+  <section class="step" data-step="4" data-title="Autorização">
+    <h2>Autorização</h2>
+    <p class="lead">Leia o termo abaixo e confirme para liberar o atendimento.</p>
+    <div class="termo" tabindex="0" aria-label="Termo de autorização">
+      <h3>Termo de autorização e responsabilidade financeira</h3>
+      <ol>
+        <li>Autorizo a M.V. Juliane Cavani Pimentel (CRMV-SP 11.064), da Clínica Cavani Vets, a realizar consulta oftalmológica no animal <strong class="tPet">Thor</strong>, a pedido do médico-veterinário solicitante.</li>
+        <li>Declaro estar ciente de que a consulta inicial custa R$ 800,00, com medicamentos para diagnóstico incluídos, acrescida das despesas de deslocamento (R$ 2,50 por km rodado + pedágio) e dos materiais estéreis para diagnóstico, se utilizados.</li>
+        <li>Estou ciente da tabela de valores de exames, infiltrações e acompanhamento apresentada nesta página, e de que procedimentos adicionais, medicamentos de tratamento e cirurgias serão informados antes de sua realização.</li>
+        <li>Assumo a responsabilidade pelo pagamento dos valores referentes ao atendimento do animal, nas condições informadas pela clínica.</li>
+        <li>Estou ciente de que a medicina veterinária não é uma ciência exata e de que a resposta ao diagnóstico e ao tratamento varia de acordo com cada paciente.</li>
+        <li>Autorizo o uso dos meus dados pessoais para cadastro, faturamento, emissão de documentos fiscais e comunicação sobre o atendimento, incluindo o compartilhamento com o veterinário solicitante e, quando necessário, com hospitais parceiros, conforme a Lei Geral de Proteção de Dados (Lei 13.709/2018).</li>
+        <li>Esta autorização é registrada eletronicamente com data, hora e dados do dispositivo utilizado, e vale como minha assinatura.</li>
+      </ol>
+    </div>
+    <label class="check" id="c1w"><input type="checkbox" id="c1"><span>Li o termo e autorizo a consulta oftalmológica.</span></label>
+    <label class="check" id="c2w"><input type="checkbox" id="c2"><span>Assumo a responsabilidade financeira pelo atendimento.</span></label>
+    <label class="check" id="c3w"><input type="checkbox" id="c3"><span>Concordo com o uso dos meus dados como descrito no item 6.</span></label>
+    <div class="field" id="sigF" style="margin-top:12px"><label for="sig">Para assinar, digite seu nome completo</label><input id="sig" class="sig" autocomplete="off"><div class="msg">O nome precisa ser igual ao informado no cadastro.</div></div>
+  </section>
+
+  <!-- 5. Confirmação -->
+  <section class="step" data-step="5">
+    <div class="done">
+      <div class="ok"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <h2>Consulta autorizada</h2>
+      <p class="lead" style="margin-top:8px">Obrigado! Já avisamos a Dra. Juliane, e ela entrará em contato para combinar o horário.</p>
+    </div>
+    <div class="receipt list" id="receipt"></div>
+    <div class="next">
+      <h3>Próximos passos</h3>
+      <ol>
+        <li>Você recebe uma cópia desta autorização no e-mail informado.</li>
+        <li>Após a consulta, enviaremos o resumo do que foi feito e os valores.</li>
+        <li>Se algum procedimento adicional for indicado, você recebe o orçamento para aprovar antes.</li>
+        <li>O relatório de atendimento chega pelo WhatsApp e pelo e-mail.</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer>Clínica Cavani Vets · M.V. Juliane Cavani Pimentel · CRMV-SP 11.064<br>Rua Quintana, 206, Brooklin Paulista, São Paulo · (11) 98288-5882</footer>
+</div>
+
+<div class="actions" id="actions"><div class="in">
+  <button class="ghost" id="back" type="button">Voltar</button>
+  <button class="primary" id="next" type="button">Continuar</button>
+</div></div>
+
+<script>
+(function(){
+  const qs=new URLSearchParams(location.search);
+  // Link enviado ao tutor: autorizacao.html?t=TOKEN. Sem token, a página funciona como demonstração (nada da etapa 2 em diante é gravado).
+  const token=qs.get('t');
+  const caso={pet:qs.get('pet')||'Thor',vet:qs.get('vet')||'Dr. Marcos Almeida',clinica:qs.get('clinica')||'Clínica Vet Jundiaí',protocolo:null};
+  const $=id=>document.getElementById(id);
+  const UFS='AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO'.split(' ');
+  UFS.forEach(u=>{const o=document.createElement('option');o.value=o.textContent=u;$('uf').appendChild(o)});
+  function mostrarCaso(){
+    $('heroTitle').textContent='Consulta oftalmológica para '+(/a$/i.test(caso.pet)?'a ':'o ')+caso.pet;
+    $('refVet').textContent=caso.vet;$('refClinic').textContent=caso.clinica;
+  }
+  mostrarCaso();
+  let preTutor=qs.get('tutor'),preTel=qs.get('tel');
+
+  // Valores dos chips na página ↔ nomes na API.
+  const ESPECIE={'Cão':'Cao','Gato':'Gato','Equino':'Equino','Outro':'Outro'};
+  const SEXO={'Macho':'Macho','Fêmea':'Femea'};
+  const chave=(mapa,valor)=>Object.keys(mapa).find(k=>mapa[k]===valor);
+  const marcar=(nome,valor)=>{const r=document.querySelector('input[name="'+nome+'"][value="'+valor+'"]');if(r)r.checked=true};
+  const marcado=nome=>(document.querySelector('input[name="'+nome+'"]:checked')||{}).value;
+
+  const steps=[...document.querySelectorAll('section.step')];
+  let cur=1;const TOTAL=4;
+  const KEY='cavani-rascunho'+(token?'-'+token:'');
+
+  // API: mesmo endereço da página (localmente a API serve as páginas; no Netlify, /api é redirecionado).
+  const API='';
+
+  // máscaras
+  const digits=v=>v.replace(/\D/g,'');
+  const masks={
+    doc:v=>{v=digits(v).slice(0,14);
+      if(v.length<=11)return v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+      return v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})$/,(m,a,b,c,d,e)=>a+'.'+b+'.'+c+'/'+d+(e?'-'+e:''))},
+    tel:v=>{v=digits(v).slice(0,11);if(v.length<=10)return v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{4})(\d)/,'$1-$2');return v.replace(/(\d{2})(\d{5})(\d)/,'($1) $2-$3')},
+    cep:v=>{v=digits(v).slice(0,8);return v.replace(/(\d{5})(\d)/,'$1-$2')}
+  };
+  Object.keys(masks).forEach(k=>$(k).addEventListener('input',e=>{e.target.value=masks[k](e.target.value)}));
+
+  function cpfOk(c){c=digits(c);if(c.length!==11||/^(\d)\1+$/.test(c))return false;
+    for(let t=9;t<11;t++){let s=0;for(let i=0;i<t;i++)s+=+c[i]*(t+1-i);if(((s*10)%11)%10!==+c[t])return false}return true}
+  function cnpjOk(c){c=digits(c);if(c.length!==14||/^(\d)\1+$/.test(c))return false;
+    for(let t=12;t<14;t++){let s=0;for(let i=0;i<t;i++)s+=+c[i]*((t-i-1)%8+2);const r=s%11;if((r<2?0:11-r)!==+c[t])return false}return true}
+  const docOk=v=>cpfOk(v)||cnpjOk(v);
+  const juridica=()=>digits($('doc').value).length===14;
+  const checks={
+    doc:el=>docOk(el.value),
+    // Pessoa física: nome e sobrenome. Empresa: razão social.
+    nome:el=>juridica()?el.value.trim().length>0:el.value.trim().split(/\s+/).length>=2,
+    tel:el=>digits(el.value).length>=10,
+    email:el=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(el.value.trim()), cep:el=>digits(el.value).length===8,
+    radio:(el,f)=>!!document.querySelector('input[name="'+f.dataset.name+'"]:checked')
+  };
+  function validField(f){
+    const el=f.querySelector('input,select');const t=f.dataset.check;
+    const ok=t?checks[t](el,f):el.value.trim().length>0;
+    f.classList.toggle('err',!ok);return ok;
+  }
+  document.querySelectorAll('.field[data-req]').forEach(f=>{
+    f.addEventListener('change',()=>{if(f.classList.contains('err'))validField(f)});
+    f.addEventListener('input',()=>{if(f.classList.contains('err'))validField(f)});
+  });
+  const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
+
+  function validStep(n){
+    if(n===4){
+      let ok=true;['c1','c2','c3'].forEach(id=>{const c=$(id).checked;$(id+'w').classList.toggle('err',!c);if(!c)ok=false});
+      const s=norm($('sig').value)===norm($('nome').value)&&$('sig').value.trim();
+      $('sigF').classList.toggle('err',!s);return ok&&!!s;
+    }
+    // Campos escondidos (ex.: dados antes da busca pelo documento) não contam.
+    const fs=[...steps[n-1].querySelectorAll('.field[data-req]')].filter(f=>!f.closest('[hidden]'));
+    const bad=fs.filter(f=>!validField(f));
+    if(bad.length){const el=bad[0].querySelector('input,select');el.focus({preventScroll:true});bad[0].scrollIntoView({behavior:'smooth',block:'center'})}
+    return !bad.length;
+  }
+
+  function render(){
+    steps.forEach(s=>s.classList.toggle('active',+s.dataset.step===cur));
+    document.querySelectorAll('.steps i').forEach((b,i)=>b.classList.toggle('on',i<cur));
+    const s=steps[cur-1];
+    $('stepLabel').textContent=cur<=TOTAL?('Etapa '+cur+' de '+TOTAL+': '+s.dataset.title):'';
+    $('progress').style.display=cur>TOTAL?'none':'';
+    $('hero').style.display=cur>TOTAL?'none':'';
+    $('back').style.visibility=cur===1?'hidden':'visible';
+    rotuloBotao();
+    $('actions').style.display=cur>TOTAL?'none':'';
+    document.querySelectorAll('.tPet').forEach(e=>e.textContent=$('pet').value||caso.pet);
+    window.scrollTo({top:cur===1?0:$('progress').offsetTop-10,behavior:'smooth'});
+  }
+
+  function save(){try{const d={};document.querySelectorAll('input[id],select[id]').forEach(e=>{if(e.type!=='checkbox'&&e.id!=='sig')d[e.id]=e.value});
+    ['especie','sexo'].forEach(n=>{const r=document.querySelector('input[name="'+n+'"]:checked');if(r)d[n]=r.value});
+    localStorage.setItem(KEY,JSON.stringify(d))}catch(e){}}
+  function load(){try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(!d)return;
+    Object.keys(d).forEach(k=>{const e=$(k);if(e)e.value=d[k];else{const r=document.querySelector('input[name="'+k+'"][value="'+d[k]+'"]');if(r)r.checked=true}})}catch(e){}}
+  document.addEventListener('input',save);document.addEventListener('change',save);
+
+  // ---- Etapa 1: documento → busca do cadastro → CEP → salvar (sistema + Conta Azul) ----
+  const ICONE={
+    info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+    ok:'<path d="M20 6 9 17l-5-5"/>',
+    err:'<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>'
+  };
+  function nota(el,texto,tipo='info'){
+    el.className='note'+(tipo==='err'?' err':'');
+    el.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">'+ICONE[tipo]+'</svg><div></div>';
+    el.querySelector('div').textContent=texto;el.hidden=false;
+  }
+  async function api(metodo,caminho,corpo){
+    const r=await fetch(API+caminho,{method:metodo,headers:corpo?{'Content-Type':'application/json'}:{},body:corpo?JSON.stringify(corpo):undefined});
+    const txt=await r.text();let json=null;try{json=JSON.parse(txt)}catch(e){}
+    return {status:r.status,json,erro:(json&&(json.erro||json.title))||txt||('Erro '+r.status+'.')};
+  }
+  // Documento já buscado nesta sessão (o formulário abaixo dele vale para este documento).
+  let docBuscado=null;
+  function ajustarTipo(){
+    $('nomeLabel').textContent=juridica()?'Razão social':'Nome completo';
+    $('nomeMsg').textContent=juridica()?'Informe a razão social.':'Informe seu nome completo.';
+  }
+  function rotuloBotao(){
+    $('next').textContent=cur===1&&docBuscado?'Salvar e continuar':cur===3?'Entendi os valores':cur===4?'Autorizar a consulta':'Continuar';
+  }
+  function mostrarResto(texto){ajustarTipo();nota($('docNote'),texto);$('resto').hidden=false;rotuloBotao()}
+  function esconderResto(){$('resto').hidden=true;$('docNote').hidden=true;$('salvarErro').hidden=true;docBuscado=null;rotuloBotao()}
+
+  async function buscarDocumento(){
+    const f=$('doc').closest('.field');
+    if(!validField(f)){$('doc').focus();return}
+    const doc=digits($('doc').value);
+    ocupado(true);
+    try{
+      const r=await api('GET','/api/clientes/'+doc);
+      if(r.status===200){
+        const c=r.json;
+        $('nome').value=c.nome||'';$('tel').value=masks.tel(c.celular||'');$('email').value=c.email||'';
+        $('cep').value=masks.cep(c.cep||'');cepBuscado=digits($('cep').value);
+        $('uf').value=UFS.includes((c.uf||'').toUpperCase())?c.uf.toUpperCase():'';
+        $('cidade').value=c.cidade||'';$('rua').value=c.rua||'';$('bairro').value=c.bairro||'';
+        $('num').value=c.numero||'';$('comp').value=c.complemento||'';
+        docBuscado=doc;mostrarResto('Encontramos seu cadastro. Confira os dados abaixo e corrija se precisar.');
+      }else if(r.status===404){
+        docBuscado=doc;
+        mostrarResto('Primeiro cadastro'+(juridica()?' de empresa':'')+'. Comece pelo CEP: rua, bairro e cidade são preenchidos sozinhos.');
+        $('nome').focus();
+      }else if(r.status===400){
+        f.classList.add('err');
+      }else{
+        nota($('docNote'),'Não foi possível consultar agora. Tente de novo em instantes.','err');
+      }
+    }catch(e){
+      nota($('docNote'),'Não foi possível consultar agora. Verifique sua internet e tente de novo.','err');
+    }finally{ocupado(false)}
+  }
+  // Mudou o documento depois da busca: os dados abaixo deixam de valer.
+  $('doc').addEventListener('input',()=>{if(docBuscado&&digits($('doc').value)!==docBuscado)esconderResto()});
+  $('doc').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();buscarDocumento()}});
+
+  let cepBuscado='';
+  $('cep').addEventListener('input',async()=>{
+    const cep=digits($('cep').value);
+    if(cep.length!==8||cep===cepBuscado)return;
+    cepBuscado=cep;$('cepStatus').textContent='(buscando…)';
+    try{
+      const r=await api('GET','/api/cep/'+cep);
+      if(r.status===200){
+        const e=r.json;$('uf').value=e.uf;$('cidade').value=e.cidade;$('rua').value=e.rua;$('bairro').value=e.bairro;
+        ['uf','cidade','rua','bairro'].forEach(id=>$(id).closest('.field').classList.remove('err'));
+        $('cepStatus').textContent='';save();$('num').focus();
+      }else{$('cepStatus').textContent='(não encontrado, preencha abaixo)'}
+    }catch(e){$('cepStatus').textContent='(sem conexão, preencha abaixo)'}
+  });
+
+  async function salvarCliente(){
+    $('salvarErro').hidden=true;ocupado(true);
+    try{
+      const r=await api('POST','/api/clientes',{
+        documento:digits($('doc').value),nome:$('nome').value.trim(),celular:digits($('tel').value),email:$('email').value.trim(),
+        cep:digits($('cep').value),uf:$('uf').value,cidade:$('cidade').value.trim(),rua:$('rua').value.trim(),
+        bairro:$('bairro').value.trim(),numero:$('num').value.trim(),complemento:$('comp').value.trim()||null
+      });
+      if(r.status===200)return true;
+      nota($('salvarErro'),r.status===502?'Seus dados foram salvos, mas não conseguimos registrar no sistema financeiro agora. Tente de novo em instantes.':r.erro,'err');
+    }catch(e){
+      nota($('salvarErro'),'Não foi possível salvar. Verifique sua internet e tente de novo.','err');
+    }finally{ocupado(false)}
+    return false;
+  }
+  function ocupado(sim){$('next').disabled=sim;if(sim)$('next').textContent='Aguarde…';else rotuloBotao()}
+
+  // ---- Etapa 2: animal (vem preenchido com o que o veterinário informou) ----
+  async function salvarAnimal(){
+    if(!token)return true;
+    $('petErro').hidden=true;ocupado(true);
+    try{
+      const r=await api('POST','/api/autorizacoes/'+encodeURIComponent(token)+'/animal',{
+        documento:digits($('doc').value),nome:$('pet').value.trim(),
+        especie:ESPECIE[marcado('especie')],sexo:SEXO[marcado('sexo')],
+        raca:$('raca').value.trim()||null,idade:$('idade').value.trim()||null,peso:$('peso').value.trim()||null
+      });
+      if(r.status===200){caso.pet=$('pet').value.trim();mostrarCaso();return true}
+      nota($('petErro'),r.erro,'err');
+    }catch(e){
+      nota($('petErro'),'Não foi possível salvar. Verifique sua internet e tente de novo.','err');
+    }finally{ocupado(false)}
+    return false;
+  }
+
+  async function carregarCaso(){
+    let r;
+    try{r=await api('GET','/api/autorizacoes/'+encodeURIComponent(token))}catch(e){r={status:0}}
+    if(r.status!==200){linkInvalido(r.status===404);return}
+    const c=r.json,a=c.animal||{};
+    caso.protocolo=c.protocolo;
+    caso.pet=a.nome||'seu animal';caso.vet=c.veterinario.nome;
+    caso.clinica=c.local?(c.local.nome+(c.local.cidade?' ('+c.local.cidade+')':'')):'';
+    $('refClinic').previousSibling.textContent=caso.clinica?', ':'';
+    mostrarCaso();
+    // Só preenche o que o tutor ainda não digitou (o rascunho salvo tem prioridade).
+    const preencher=(id,v)=>{if(v&&!$(id).value)$(id).value=v};
+    preencher('pet',a.nome);preencher('raca',a.raca);preencher('idade',a.idade);preencher('peso',a.peso);
+    if(a.especie&&!marcado('especie'))marcar('especie',chave(ESPECIE,a.especie));
+    if(a.sexo&&!marcado('sexo'))marcar('sexo',chave(SEXO,a.sexo));
+    if(a.nome)nota($('petNote'),caso.vet+' já nos passou estes dados. Confira e complete o que faltar.');
+    preTutor=preTutor||c.tutor.nome;preTel=preTel||c.tutor.celular;
+    if(preTutor&&!$('nome').value)$('nome').value=preTutor;
+    if(preTel&&!$('tel').value)$('tel').value=masks.tel(preTel);
+    render();
+  }
+  function linkInvalido(naoExiste){
+    ['progress','actions'].forEach(id=>$(id).style.display='none');
+    steps.forEach(s=>s.classList.remove('active'));
+    $('heroTitle').textContent=naoExiste?'Link inválido ou expirado':'Não foi possível abrir agora';
+    $('hero').querySelector('p').textContent=naoExiste
+      ?'Peça um novo link para a Clínica Cavani Vets pelo WhatsApp (11) 98288-5882.'
+      :'Verifique sua internet e tente de novo em instantes.';
+    $('hero').querySelector('.ref').hidden=true;
+  }
+
+  $('next').addEventListener('click',async()=>{
+    if(cur===1&&!docBuscado){buscarDocumento();return}
+    if(!validStep(cur))return;
+    if(cur===1&&!await salvarCliente())return;
+    if(cur===2&&!await salvarAnimal())return;
+    if(cur===4){finish();}
+    cur++;render();
+  });
+  $('back').addEventListener('click',()=>{if(cur>1){cur--;render()}});
+
+  function finish(){
+    const now=new Date();
+    const proto=caso.protocolo||('CV-'+now.getFullYear()+String(now.getMonth()+1).padStart(2,'0')+'-'+Math.random().toString(36).slice(2,7).toUpperCase());
+    const esp=(document.querySelector('input[name="especie"]:checked')||{}).value||'';
+    const rows=[['Protocolo',proto],['Tutor',$('nome').value],['CPF/CNPJ',$('doc').value],['Animal',$('pet').value+(esp?' ('+esp.toLowerCase()+')':'')],
+      ['Autorizado','Consulta inicial, R$ 800,00 + deslocamento'],['Assinado em',now.toLocaleDateString('pt-BR')+' às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})]];
+    $('receipt').innerHTML='';
+    rows.forEach(([a,b])=>{const d=document.createElement('div');d.className='item';const x=document.createElement('span');x.textContent=a;const y=document.createElement('span');y.className='v';y.textContent=b;d.append(x,y);$('receipt').appendChild(d)});
+    try{localStorage.removeItem(KEY)}catch(e){}
+  }
+
+  load();
+  if(token){render();carregarCaso()}
+  else{if(!$('pet').value)$('pet').value=caso.pet;if(preTutor&&!$('nome').value)$('nome').value=preTutor;if(preTel&&!$('tel').value)$('tel').value=masks.tel(preTel);render()}
+})();
+</script>
+</body>
+</html>

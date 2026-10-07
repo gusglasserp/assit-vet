@@ -3,6 +3,7 @@ using System;
 using CavaniVets.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CavaniVets.Api.Data.Migrations
 {
     [DbContext(typeof(CavaniDbContext))]
-    partial class CavaniDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261007030520_SolicitacaoTutorAnimal")]
+    partial class SolicitacaoTutorAnimal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -151,39 +154,6 @@ namespace CavaniVets.Api.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ContaAzulConexoes");
-                });
-
-            modelBuilder.Entity("CavaniVets.Api.Domain.Convite", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Celular")
-                        .IsRequired()
-                        .HasMaxLength(11)
-                        .HasColumnType("character varying(11)");
-
-                    b.Property<DateTimeOffset>("CriadoEm")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("PreenchidoPor")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Token")
-                        .IsUnique();
-
-                    b.ToTable("Convites");
                 });
 
             modelBuilder.Entity("CavaniVets.Api.Domain.ItemPreco", b =>

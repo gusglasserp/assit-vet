@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clínica Cavani Vets · Solicitar atendimento oftalmológico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E3A53; --cyan:#13A9C2; --cyan-strong:#0B8AA0; --aqua:#E4F6F9; --paper:#F7FBFC; --surface:#FFFFFF;
+  --text:#14262F; --muted:#56707C; --line:#D5E5EA; --danger:#B3261E; --ok:#1E7A4F;
+  --disc:#FFFFFF;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ink:#BFE9F2; --cyan:#3CC7DD; --cyan-strong:#6BD8EA; --aqua:#123540; --paper:#0A1A21; --surface:#10252E;
+  --text:#E3EEF1; --muted:#93AEB8; --line:#22404B; --danger:#FF8A80; --ok:#6FD6A0; --disc:#F2FAFC; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --ink:#BFE9F2; --cyan:#3CC7DD; --cyan-strong:#6BD8EA; --aqua:#123540; --paper:#0A1A21; --surface:#10252E;
+  --text:#E3EEF1; --muted:#93AEB8; --line:#22404B; --danger:#FF8A80; --ok:#6FD6A0; --disc:#F2FAFC; color-scheme:dark;}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--text);font:400 16px/1.55 Figtree,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif;color:var(--ink);line-height:1.15;margin:0}
+.wrap{max-width:560px;margin:0 auto;padding:0 20px 120px}
+.proto{background:var(--aqua);color:var(--ink);font-size:13px;padding:8px 20px;text-align:center}
+header.brand{display:flex;align-items:center;gap:14px;padding:22px 0 8px}
+.disc{width:58px;height:58px;border-radius:50%;background:var(--disc);display:grid;place-items:center;flex:none;box-shadow:0 0 0 1px var(--line)}
+.disc img{width:50px;height:50px}
+.brand b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:19px;color:var(--ink);font-weight:700}
+.brand span{color:var(--muted);font-size:14px}
+.hero{padding:26px 0 18px;border-bottom:1px solid var(--line)}
+.hero h1{font-size:clamp(28px,8vw,38px);font-weight:700;letter-spacing:-.01em}
+.hero p{margin:12px 0 0;color:var(--muted)}
+.hero .ref{margin-top:16px;display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:14px}
+.hero .ref svg{flex:none;margin-top:2px;color:var(--cyan-strong)}
+.steps{display:flex;gap:6px;margin:22px 0 6px}
+.steps i{flex:1;height:5px;border-radius:5px;background:var(--line);transition:background .3s}
+.steps i.on{background:var(--cyan)}
+.steplabel{font-size:14px;color:var(--muted);margin-bottom:18px}
+section.step{display:none}
+section.step.active{display:block}
+section.step h2{font-size:24px;margin-bottom:6px}
+.lead{color:var(--muted);margin:0 0 20px}
+.field{margin-bottom:16px}
+.field label{display:block;font-weight:600;font-size:15px;margin-bottom:6px}
+.field small{color:var(--muted);font-weight:400}
+input,select,textarea{width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;min-height:50px;outline:none;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--cyan)}
+.field.err input,.field.err select{border-color:var(--danger)}
+.field .msg{display:none;color:var(--danger);font-size:13.5px;margin-top:5px}
+.field.err .msg{display:block}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row.r31{grid-template-columns:2fr 1fr}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips label{margin:0;font-weight:500}
+.chips input{position:absolute;opacity:0;width:1px;height:1px}
+.chips span{display:inline-block;padding:10px 16px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface);cursor:pointer}
+.chips input:checked+span{border-color:var(--cyan);background:var(--aqua);color:var(--ink);font-weight:600}
+.chips input:focus-visible+span{outline:2px solid var(--cyan);outline-offset:2px}
+/* Valores */
+.now{background:var(--ink);color:var(--paper);border-radius:20px;padding:22px 20px;margin-bottom:22px}
+:root[data-theme="dark"] .now{background:var(--aqua);color:var(--text)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .now{background:var(--aqua);color:var(--text)}}
+.now .lbl{font-size:14px;opacity:.85}
+.now .price{font-family:"Bricolage Grotesque",sans-serif;font-size:44px;font-weight:700;line-height:1.1;margin:4px 0 8px}
+.now ul{margin:10px 0 0;padding-left:18px;font-size:14.5px}
+.now li{margin:3px 0}
+.group{margin-bottom:22px}
+.group h3{font-size:17px;margin-bottom:4px}
+.group p{margin:0 0 8px;color:var(--muted);font-size:14.5px}
+.list{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.item{display:flex;justify-content:space-between;gap:12px;padding:13px 16px;border-top:1px solid var(--line);font-size:15px}
+.item:first-child{border-top:0}
+.item .v{font-weight:600;white-space:nowrap;text-align:right;color:var(--ink)}
+.item .v small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.note{display:flex;gap:10px;background:var(--aqua);border-radius:14px;padding:14px;font-size:14.5px;color:var(--text)}
+.note svg{flex:none;color:var(--cyan-strong);margin-top:2px}
+[hidden]{display:none!important}
+.note.err{background:color-mix(in srgb,var(--danger) 10%,transparent);margin-top:18px}
+.note.err svg{color:var(--danger)}
+.primary:disabled{opacity:.6;cursor:progress}
+/* Termo */
+.termo{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;max-height:340px;overflow:auto;font-size:14.5px;margin-bottom:18px}
+.termo h3{font-size:16px;margin:0 0 10px}
+.termo ol{padding-left:20px;margin:0}
+.termo li{margin-bottom:9px}
+.check{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);cursor:pointer;font-size:15px}
+.check input{width:22px;height:22px;min-height:0;flex:none;margin:1px 0 0;accent-color:var(--cyan-strong)}
+.check.err{color:var(--danger)}
+.sig{font-family:"Bricolage Grotesque",sans-serif;font-size:20px}
+/* Rodapé de ações */
+.actions{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px))}
+.actions .in{max-width:560px;margin:0 auto;display:flex;gap:10px}
+button{font:inherit;font-weight:600;font-size:16px;border-radius:14px;min-height:52px;padding:0 18px;cursor:pointer;border:0}
+.primary{flex:1;background:var(--cyan-strong);color:#fff}
+:root[data-theme="dark"] .primary{color:#062029}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .primary{color:#062029}}
+.primary:active{transform:scale(.99)}
+.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+button:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+/* Confirmação */
+.done{text-align:center;padding:30px 0 10px}
+.done .ok{width:72px;height:72px;border-radius:50%;background:var(--aqua);display:grid;place-items:center;margin:0 auto 18px;color:var(--ok)}
+.done h2{font-size:28px}
+.receipt{background:var(--surface);border:1px solid var(--line);border-radius:18px;margin-top:22px;text-align:left}
+.receipt .item span:first-child{color:var(--muted)}
+.receipt .item .v{white-space:normal}
+.chips[style*="column"] label{display:block}
+.chips[style*="column"] span{border-radius:14px;width:100%}
+.next{margin-top:22px;text-align:left}
+.next h3{font-size:17px;margin-bottom:10px}
+.next ol{margin:0;padding-left:20px;color:var(--text)}
+.next li{margin-bottom:8px}
+footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-height:1.6}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (min-width:600px){.wrap{padding-bottom:140px}}
+textarea{min-height:110px;resize:vertical;line-height:1.5}
+.sub{font-size:13.5px;color:var(--muted);margin-top:5px}
+.demo{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:6px}
+.demo button{min-height:30px;font-size:12.5px;padding:0 10px;border-radius:999px;background:var(--surface);color:var(--ink);border:1px solid var(--line);font-weight:500}
+.demo button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.me{display:flex;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px}
+.avatar{width:48px;height:48px;border-radius:50%;background:var(--aqua);color:var(--ink);display:grid;place-items:center;font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:18px;flex:none}
+.me b{display:block;font-size:17px}
+.me span{color:var(--muted);font-size:14px}
+.link{background:none;border:0;padding:0;min-height:0;color:var(--cyan-strong);font-weight:600;font-size:14.5px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.me .phone{font-weight:600;color:var(--text)}
+.audio{background:var(--ink);color:var(--paper);border-radius:22px;padding:20px;margin-bottom:26px}
+:root[data-theme="dark"] .audio{background:var(--aqua);color:var(--text)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .audio{background:var(--aqua);color:var(--text)}}
+.audio h3{color:inherit;font-size:19px;margin-bottom:4px}
+.audio p{margin:0 0 16px;font-size:14.5px;opacity:.85}
+.rec{display:flex;align-items:center;gap:14px}
+.recbtn{width:64px;height:64px;border-radius:50%;padding:0;background:var(--cyan);color:#062029;display:grid;place-items:center;flex:none}
+.recbtn.live{background:#E5484D;color:#fff;animation:pulse 1.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(229,72,77,.5)}70%{box-shadow:0 0 0 14px rgba(229,72,77,0)}100%{box-shadow:0 0 0 0 rgba(229,72,77,0)}}
+.rectxt b{display:block;font-size:16px}
+.rectxt span{font-size:14px;opacity:.85}
+.timer{font-variant-numeric:tabular-nums}
+.upl{display:inline-block;margin-top:14px;font-size:14.5px;color:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.upl input{position:absolute;opacity:0;width:1px;height:1px}
+.player{display:none}
+.player.show{display:block}
+.player audio{width:100%;margin:6px 0 8px}
+.player .row2{display:flex;justify-content:space-between;align-items:center;font-size:14px;gap:10px}
+.player .row2 button{min-height:36px;font-size:14px;padding:0 12px;background:transparent;color:inherit;border:1.5px solid currentColor;opacity:.85}
+.audioerr{display:none;margin-top:10px;font-size:14px;background:rgba(255,255,255,.12);border-radius:10px;padding:10px 12px}
+.divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px;margin:4px 0 18px}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.places{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-top:8px;max-height:270px;overflow:auto}
+.place{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);border-radius:0;min-height:54px;padding:10px 14px;font-weight:500;color:var(--text)}
+.place:first-child{border-top:0}
+.place small{display:block;color:var(--muted);font-weight:400;font-size:13px}
+.tag{font-size:12px;font-weight:600;color:var(--ink);background:var(--aqua);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.place.new{color:var(--cyan-strong);font-weight:600}
+.chosen{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--aqua);border-radius:14px;padding:12px 14px;margin-bottom:16px}
+.chosen b{display:block}
+.chosen small{color:var(--muted)}
+.box{border-left:3px solid var(--cyan);padding-left:14px;margin:6px 0 18px}
+.hidden{display:none!important}
+.clinicbox{margin-top:26px;border:1.5px dashed var(--cyan);border-radius:18px;padding:18px;text-align:left}
+.clinicbox h3{font-size:17px;margin-bottom:4px}
+.clinicbox p{margin:0 0 12px;color:var(--muted);font-size:14.5px}
+.linkbox{font-size:13px;word-break:break-all;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:12px;color:var(--muted)}
+.btnrow{display:flex;flex-wrap:wrap;gap:10px}
+.btnrow a,.btnrow button{flex:1;min-width:150px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-weight:600;font-size:15px;border-radius:14px;min-height:48px;padding:0 14px}
+.wa{background:#1F8F4E;color:#fff}
+.copy{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.chips[style*="column"] span{border-radius:14px;width:100%}
+.chips[style*="column"] label{display:block}
+.receipt .item .v{white-space:normal;text-align:right}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="brand">
+    <div class="disc"><img alt="Logo Clínica Cavani Vets" src="img/logo.png"></div>
+    <div><b>Clínica Cavani Vets</b><span>Oftalmologia Veterinária</span></div>
+  </header>
+
+  <div class="hero" id="hero">
+    <h1>Solicitar atendimento oftalmológico</h1>
+    <p>Conte o caso por áudio ou por escrito, como for mais prático. A Dra. Juliane monta a ficha a partir do que você enviar.</p>
+  </div>
+
+  <div id="progress">
+    <div class="steps" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="steplabel" id="stepLabel"></div>
+  </div>
+
+  <!-- 1. Identificação -->
+  <section class="step" data-step="1" data-title="Identificação">
+    <div id="knownView" class="hidden">
+      <h2 id="hello">Olá!</h2>
+      <p class="lead">Encontramos seu cadastro pelo número do seu celular.</p>
+      <div class="me">
+        <div class="avatar" id="avatar"></div>
+        <div style="flex:1"><b id="meName"></b><span id="meCrmv"></span><br><span class="phone" id="mePhone"></span></div>
+      </div>
+      <p style="margin-top:14px"><button class="link" type="button" id="editMe">Corrigir meus dados</button></p>
+    </div>
+    <div id="newView">
+      <h2>Quem está solicitando?</h2>
+      <p class="lead">Só precisamos disso na primeira vez. Nas próximas, reconhecemos você pelo celular.</p>
+      <div class="field" data-req data-check="tel" id="celF"><label for="vTel">Seu celular</label><input id="vTel" inputmode="tel" placeholder="(11) 90000-0000" maxlength="15"><div class="msg">Informe um celular com DDD.</div></div>
+      <div class="field" data-req data-check="fullname"><label for="vNome">Nome completo</label><input id="vNome" autocomplete="name"><div class="msg">Informe seu nome completo.</div></div>
+      <div class="row r31">
+        <div class="field" data-req><label for="vCrmv">CRMV</label><input id="vCrmv" inputmode="numeric" placeholder="Número"><div class="msg">Informe o CRMV.</div></div>
+        <div class="field" data-req><label for="vUf">UF</label><select id="vUf"><option value="">—</option></select><div class="msg">UF</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. O caso -->
+  <section class="step" data-step="2" data-title="O caso">
+    <div class="audio">
+      <h3>Explique o caso por áudio</h3>
+      <p>Conte o que está acontecendo, há quanto tempo, o que já foi feito e o que está sendo usado. Não precisa preencher mais nada se não quiser.</p>
+      <div class="rec" id="recRow">
+        <button class="recbtn" type="button" id="recBtn" aria-label="Gravar áudio">
+          <svg id="icoMic" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5"/></svg>
+          <svg id="icoStop" class="hidden" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+        </button>
+        <div class="rectxt"><b id="recTitle">Toque para gravar</b><span id="recSub">Até 5 minutos</span></div>
+      </div>
+      <div class="player" id="player">
+        <audio id="audioEl" controls></audio>
+        <div class="row2"><span id="audioInfo"></span><button type="button" id="discard">Gravar de novo</button></div>
+      </div>
+      <label class="upl" id="uplWrap"><input type="file" id="audioFile" accept="audio/*">Ou envie um áudio já gravado no celular</label>
+      <div class="audioerr" id="audioErr">Não conseguimos acessar o microfone neste navegador. Use a opção "envie um áudio já gravado".</div>
+    </div>
+
+    <div class="divider">se preferir, escreva (tudo opcional)</div>
+
+    <div class="field"><label for="pNome">Nome do animal</label><input id="pNome"></div>
+    <div class="field"><label>Espécie</label>
+      <div class="chips">
+        <label><input type="radio" name="especie" value="Cão"><span>Cão</span></label>
+        <label><input type="radio" name="especie" value="Gato"><span>Gato</span></label>
+        <label><input type="radio" name="especie" value="Equino"><span>Equino</span></label>
+        <label><input type="radio" name="especie" value="Outro"><span>Outro</span></label>
+      </div></div>
+    <div class="row">
+      <div class="field"><label for="pRaca">Raça</label><input id="pRaca"></div>
+      <div class="field"><label for="pIdade">Idade</label><input id="pIdade" placeholder="Ex.: 8 anos"></div>
+    </div>
+    <div class="field"><label>Olho acometido</label>
+      <div class="chips">
+        <label><input type="radio" name="olho" value="OD"><span>Direito (OD)</span></label>
+        <label><input type="radio" name="olho" value="OE"><span>Esquerdo (OE)</span></label>
+        <label><input type="radio" name="olho" value="AO"><span>Ambos (AO)</span></label>
+      </div></div>
+    <div class="field"><label>Prioridade</label>
+      <div class="chips">
+        <label><input type="radio" name="urg" value="Rotina"><span>Rotina</span></label>
+        <label><input type="radio" name="urg" value="Em até 48 h"><span>Em até 48 h</span></label>
+        <label><input type="radio" name="urg" value="Urgente"><span>Urgente</span></label>
+      </div></div>
+    <div class="field"><label for="pQueixa">Queixa e histórico</label><textarea id="pQueixa" placeholder="Ex.: opacidade em OD há 10 dias, blefaroespasmo..."></textarea></div>
+    <div class="field"><label for="pMed">Medicações em uso</label><textarea id="pMed" style="min-height:80px"></textarea></div>
+  </section>
+
+  <!-- 3. Local e tutor -->
+  <section class="step" data-step="3" data-title="Local e tutor">
+    <h2>Onde será o atendimento?</h2>
+    <p class="lead">Escolha na lista. Se o local ainda não estiver cadastrado, é só adicionar.</p>
+    <div class="field" id="placeSearchF">
+      <label for="placeQ">Local <small>(opcional)</small></label>
+      <input id="placeQ" placeholder="Busque por nome ou cidade" autocomplete="off">
+      <div class="places" id="places"></div>
+    </div>
+    <div class="chosen hidden" id="chosen"><div><b id="chosenName"></b><small id="chosenSub"></small></div><button class="link" type="button" id="changePlace">Trocar</button></div>
+    <div class="box hidden" id="newPlace">
+      <div class="field"><label for="npNome">Nome do local</label><input id="npNome"></div>
+      <div class="field"><label>Tipo</label>
+        <div class="chips">
+          <label><input type="radio" name="npTipo" value="Clínica"><span>Clínica ou hospital</span></label>
+          <label><input type="radio" name="npTipo" value="Haras"><span>Haras</span></label>
+          <label><input type="radio" name="npTipo" value="Hípica"><span>Hípica</span></label>
+          <label><input type="radio" name="npTipo" value="Residência"><span>Residência</span></label>
+        </div></div>
+      <div class="field"><label for="npCidade">Cidade</label><input id="npCidade"></div>
+    </div>
+
+    <div class="box hidden" id="tratador" style="margin-top:18px">
+      <div class="field"><label for="trNome">Tratador responsável <small>(opcional)</small></label><input id="trNome"></div>
+      <div class="field"><label for="trTel">Celular do tratador <small>(opcional)</small></label><input id="trTel" inputmode="tel" placeholder="(11) 90000-0000" maxlength="15"></div>
+    </div>
+
+    <h2 style="margin-top:30px">Tutor do animal</h2>
+    <p class="lead">O orçamento e a autorização vão sempre direto para o tutor, que é o responsável financeiro.</p>
+    <div class="field"><label for="tNome">Nome do tutor</label><input id="tNome"></div>
+    <div class="field"><label for="tTel">Celular do tutor</label><input id="tTel" inputmode="tel" placeholder="(11) 90000-0000" maxlength="15"><div class="sub">Se não tiver agora, pode falar no áudio.</div></div>
+    <div class="field"><label>Ele já sabe que a consulta com especialista tem custo próprio?</label>
+      <div class="chips">
+        <label><input type="radio" name="ciente" value="Sim"><span>Sim</span></label>
+        <label><input type="radio" name="ciente" value="Não"><span>Ainda não</span></label>
+      </div></div>
+
+    <h2 style="margin-top:30px">Relatórios clínicos</h2>
+    <p class="lead">Se você acompanha o animal, por exemplo internado, no haras ou no pós-operatório, podemos te enviar também os relatórios de cada atendimento.</p>
+    <div class="field" data-req data-check="radio" data-name="rel">
+      <div class="chips" style="flex-direction:column">
+        <label><input type="radio" name="rel" value="sim"><span>Sim, quero receber os relatórios</span></label>
+        <label><input type="radio" name="rel" value="nao"><span>Não, só o tutor</span></label>
+      </div><div class="msg">Escolha uma opção.</div></div>
+    <div class="note err" id="envioErro" hidden></div>
+  </section>
+
+  <!-- 4. Confirmação -->
+  <section class="step" data-step="4">
+    <div class="done">
+      <div class="ok"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <h2>Solicitação enviada</h2>
+      <p class="lead" style="margin-top:8px" id="doneMsg"></p>
+    </div>
+    <div class="receipt list" id="receipt"></div>
+    <!-- Só quando a clínica preenche no lugar do veterinário: já sai com o link do tutor. -->
+    <div class="clinicbox" id="clinicBox" hidden>
+      <h3>Link para o tutor</h3>
+      <p id="clinicTxt"></p>
+      <div class="linkbox" id="tutorLink"></div>
+      <div class="btnrow">
+        <a class="wa" id="waBtn" target="_blank" rel="noopener">Enviar pelo WhatsApp</a>
+        <button class="copy" type="button" id="copyBtn">Copiar link</button>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:22px"><button class="ghost" type="button" id="newReq">Fazer nova solicitação</button></div>
+  </section>
+
+  <footer>Clínica Cavani Vets · M.V. Juliane Cavani Pimentel · CRMV-SP 11.064<br>Rua Quintana, 206, Brooklin Paulista, São Paulo · (11) 98288-5882</footer>
+</div>
+
+<div class="actions" id="actions"><div class="in">
+  <button class="ghost" id="back" type="button">Voltar</button>
+  <button class="primary" id="next" type="button">Continuar</button>
+</div></div>
+
+<script>
+(function(){
+  // API: mesmo endereço da página (localmente a API serve as páginas; no Netlify, /api é redirecionado).
+  const API='';
+  const $=id=>document.getElementById(id);
+  const digits=v=>(v||'').replace(/\D/g,'');
+  const tel=v=>{v=digits(v).slice(0,11);if(v.length<=10)return v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{4})(\d)/,'$1-$2');return v.replace(/(\d{2})(\d{5})(\d)/,'($1) $2-$3')};
+  const radio=n=>(document.querySelector('input[name="'+n+'"]:checked')||{}).value||'';
+  'AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO'.split(' ').forEach(u=>{const o=document.createElement('option');o.value=o.textContent=u;$('vUf').appendChild(o)});
+  ['vTel','tTel','trTel'].forEach(id=>$(id).addEventListener('input',e=>e.target.value=tel(e.target.value)));
+
+  // Valores dos chips na página ↔ nomes na API.
+  const ESPECIE={'Cão':'Cao','Gato':'Gato','Equino':'Equino','Outro':'Outro'};
+  const PRIORIDADE={'Rotina':'Rotina','Em até 48 h':'Ate48h','Urgente':'Urgente'};
+  const TIPO={'Clínica':'Clinica','Haras':'Haras','Hípica':'Hipica','Residência':'Residencia'};
+  const rotuloTipo=t=>Object.keys(TIPO).find(k=>TIPO[k]===t)||'Outro';
+
+  async function api(metodo,caminho,corpo){
+    const r=await fetch(API+caminho,{method:metodo,body:corpo});
+    const txt=await r.text();let json=null;try{json=JSON.parse(txt)}catch(e){}
+    return {status:r.status,json,erro:(json&&(json.erro||json.title))||txt||('Erro '+r.status+'.')};
+  }
+  const ICONE_ERRO='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>';
+  function erro(texto){const el=$('envioErro');el.innerHTML=ICONE_ERRO+'<div></div>';el.querySelector('div').textContent=texto;el.hidden=false}
+
+  // ---- Convite: solicitacao.html?c=TOKEN. O celular do convite identifica o veterinário. ----
+  const convite=new URLSearchParams(location.search).get('c');
+  let cel='',me=null,modo='Veterinario',PLACES=[];
+
+  function setIdentity(){
+    $('knownView').classList.toggle('hidden',!me);$('newView').classList.toggle('hidden',!!me);
+    if(me){
+      $('hello').textContent='Olá, '+me.nome.replace(/^(Dra?\.)\s*/,'$1 ').split(' ').slice(0,2).join(' ')+'!';
+      $('meName').textContent=me.nome;$('meCrmv').textContent='CRMV-'+me.uf+' '+me.crmv;$('mePhone').textContent=tel(cel);
+      $('avatar').textContent=me.nome.replace(/^Dra?\.\s*/,'').split(' ').map(w=>w[0]).slice(0,2).join('');
+    }else{
+      $('vTel').value=tel(cel);
+      $('celF').classList.add('hidden'); // o celular já veio no convite
+    }
+  }
+  $('editMe').addEventListener('click',()=>{$('vNome').value=me.nome;$('vCrmv').value=me.crmv;$('vUf').value=me.uf;me=null;setIdentity();render()});
+
+  // ---- Validação ----
+  const checks={tel:el=>digits(el.value).length>=10,fullname:el=>el.value.trim().split(/\s+/).length>=2,
+    radio:(el,f)=>!!document.querySelector('input[name="'+f.dataset.name+'"]:checked')};
+  function validField(f){const el=f.querySelector('input,select,textarea');const t=f.dataset.check;
+    const ok=t?checks[t](el,f):el.value.trim().length>0;f.classList.toggle('err',!ok);return ok}
+  document.querySelectorAll('.field[data-req]').forEach(f=>['input','change'].forEach(ev=>f.addEventListener(ev,()=>{if(f.classList.contains('err'))validField(f)})));
+  function validStep(n){
+    const fs=[...steps[n-1].querySelectorAll('.field[data-req]')].filter(f=>!f.closest('.hidden'));
+    const bad=fs.filter(f=>!validField(f));
+    if(bad.length){bad[0].querySelector('input,select,textarea').focus({preventScroll:true});bad[0].scrollIntoView({behavior:'smooth',block:'center'})}
+    return !bad.length}
+
+  // ---- Áudio ----
+  let rec=null,stream=null,chunks=[],audioBlob=null,audioSecs=0,t0=0,tick=null;
+  const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+  function showAudio(blob,secs,label){
+    audioBlob=blob;audioSecs=secs||0;$('audioEl').src=URL.createObjectURL(blob);
+    $('audioInfo').textContent=label+(secs?' · '+fmt(secs):'');
+    $('player').classList.add('show');$('recRow').classList.add('hidden');$('uplWrap').classList.add('hidden');$('audioErr').style.display='none';
+  }
+  function resetAudio(){audioBlob=null;audioSecs=0;$('audioEl').removeAttribute('src');$('player').classList.remove('show');$('recRow').classList.remove('hidden');$('uplWrap').classList.remove('hidden');$('audioFile').value=''}
+  async function startRec(){
+    if(!navigator.mediaDevices||!window.MediaRecorder){$('audioErr').style.display='block';return}
+    try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){$('audioErr').style.display='block';return}
+    chunks=[];rec=new MediaRecorder(stream);
+    rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+    rec.onstop=()=>{const secs=(Date.now()-t0)/1000;stream.getTracks().forEach(t=>t.stop());clearInterval(tick);setRecUI(false);
+      showAudio(new Blob(chunks,{type:rec.mimeType||'audio/webm'}),secs,'Áudio gravado')};
+    rec.start();t0=Date.now();setRecUI(true);
+    tick=setInterval(()=>{const s=(Date.now()-t0)/1000;$('recSub').textContent=fmt(s)+' de 5:00';if(s>=300)rec.stop()},250);
+  }
+  function setRecUI(live){$('recBtn').classList.toggle('live',live);$('icoMic').classList.toggle('hidden',live);$('icoStop').classList.toggle('hidden',!live);
+    $('recBtn').setAttribute('aria-label',live?'Parar gravação':'Gravar áudio');$('recTitle').textContent=live?'Gravando… toque para parar':'Toque para gravar';
+    $('recSub').classList.toggle('timer',live);if(!live)$('recSub').textContent='Até 5 minutos'}
+  $('recBtn').addEventListener('click',()=>{if(rec&&rec.state==='recording')rec.stop();else startRec()});
+  $('discard').addEventListener('click',resetAudio);
+  $('audioFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;
+    const a=new Audio();a.preload='metadata';a.src=URL.createObjectURL(f);a.onloadedmetadata=()=>showAudio(f,isFinite(a.duration)?a.duration:0,'Áudio enviado');a.onerror=()=>showAudio(f,0,'Áudio enviado')});
+
+  // ---- Locais (lista vem da API) ----
+  let place=null;
+  function renderPlaces(){
+    const n=s=>(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const q=n($('placeQ').value.trim());
+    const list=PLACES.filter(p=>!q||n(p.nome+' '+(p.cidade||'')).includes(q));
+    const box=$('places');box.innerHTML='';
+    list.forEach(p=>{const b=document.createElement('button');b.type='button';b.className='place';
+      const l=document.createElement('span');l.textContent=p.nome;const sm=document.createElement('small');sm.textContent=p.cidade||'';l.appendChild(sm);
+      const t=document.createElement('span');t.className='tag';t.textContent=rotuloTipo(p.tipo);b.append(l,t);
+      b.onclick=()=>choosePlace(p);box.appendChild(b)});
+    const nb=document.createElement('button');nb.type='button';nb.className='place new';nb.textContent='+ Adicionar local que não está na lista';
+    nb.onclick=()=>{place={novo:true};$('placeSearchF').classList.add('hidden');$('newPlace').classList.remove('hidden');$('chosen').classList.remove('hidden');
+      $('chosenName').textContent='Novo local';$('chosenSub').textContent='Preencha abaixo';if($('placeQ').value)$('npNome').value=$('placeQ').value;$('npNome').focus();updateTratador()};
+    box.appendChild(nb);
+  }
+  function choosePlace(p){place=p;$('placeSearchF').classList.add('hidden');$('newPlace').classList.add('hidden');$('chosen').classList.remove('hidden');
+    $('chosenName').textContent=p.nome;$('chosenSub').textContent=rotuloTipo(p.tipo)+(p.cidade?', '+p.cidade:'');updateTratador()}
+  $('changePlace').addEventListener('click',()=>{place=null;$('chosen').classList.add('hidden');$('newPlace').classList.add('hidden');$('placeSearchF').classList.remove('hidden');$('placeQ').value='';renderPlaces();updateTratador();$('placeQ').focus()});
+  $('placeQ').addEventListener('input',renderPlaces);
+  function placeTipo(){return place?(place.novo?TIPO[radio('npTipo')]:place.tipo):''}
+  function updateTratador(){const eq=radio('especie')==='Equino'||['Haras','Hipica'].includes(placeTipo());$('tratador').classList.toggle('hidden',!eq)}
+  document.querySelectorAll('input[name="especie"],input[name="npTipo"]').forEach(r=>r.addEventListener('change',updateTratador));
+
+  // ---- Navegação ----
+  const steps=[...document.querySelectorAll('section.step')];let cur=1;const TOTAL=3;
+  function rotuloBotao(){$('next').textContent=cur===1&&me?'Sou eu, continuar':cur===TOTAL?'Enviar solicitação':'Continuar'}
+  function render(){
+    steps.forEach(s=>s.classList.toggle('active',+s.dataset.step===cur));
+    document.querySelectorAll('.steps i').forEach((b,i)=>b.classList.toggle('on',i<cur));
+    const done=cur>TOTAL;
+    $('stepLabel').textContent=done?'':'Etapa '+cur+' de '+TOTAL+': '+steps[cur-1].dataset.title;
+    ['progress','actions'].forEach(id=>$(id).style.display=done?'none':'');$('hero').style.display=cur===1?'':'none';
+    $('back').style.visibility=cur===1?'hidden':'visible';
+    rotuloBotao();
+    window.scrollTo({top:cur===1||done?0:$('progress').offsetTop-10,behavior:'smooth'});
+  }
+  $('next').addEventListener('click',async()=>{
+    if(!validStep(cur))return;
+    if(cur===TOTAL&&!await enviar())return;
+    cur++;render()});
+  $('back').addEventListener('click',()=>{if(cur>1){cur--;render()}});
+  $('newReq').addEventListener('click',()=>{document.querySelectorAll('section.step[data-step="2"] input,section.step[data-step="2"] textarea,section.step[data-step="3"] input').forEach(e=>{if(e.type==='radio')e.checked=false;else if(e.type!=='file')e.value=''});
+    resetAudio();place=null;$('chosen').classList.add('hidden');$('newPlace').classList.add('hidden');$('placeSearchF').classList.remove('hidden');renderPlaces();updateTratador();setIdentity();cur=1;render()});
+
+  // ---- Envio ----
+  async function enviar(){
+    const ciente=radio('ciente');
+    const dados={
+      convite,
+      veterinario:me?null:{nome:$('vNome').value.trim(),crmv:$('vCrmv').value.trim(),uf:$('vUf').value},
+      audioDuracaoSegundos:audioBlob?audioSecs:null,
+      petNome:$('pNome').value.trim()||null,especie:ESPECIE[radio('especie')]||null,
+      raca:$('pRaca').value.trim()||null,idade:$('pIdade').value.trim()||null,
+      olho:radio('olho')||null,prioridade:PRIORIDADE[radio('urg')]||null,
+      queixaHistorico:$('pQueixa').value.trim()||null,medicacoes:$('pMed').value.trim()||null,
+      localId:place&&!place.novo?place.id:null,
+      novoLocal:place&&place.novo&&$('npNome').value.trim()?{nome:$('npNome').value.trim(),tipo:TIPO[radio('npTipo')]||'Outro',cidade:$('npCidade').value.trim()||null}:null,
+      tratadorNome:$('tratador').classList.contains('hidden')?null:$('trNome').value.trim()||null,
+      tratadorCelular:$('tratador').classList.contains('hidden')?null:digits($('trTel').value)||null,
+      tutorNome:$('tNome').value.trim()||null,tutorCelular:digits($('tTel').value)||null,
+      tutorCienteCusto:ciente?ciente==='Sim':null,
+      veterinarioRecebeRelatorios:radio('rel')==='sim'
+    };
+    const fd=new FormData();fd.append('dados',JSON.stringify(dados));
+    if(audioBlob){
+      const ext=(audioBlob.type.split(';')[0].split('/')[1]||'webm').replace('mpeg','mp3');
+      fd.append('audio',audioBlob,audioBlob.name||('audio.'+ext));
+    }
+    $('envioErro').hidden=true;$('next').disabled=true;$('next').textContent='Enviando…';
+    try{
+      const r=await api('POST','/api/solicitacoes',fd);
+      if(r.status!==200){erro(r.erro);return false}
+      me={nome:r.json.veterinario.nome,crmv:r.json.veterinario.crmv,uf:r.json.veterinario.uf};
+      if(dados.novoLocal)carregarLocais();
+      mostrarConfirmacao(r.json,dados);
+      return true;
+    }catch(e){
+      erro('Não foi possível enviar. Verifique sua internet e tente de novo.');return false;
+    }finally{$('next').disabled=false;rotuloBotao()}
+  }
+
+  function mostrarConfirmacao(res,d){
+    const v=me,pet=d.petNome,rel=d.veterinarioRecebeRelatorios;
+    const lugar=place&&!place.novo?place.nome+(place.cidade?', '+place.cidade:''):d.novoLocal?d.novoLocal.nome+(d.novoLocal.cidade?', '+d.novoLocal.cidade:''):'';
+    $('doneMsg').textContent='Obrigado, '+v.nome.replace(/^Dra?\.\s*/,'').split(' ')[0]+'. A Dra. Juliane vai enviar o orçamento ao tutor'+(rel?' e você receberá os relatórios clínicos do caso.':'.');
+    const rows=[['Protocolo',res.protocolo],['Solicitante',v.nome+' · CRMV-'+v.uf+' '+v.crmv]];
+    if(audioBlob)rows.push(['Áudio','Recebido'+(audioSecs?' ('+fmt(audioSecs)+')':'')]);
+    if(pet)rows.push(['Paciente',pet+(radio('especie')?' ('+radio('especie').toLowerCase()+')':'')]);
+    if(lugar)rows.push(['Local',lugar]);
+    if(d.tratadorNome)rows.push(['Tratador',d.tratadorNome+(d.tratadorCelular?' · '+tel(d.tratadorCelular):'')]);
+    rows.push(['Tutor',d.tutorNome||'A informar']);rows.push(['Relatórios',rel?'Tutor e veterinário':'Somente tutor']);
+    $('receipt').innerHTML='';
+    rows.forEach(([a,b])=>{const el=document.createElement('div');el.className='item';const x=document.createElement('span');x.textContent=a;const y=document.createElement('span');y.className='v';y.textContent=b;el.append(x,y);$('receipt').appendChild(el)});
+
+    // Link do tutor: só aparece quando a clínica preencheu (quem envia ao tutor é a clínica).
+    $('clinicBox').hidden=modo!=='Clinica';
+    if(modo!=='Clinica')return;
+    const link=res.linkTutor,dest=d.tutorCelular||'';
+    $('tutorLink').textContent=link;
+    $('clinicTxt').textContent=(audioBlob?'Ouça o áudio, complete a ficha e envie o link. ':'')+'O link vai direto para o WhatsApp do tutor.'+(rel?' Os relatórios deste caso ficam marcados para ir também ao veterinário.':'')+(!dest?' O celular do tutor não foi informado; ele deve estar no áudio.':'');
+    const tutorFirst=(d.tutorNome||'').split(' ')[0];
+    const msg='Olá'+(tutorFirst?', '+tutorFirst:'')+'! Aqui é da Clínica Cavani Vets, oftalmologia veterinária. '+v.nome+' solicitou um atendimento oftalmológico'+(pet?' para '+(/a$/i.test(pet)?'a ':'o ')+pet:'')+'. Para agendarmos, preencha seus dados e autorize a consulta por este link: '+link;
+    $('waBtn').href='https://wa.me/'+(dest?'55'+dest:'')+'?text='+encodeURIComponent(msg);
+    $('waBtn').textContent='Enviar ao tutor';
+    $('copyBtn').onclick=()=>{if(navigator.clipboard)navigator.clipboard.writeText(link).then(()=>{$('copyBtn').textContent='Link copiado';setTimeout(()=>$('copyBtn').textContent='Copiar link',2000)},()=>{})};
+  }
+
+  async function carregarLocais(){
+    try{const r=await api('GET','/api/locais');if(r.status===200){PLACES=r.json;renderPlaces()}}catch(e){}
+  }
+  function linkInvalido(naoExiste){
+    ['progress','actions'].forEach(id=>$(id).style.display='none');
+    steps.forEach(s=>s.classList.remove('active'));
+    $('hero').querySelector('h1').textContent=naoExiste?'Link inválido':'Não foi possível abrir agora';
+    $('hero').querySelector('p').textContent=naoExiste
+      ?'Peça um novo link para a Clínica Cavani Vets pelo WhatsApp (11) 98288-5882.'
+      :'Verifique sua internet e tente de novo em instantes.';
+  }
+
+  async function iniciar(){
+    if(!convite){linkInvalido(true);return}
+    let r;try{r=await api('GET','/api/convites/'+encodeURIComponent(convite))}catch(e){r={status:0}}
+    if(r.status!==200){linkInvalido(r.status===404);return}
+    cel=r.json.celular;modo=r.json.preenchidoPor;
+    me=r.json.veterinario?{nome:r.json.veterinario.nome,crmv:r.json.veterinario.crmv,uf:r.json.veterinario.uf}:null;
+    setIdentity();render();
+  }
+  steps.forEach(s=>s.classList.remove('active'));
+  renderPlaces();carregarLocais();iniciar();
+})();
+</script>
+</body>
+</html>

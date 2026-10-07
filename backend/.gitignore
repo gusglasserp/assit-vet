@@ -480,3 +480,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Arquivos enviados pelos usuários (áudios dos casos)
+CavaniVets.Api/dados/

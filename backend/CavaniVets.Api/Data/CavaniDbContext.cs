@@ -13,6 +13,8 @@ public class CavaniDbContext(DbContextOptions<CavaniDbContext> options) : DbCont
     public DbSet<VersaoTermo> VersoesTermo => Set<VersaoTermo>();
     public DbSet<ItemPreco> ItensPreco => Set<ItemPreco>();
     public DbSet<Autorizacao> Autorizacoes => Set<Autorizacao>();
+    public DbSet<ContaAzulConexao> ContaAzulConexoes => Set<ContaAzulConexao>();
+    public DbSet<Convite> Convites => Set<Convite>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder b)
     {
@@ -38,8 +40,8 @@ public class CavaniDbContext(DbContextOptions<CavaniDbContext> options) : DbCont
 
         m.Entity<Tutor>(e =>
         {
-            e.HasIndex(x => x.Cpf).IsUnique();
-            e.Property(x => x.Cpf).HasMaxLength(11);
+            e.HasIndex(x => x.Documento).IsUnique();
+            e.Property(x => x.Documento).HasMaxLength(14);
             e.Property(x => x.Uf).HasMaxLength(2);
         });
 
@@ -50,6 +52,14 @@ public class CavaniDbContext(DbContextOptions<CavaniDbContext> options) : DbCont
         });
 
         m.Entity<VersaoTermo>().HasIndex(x => x.Versao).IsUnique();
+
+        m.Entity<ContaAzulConexao>().Property(x => x.Id).ValueGeneratedNever();
+
+        m.Entity<Convite>(e =>
+        {
+            e.HasIndex(x => x.Token).IsUnique();
+            e.Property(x => x.Celular).HasMaxLength(11);
+        });
 
         Seed(m);
     }

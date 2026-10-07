@@ -6,6 +6,8 @@ public enum Especie { Cao, Gato, Equino, Outro }
 
 public enum Sexo { Macho, Femea }
 
+public enum TipoPessoa { Fisica, Juridica }
+
 public enum Olho { OD, OE, AO }
 
 public enum Prioridade { Rotina, Ate48h, Urgente }
