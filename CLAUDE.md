@@ -22,6 +22,7 @@ Hoje a coleta de dados do tutor, o envio do orçamento e a autorização são fe
 
 ## Publicação (Azure)
 
+- Publicação automática: GitHub Actions (`.github/workflows/main_assist-vet.yml`) publica no App Service `assist-vet` a cada push na `main`, com login sem senha (identidade gerenciada). Antes de um push que mude tabelas, aplicar a migração no banco.
 - App Service **Windows**, .NET 10, com a API servindo as páginas. Banco: **Azure SQL Database** na oferta gratuita (serverless: pausa sem uso; a conexão tem novas tentativas automáticas para o primeiro acesso depois da pausa). Trocado de PostgreSQL para SQL Server em out/2026 por causa do custo; as migrações foram recriadas do zero (`Inicial`).
 - Cota grátis do Azure SQL: 100 mil vCore-segundos por mês por banco, com cobrança extra desligada (se acabar, o banco fica indisponível até o mês seguinte). O banco só pausa depois de ~1 h sem nenhum acesso, então **nada pode consultar o banco periodicamente** (o painel atualiza só ao voltar para a aba ou no botão).
 - Hospedagem 100% gratuita: App Service **Free (F1)** + Azure SQL gratuito. O F1 dorme após ~20 min sem acesso (primeiro acesso leva 10-20 s), tem 60 min de CPU por dia e não aceita domínio próprio; para usar com clientes, considerar o B1 Linux (~US$ 13/mês).
