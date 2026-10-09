@@ -34,9 +34,10 @@ public class Deslocamentos(CavaniDbContext db, GoogleMapsClient mapas, IOptions<
             local.DistanciaCalculadaEm = DateTimeOffset.UtcNow;
             await db.SaveChangesAsync(ct);
         }
-        catch (HttpRequestException e)
+        catch (Exception e) when (e is HttpRequestException or TaskCanceledException && !ct.IsCancellationRequested)
         {
-            // A estimativa é um extra: sem ela, a página mostra só o valor por km.
+            // A estimativa é um extra: se o Google falhar ou demorar, a solicitação segue sem ela
+            // (será calculada no próximo uso do local).
             log.LogWarning(e, "Não foi possível calcular a distância até o local {Id}", local.Id);
         }
     }

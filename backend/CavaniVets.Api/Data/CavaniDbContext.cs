@@ -34,7 +34,9 @@ public class CavaniDbContext(DbContextOptions<CavaniDbContext> options) : DbCont
         m.Entity<Solicitacao>(e =>
         {
             e.HasIndex(x => x.Protocolo).IsUnique();
+            e.Property(x => x.Protocolo).HasMaxLength(20);
             e.HasIndex(x => x.TokenTutor).IsUnique();
+            e.Property(x => x.TokenTutor).HasMaxLength(40).UseCollation(CollationExata);
             e.HasOne(x => x.Autorizacao).WithOne(x => x.Solicitacao).HasForeignKey<Autorizacao>(x => x.SolicitacaoId);
         });
 
@@ -48,10 +50,15 @@ public class CavaniDbContext(DbContextOptions<CavaniDbContext> options) : DbCont
         m.Entity<ItemPreco>(e =>
         {
             e.HasIndex(x => x.Codigo).IsUnique();
+            e.Property(x => x.Codigo).HasMaxLength(40);
             e.Property(x => x.Valor).HasPrecision(10, 2);
         });
 
-        m.Entity<VersaoTermo>().HasIndex(x => x.Versao).IsUnique();
+        m.Entity<VersaoTermo>(e =>
+        {
+            e.HasIndex(x => x.Versao).IsUnique();
+            e.Property(x => x.Versao).HasMaxLength(40);
+        });
 
         m.Entity<ContaAzulConexao>().Property(x => x.Id).ValueGeneratedNever();
 
@@ -66,17 +73,30 @@ public class CavaniDbContext(DbContextOptions<CavaniDbContext> options) : DbCont
         m.Entity<Convite>(e =>
         {
             e.HasIndex(x => x.Token).IsUnique();
+            e.Property(x => x.Token).HasMaxLength(40).UseCollation(CollationExata);
             e.Property(x => x.Celular).HasMaxLength(11);
         });
+
+        // Nada é apagado em cascata: autorizações, termos e solicitações são prova e ficam guardados.
+        // (O SQL Server também recusa os caminhos de cascata cruzados, ex.: Tutor → Animal → Autorização.)
+        foreach (var fk in m.Model.GetEntityTypes().SelectMany(t => t.GetForeignKeys()))
+            fk.DeleteBehavior = DeleteBehavior.Restrict;
 
         Seed(m);
     }
 
+    /// <summary>
+    /// Comparação exata (diferencia maiúsculas) para os códigos dos links: o padrão do SQL Server
+    /// ignora maiúsculas, e os tokens usam as duas.
+    /// </summary>
+    const string CollationExata = "Latin1_General_100_BIN2";
+
+    // Serviços do Conta Azul da clínica usados no orçamento automático: "CONSULTA OFTALMOLÓGICA" e "DESPESAS COM KM".
     static void Seed(ModelBuilder m)
     {
         m.Entity<ItemPreco>().HasData(
-            new ItemPreco { Id = 1, Codigo = "consulta", Grupo = "Agora", Descricao = "Consulta oftalmológica inicial", Valor = 800m, Observacao = "Medicamentos para diagnóstico incluídos", Ordem = 1 },
-            new ItemPreco { Id = 2, Codigo = "km", Grupo = "Agora", Descricao = "Deslocamento", Valor = 2.50m, Observacao = "por km rodado, saindo da Rua Arandu, 885 (Brooklin Paulista), + pedágio. Se a rota for compartilhada com outros atendimentos, o deslocamento pode ser dividido.", Ordem = 2 },
+            new ItemPreco { Id = 1, Codigo = "consulta", Grupo = "Agora", Descricao = "Consulta oftalmológica inicial", Valor = 800m, Observacao = "Medicamentos para diagnóstico incluídos", Ordem = 1, ContaAzulServicoId = "fac27e62-a5ef-4c50-bee3-74f5ba9b0137" },
+            new ItemPreco { Id = 2, Codigo = "km", Grupo = "Agora", Descricao = "Deslocamento", Valor = 2.50m, Observacao = "por km rodado, saindo da Rua Arandu, 885 (Brooklin Paulista), + pedágio. Se a rota for compartilhada com outros atendimentos, o deslocamento pode ser dividido.", Ordem = 2, ContaAzulServicoId = "29b9050a-700c-43bf-bbb7-c13cd5f374eb" },
             new ItemPreco { Id = 3, Codigo = "materiais-diagnostico", Grupo = "Agora", Descricao = "Materiais estéreis para diagnóstico", Observacao = "cobrados à parte, se usados", Ordem = 3 },
             new ItemPreco { Id = 4, Codigo = "ultrassom", Grupo = "Indicados", Descricao = "Exame ultrassonográfico oftalmológico", Valor = 550m, Ordem = 10 },
             new ItemPreco { Id = 5, Codigo = "acompanhamento", Grupo = "Indicados", Descricao = "Acompanhamento oftálmico, até a alta clínica", Valor = 300m, Observacao = "por visita", Ordem = 11 },

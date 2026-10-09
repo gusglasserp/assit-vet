@@ -8,25 +8,27 @@ Hoje a coleta de dados do tutor, o envio do orçamento e a autorização são fe
 
 ## Stack
 
-- Backend: ASP.NET Core Web API (.NET 10), EF Core, PostgreSQL. Pasta `backend/`.
+- Backend: ASP.NET Core Web API (.NET 10), EF Core, SQL Server (Azure SQL). Pasta `backend/`.
 - Frontend: HTML, CSS e JavaScript puros, mobile first, partindo dos protótipos aprovados. Pasta `web/`. Flutter foi descartado (out/2026): as páginas são abertas por links do WhatsApp no 4G, e o Flutter web baixava 5 a 9 MB contra cerca de 0,1 MB do HTML. Se um dia precisar de app instalável, o caminho é PWA; app de loja só com necessidade concreta (offline pesado, Bluetooth).
 - Integrações: Conta Azul API v2 (OAuth, cadastro de clientes e orçamentos; tokens na tabela `ContaAzulConexoes`; credenciais em `dotnet user-secrets`), CEP via ViaCEP com BrasilAPI de reserva.
 - Editor: VS Code.
 
 ## Ambiente de desenvolvimento (máquina local)
 
-- PostgreSQL 17 portátil em `C:\dev\pgsql` (sem serviço do Windows). Iniciar com `scripts\banco-iniciar.ps1` após reiniciar o PC; parar com `scripts\banco-parar.ps1`. Banco `cavani_vets`, usuário `postgres`, senha `cavani_dev` (só desenvolvimento).
-- As DLLs do Visual C++ (`msvcp140.dll`, `vcruntime140*.dll`) foram copiadas para `C:\dev\pgsql\bin` porque o Redistributable não está instalado.
+- Banco de desenvolvimento: Azure SQL `assist-vet-dev` (oferta gratuita), no servidor `assist-vet.database.windows.net`, separado do de produção (`assist-vet`). A conexão (com senha) fica em user-secrets: `dotnet user-secrets set "ConnectionStrings:Cavani" "..."`. O IP da máquina precisa estar liberado no firewall do servidor no portal do Azure.
+- O PostgreSQL portátil em `C:\dev\pgsql` e os scripts `scripts\banco-*.ps1` eram do banco anterior (até out/2026) e não são mais usados.
 - A API serve as páginas de `web/`: em desenvolvimento direto da pasta (http://localhost:5273/; edições valem na hora); na publicação, `web/` é copiada para `wwwroot`. Página e API no mesmo endereço, sem CORS. Painel interno em `/` (index.html).
 - Migrações: `dotnet ef migrations add <Nome> -o Data/Migrations` e `dotnet ef database update`, dentro de `backend\CavaniVets.Api`.
 
 ## Publicação (Azure)
 
-- App Service **Windows**, .NET 10, com a API servindo as páginas. Banco: **Azure Database for PostgreSQL** (flexible server). Decidido manter PostgreSQL (out/2026); Azure SQL foi avaliado e descartado.
-- Em produção, as migrações rodam sozinhas ao iniciar (`Database.Migrate()` no Program.cs). Os atalhos `/api/dev/*` ficam desligados.
+- App Service **Windows**, .NET 10, com a API servindo as páginas. Banco: **Azure SQL Database** na oferta gratuita (serverless: pausa sem uso; a conexão tem novas tentativas automáticas para o primeiro acesso depois da pausa). Trocado de PostgreSQL para SQL Server em out/2026 por causa do custo; as migrações foram recriadas do zero (`Inicial`).
+- Cota grátis do Azure SQL: 100 mil vCore-segundos por mês por banco, com cobrança extra desligada (se acabar, o banco fica indisponível até o mês seguinte). O banco só pausa depois de ~1 h sem nenhum acesso, então **nada pode consultar o banco periodicamente** (o painel atualiza só ao voltar para a aba ou no botão).
+- Hospedagem 100% gratuita: App Service **Free (F1)** + Azure SQL gratuito. O F1 dorme após ~20 min sem acesso (primeiro acesso leva 10-20 s), tem 60 min de CPU por dia e não aceita domínio próprio; para usar com clientes, considerar o B1 Linux (~US$ 13/mês).
+- Migrações **não** rodam ao iniciar (acordaria o banco a cada vez que o site acorda). Na publicação: `dotnet ef database update --connection "<cadeia do assist-vet>"` a partir da máquina de desenvolvimento (IP liberado no firewall). `Banco__MigrarAoIniciar=true` liga a migração automática se um dia o plano for pago. Os atalhos `/api/dev/*` ficam desligados em produção.
 - Configurações do App Service (variáveis de ambiente; segredos nunca no código):
-  - `ConnectionStrings__Cavani` (com `Ssl Mode=Require`), `Clinica__Senha` (senha do painel), `Email__SenhaApp`, `GoogleMaps__ChaveApi`, `ContaAzul__ClientId`, `ContaAzul__ClientSecret`, `ContaAzul__RedirectUri`
-  - `Site__UrlPublica` (base dos links enviados por WhatsApp e e-mail) e `Armazenamento__Pasta` = `D:\home\dados` (fora da pasta publicada, senão os arquivos somem a cada publicação).
+  - `ConnectionStrings__Cavani` (formato ADO.NET do portal do Azure SQL, com a senha), `Clinica__Senha` (senha do painel), `Email__SenhaApp`, `GoogleMaps__ChaveApi`, `ContaAzul__ClientId`, `ContaAzul__ClientSecret`, `ContaAzul__RedirectUri`
+  - `Site__UrlPublica` (base dos links enviados por WhatsApp e e-mail) e `Armazenamento__Pasta` = `D:\home\dados` no Windows ou `/home/dados` no Linux (fora da pasta publicada, senão os arquivos somem a cada publicação).
 - Rotas internas exigem a senha da clínica (`X-Senha-Clinica`); sem senha configurada, só funcionam na própria máquina.
 - O Conta Azul é conectado pelo botão do painel. Os tokens ficam no banco; o refresh token muda a cada renovação, então o mesmo token não pode ser usado em dois bancos ao mesmo tempo.
 

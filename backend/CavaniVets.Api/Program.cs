@@ -12,8 +12,12 @@ using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Azure SQL (oferta gratuita, serverless): o banco pausa sem uso e a primeira conexão depois da pausa pode
+// falhar enquanto ele acorda. As novas tentativas e o tempo maior cobrem esse intervalo.
 builder.Services.AddDbContext<CavaniDbContext>(o =>
-    o.UseNpgsql(builder.Configuration.GetConnectionString("Cavani")));
+    o.UseSqlServer(builder.Configuration.GetConnectionString("Cavani"), sql => sql
+        .EnableRetryOnFailure(maxRetryCount: 6, maxRetryDelay: TimeSpan.FromSeconds(10), errorNumbersToAdd: null)
+        .CommandTimeout(60)));
 
 builder.Services.AddMemoryCache();
 builder.Services.Configure<ContaAzulOptions>(builder.Configuration.GetSection(ContaAzulOptions.Secao));
@@ -25,7 +29,7 @@ builder.Services.AddSingleton<EmailSender>();
 builder.Services.AddScoped<Avisos>();
 builder.Services.AddScoped<TermoPdf>();
 builder.Services.Configure<GoogleMapsOptions>(builder.Configuration.GetSection(GoogleMapsOptions.Secao));
-builder.Services.AddHttpClient<GoogleMapsClient>(c => c.Timeout = TimeSpan.FromSeconds(10));
+builder.Services.AddHttpClient<GoogleMapsClient>(c => c.Timeout = TimeSpan.FromSeconds(20));
 builder.Services.Configure<DeslocamentoOptions>(builder.Configuration.GetSection(DeslocamentoOptions.Secao));
 builder.Services.AddScoped<Deslocamentos>();
 builder.Services.AddScoped<OrcamentosContaAzul>();
@@ -57,9 +61,10 @@ var app = builder.Build();
 
 app.UseForwardedHeaders();
 
-// Em produção, cria/atualiza as tabelas ao iniciar (uma instância só). No desenvolvimento,
-// as migrações continuam manuais (dotnet ef database update).
-if (!app.Environment.IsDevelopment())
+// Migrações ao iniciar só se Banco:MigrarAoIniciar = true. No App Service gratuito o site dorme e acorda
+// várias vezes por dia (inclusive por robôs); migrar a cada início acordaria o Azure SQL gratuito à toa e
+// gastaria a cota. Por padrão as migrações são aplicadas na publicação: dotnet ef database update --connection "...".
+if (app.Configuration.GetValue<bool>("Banco:MigrarAoIniciar"))
 {
     using var escopo = app.Services.CreateScope();
     escopo.ServiceProvider.GetRequiredService<CavaniDbContext>().Database.Migrate();

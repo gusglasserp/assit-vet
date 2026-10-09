@@ -245,8 +245,9 @@ input:focus{border-color:var(--cyan)}
   });
 
   $('atualizar').addEventListener('click',carregar);
-  // Atualiza sozinho a cada 30 s (ex.: quando um tutor autoriza).
-  setInterval(()=>{if(!$('painel').hidden&&!document.hidden)carregar()},30000);
+  // Sem atualização periódica: o Azure SQL gratuito só pausa depois de ~1 h sem acesso, e um painel aberto
+  // consultando a cada poucos segundos gastaria a cota mensal. Atualiza ao voltar para a aba ou no botão.
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!$('painel').hidden)carregar()});
 
   iniciar();
 })();

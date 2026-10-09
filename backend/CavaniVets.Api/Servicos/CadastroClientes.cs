@@ -22,11 +22,18 @@ public class CadastroClientes(CavaniDbContext db, ContaAzulClient contaAzul, ILo
         var tutor = await db.Tutores.AsNoTracking().SingleOrDefaultAsync(x => x.Documento == documento, ct);
         if (tutor is not null) return new(ClienteDto.De(tutor), [tutor.Celular], tutor.Id);
 
-        var resumo = await contaAzul.BuscarPessoaPorDocumento(documento, ct);
-        if (resumo is not null && await contaAzul.ObterPessoa(resumo.Id, ct) is { } p)
-            return new(ClienteDto.De(p, documento, tipo),
-                new[] { p.TelefoneCelular, p.TelefoneComercial }.OfType<string>().ToList(), null);
-
+        try
+        {
+            var resumo = await contaAzul.BuscarPessoaPorDocumento(documento, ct);
+            if (resumo is not null && await contaAzul.ObterPessoa(resumo.Id, ct) is { } p)
+                return new(ClienteDto.De(p, documento, tipo),
+                    new[] { p.TelefoneCelular, p.TelefoneComercial }.OfType<string>().ToList(), null);
+        }
+        catch (ContaAzulException e)
+        {
+            // Conta Azul fora (ou desconectado): segue só com o cadastro do sistema; ao salvar, tenta de novo.
+            log.LogWarning(e, "Não foi possível buscar o documento no Conta Azul");
+        }
         return null;
     }
 
