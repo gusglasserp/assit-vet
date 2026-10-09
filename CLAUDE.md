@@ -18,7 +18,7 @@ Hoje a coleta de dados do tutor, o envio do orçamento e a autorização são fe
 
 ## Ambiente de desenvolvimento (máquina local)
 
-- Banco de desenvolvimento: Azure SQL `assist-vet-dev` (oferta gratuita), no servidor `assist-vet.database.windows.net`, separado do de produção (`assist-vet`). A conexão (com senha) fica em user-secrets: `dotnet user-secrets set "ConnectionStrings:AssistVet" "..."`. O IP da máquina precisa estar liberado no firewall do servidor no portal do Azure.
+- Banco: **ainda não há produção; tudo é desenvolvimento** (out/2026). A máquina local e o site publicado usam o mesmo Azure SQL `assist-vet` (oferta gratuita), no servidor `assist-vet.database.windows.net`; dados de teste ficam nele. Quando houver clientes, criar um banco separado para desenvolvimento. A conexão (com senha) fica em user-secrets: `dotnet user-secrets set "ConnectionStrings:AssistVet" "..."`. O IP da máquina precisa estar liberado no firewall do servidor (portal do Azure ou `az sql server firewall-rule create -g assist-vet -s assist-vet ...`).
 - O PostgreSQL portátil em `C:\dev\pgsql` e os scripts `scripts\banco-*.ps1` eram do banco anterior (até out/2026) e não são mais usados.
 - A API serve as páginas de `web/`: em desenvolvimento direto da pasta (http://localhost:5273/; edições valem na hora); na publicação, `web/` é copiada para `wwwroot`. Página e API no mesmo endereço, sem CORS. Entrada em `/` (index.html: "Sou tutor" / "Área da clínica"); painel interno em `clinica.html`; área do tutor em `minha-area.html`.
 - Migrações: `dotnet ef migrations add <Nome> -o Data/Migrations` e `dotnet ef database update`, dentro de `backend\AssistVet.Api`.
