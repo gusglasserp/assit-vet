@@ -1,6 +1,9 @@
-# Sistema de gestão — Clínica Cavani Vets
+# Assist-vet
 
-Clínica de oftalmologia veterinária (cães, gatos e equinos). Responsável: M.V. Juliane Cavani Pimentel, CRMV-SP 11.064. A clínica atende a pedido de outros veterinários, indo até a clínica, haras ou hípica onde o animal está.
+**Assist-vet** é a plataforma (SaaS) que estamos criando para clínicas veterinárias. O **primeiro cliente** é a **Clínica Pimentel Vets**: oftalmologia veterinária (cães, gatos e equinos). Responsável: M.V. Juliane Cavani Pimentel, CRMV-SP 11.064. A clínica atende a pedido de outros veterinários, indo até a clínica, haras ou hípica onde o animal está.
+
+- Nos nomes técnicos (projeto, namespaces, banco, App Service) usar **AssistVet** / `assist-vet`. O que tutores e veterinários veem (páginas, e-mails, PDF, termo) usa o nome da clínica cliente; o painel interno mostra "Assist-vet · Clínica Pimentel Vets".
+- Hoje o sistema atende uma clínica só: nome, endereço, telefone, logo, tabela de valores, termo, origem do km e conexão com o Conta Azul estão fixos no código, no seed ou na configuração. Tornar isso configurável por clínica (multi-cliente) é um passo futuro do SaaS.
 
 ## Problema que o sistema resolve
 
@@ -15,10 +18,10 @@ Hoje a coleta de dados do tutor, o envio do orçamento e a autorização são fe
 
 ## Ambiente de desenvolvimento (máquina local)
 
-- Banco de desenvolvimento: Azure SQL `assist-vet-dev` (oferta gratuita), no servidor `assist-vet.database.windows.net`, separado do de produção (`assist-vet`). A conexão (com senha) fica em user-secrets: `dotnet user-secrets set "ConnectionStrings:Cavani" "..."`. O IP da máquina precisa estar liberado no firewall do servidor no portal do Azure.
+- Banco de desenvolvimento: Azure SQL `assist-vet-dev` (oferta gratuita), no servidor `assist-vet.database.windows.net`, separado do de produção (`assist-vet`). A conexão (com senha) fica em user-secrets: `dotnet user-secrets set "ConnectionStrings:AssistVet" "..."`. O IP da máquina precisa estar liberado no firewall do servidor no portal do Azure.
 - O PostgreSQL portátil em `C:\dev\pgsql` e os scripts `scripts\banco-*.ps1` eram do banco anterior (até out/2026) e não são mais usados.
 - A API serve as páginas de `web/`: em desenvolvimento direto da pasta (http://localhost:5273/; edições valem na hora); na publicação, `web/` é copiada para `wwwroot`. Página e API no mesmo endereço, sem CORS. Painel interno em `/` (index.html).
-- Migrações: `dotnet ef migrations add <Nome> -o Data/Migrations` e `dotnet ef database update`, dentro de `backend\CavaniVets.Api`.
+- Migrações: `dotnet ef migrations add <Nome> -o Data/Migrations` e `dotnet ef database update`, dentro de `backend\AssistVet.Api`.
 
 ## Publicação (Azure)
 
@@ -28,7 +31,7 @@ Hoje a coleta de dados do tutor, o envio do orçamento e a autorização são fe
 - Hospedagem 100% gratuita: App Service **Free (F1)** + Azure SQL gratuito. O F1 dorme após ~20 min sem acesso (primeiro acesso leva 10-20 s), tem 60 min de CPU por dia e não aceita domínio próprio; para usar com clientes, considerar o B1 Linux (~US$ 13/mês).
 - Migrações **não** rodam ao iniciar (acordaria o banco a cada vez que o site acorda). Na publicação: `dotnet ef database update --connection "<cadeia do assist-vet>"` a partir da máquina de desenvolvimento (IP liberado no firewall). `Banco__MigrarAoIniciar=true` liga a migração automática se um dia o plano for pago. Os atalhos `/api/dev/*` ficam desligados em produção.
 - Configurações do App Service (variáveis de ambiente; segredos nunca no código):
-  - `ConnectionStrings__Cavani` (formato ADO.NET do portal do Azure SQL, com a senha), `Clinica__Senha` (senha do painel), `Email__SenhaApp`, `GoogleMaps__ChaveApi`, `ContaAzul__ClientId`, `ContaAzul__ClientSecret`, `ContaAzul__RedirectUri`
+  - `ConnectionStrings__AssistVet` (formato ADO.NET do portal do Azure SQL, com a senha), `Clinica__Senha` (senha do painel), `Email__SenhaApp`, `GoogleMaps__ChaveApi`, `ContaAzul__ClientId`, `ContaAzul__ClientSecret`, `ContaAzul__RedirectUri`
   - `Site__UrlPublica` (base dos links enviados por WhatsApp e e-mail) e `Armazenamento__Pasta` = `D:\home\dados` no Windows ou `/home/dados` no Linux (fora da pasta publicada, senão os arquivos somem a cada publicação).
 - Rotas internas exigem a senha da clínica (`X-Senha-Clinica`); sem senha configurada, só funcionam na própria máquina.
 - O Conta Azul é conectado pelo botão do painel. Os tokens ficam no banco; o refresh token muda a cada renovação, então o mesmo token não pode ser usado em dois bancos ao mesmo tempo.

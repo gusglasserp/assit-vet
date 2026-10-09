@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Clínica Cavani Vets · Autorização de consulta</title>
+<title>Clínica Pimentel Vets · Autorização de consulta</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
@@ -131,8 +131,8 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-
 <body>
 <div class="wrap">
   <header class="brand">
-    <div class="disc"><img alt="Logo Clínica Cavani Vets" src="img/logo.png"></div>
-    <div><b>Clínica Cavani Vets</b><span>Oftalmologia Veterinária</span></div>
+    <div class="disc"><img alt="Logo Clínica Pimentel Vets" src="img/logo.png"></div>
+    <div><b>Clínica Pimentel Vets</b><span>Oftalmologia Veterinária</span></div>
   </header>
 
   <div class="hero" id="hero">
@@ -259,7 +259,7 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-
     </div>
   </section>
 
-  <footer>Clínica Cavani Vets · M.V. Juliane Cavani Pimentel · CRMV-SP 11.064<br>Rua Arandu, 885, Brooklin Paulista, São Paulo · (11) 94767-0145</footer>
+  <footer>Clínica Pimentel Vets · M.V. Juliane Cavani Pimentel · CRMV-SP 11.064<br>Rua Arandu, 885, Brooklin Paulista, São Paulo · (11) 94767-0145</footer>
 </div>
 
 <div class="actions" id="actions"><div class="in">
@@ -294,7 +294,7 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-
 
   const steps=[...document.querySelectorAll('section.step')];
   let cur=1;const TOTAL=4;
-  const KEY='cavani-rascunho'+(token?'-'+token:'');
+  const KEY='assistvet-rascunho'+(token?'-'+token:'');
 
   // API: mesmo endereço da página (localmente a API serve as páginas; no Netlify, /api é redirecionado).
   const API='';
@@ -630,7 +630,7 @@ footer{margin-top:36px;color:var(--muted);font-size:13px;text-align:center;line-
     steps.forEach(s=>s.classList.remove('active'));
     $('heroTitle').textContent=naoExiste?'Link inválido ou expirado':'Não foi possível abrir agora';
     $('hero').querySelector('p').textContent=naoExiste
-      ?'Peça um novo link para a Clínica Cavani Vets pelo WhatsApp (11) 94767-0145.'
+      ?'Peça um novo link para a Clínica Pimentel Vets pelo WhatsApp (11) 94767-0145.'
       :'Verifique sua internet e tente de novo em instantes.';
     $('hero').querySelector('.ref').hidden=true;
   }

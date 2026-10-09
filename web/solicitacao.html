@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Clínica Cavani Vets · Solicitar atendimento oftalmológico</title>
+<title>Clínica Pimentel Vets · Solicitar atendimento oftalmológico</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
@@ -164,8 +164,8 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
 <body>
 <div class="wrap">
   <header class="brand">
-    <div class="disc"><img alt="Logo Clínica Cavani Vets" src="img/logo.png"></div>
-    <div><b>Clínica Cavani Vets</b><span>Oftalmologia Veterinária</span></div>
+    <div class="disc"><img alt="Logo Clínica Pimentel Vets" src="img/logo.png"></div>
+    <div><b>Clínica Pimentel Vets</b><span>Oftalmologia Veterinária</span></div>
   </header>
 
   <div class="hero" id="hero">
@@ -318,7 +318,7 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
     <div style="text-align:center;margin-top:22px"><button class="ghost" type="button" id="newReq">Fazer nova solicitação</button></div>
   </section>
 
-  <footer>Clínica Cavani Vets · M.V. Juliane Cavani Pimentel · CRMV-SP 11.064<br>Rua Arandu, 885, Brooklin Paulista, São Paulo · (11) 94767-0145</footer>
+  <footer>Clínica Pimentel Vets · M.V. Juliane Cavani Pimentel · CRMV-SP 11.064<br>Rua Arandu, 885, Brooklin Paulista, São Paulo · (11) 94767-0145</footer>
 </div>
 
 <div class="actions" id="actions"><div class="in">
@@ -610,7 +610,7 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
     $('tutorLink').textContent=link;
     $('clinicTxt').textContent='O link vai direto para o WhatsApp do tutor.'+(rel?' Os relatórios deste caso ficam marcados para ir também ao veterinário.':'')+(!dest?' O celular do tutor não foi informado; peça ao veterinário.':'');
     const tutorFirst=(d.tutorNome||'').split(' ')[0];
-    const msg='Olá'+(tutorFirst?', '+tutorFirst:'')+'! Aqui é da Clínica Cavani Vets, oftalmologia veterinária. '+v.nome+' solicitou um atendimento oftalmológico'+(pet?' para '+(/a$/i.test(pet)?'a ':'o ')+pet:'')+'. Para agendarmos, preencha seus dados e autorize a consulta por este link: '+link;
+    const msg='Olá'+(tutorFirst?', '+tutorFirst:'')+'! Aqui é da Clínica Pimentel Vets, oftalmologia veterinária. '+v.nome+' solicitou um atendimento oftalmológico'+(pet?' para '+(/a$/i.test(pet)?'a ':'o ')+pet:'')+'. Para agendarmos, preencha seus dados e autorize a consulta por este link: '+link;
     $('waBtn').href='https://wa.me/'+(dest?'55'+dest:'')+'?text='+encodeURIComponent(msg);
     $('waBtn').textContent='Enviar ao tutor';
     $('copyBtn').onclick=()=>{if(navigator.clipboard)navigator.clipboard.writeText(link).then(()=>{$('copyBtn').textContent='Link copiado';setTimeout(()=>$('copyBtn').textContent='Copiar link',2000)},()=>{})};
@@ -624,7 +624,7 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
     steps.forEach(s=>s.classList.remove('active'));
     $('hero').querySelector('h1').textContent=naoExiste?'Link inválido':'Não foi possível abrir agora';
     $('hero').querySelector('p').textContent=naoExiste
-      ?'Peça um novo link para a Clínica Cavani Vets pelo WhatsApp (11) 94767-0145.'
+      ?'Peça um novo link para a Clínica Pimentel Vets pelo WhatsApp (11) 94767-0145.'
       :'Verifique sua internet e tente de novo em instantes.';
   }
 

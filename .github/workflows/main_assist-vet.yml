@@ -23,14 +23,14 @@ jobs:
         with:
           dotnet-version: '10.x'
 
-      # O projeto fica em backend/CavaniVets.Api (não na raiz). O publish também copia as páginas
+      # O projeto fica em backend/AssistVet.Api (não na raiz). O publish também copia as páginas
       # de web/ para wwwroot (alvo CopiarPaginas no .csproj).
       # Migrações do banco NÃO rodam aqui: são aplicadas à mão antes do push (ver CLAUDE.md).
       - name: Build with dotnet
-        run: dotnet build backend/CavaniVets.Api/CavaniVets.Api.csproj --configuration Release
+        run: dotnet build backend/AssistVet.Api/AssistVet.Api.csproj --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish backend/CavaniVets.Api/CavaniVets.Api.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish backend/AssistVet.Api/AssistVet.Api.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4

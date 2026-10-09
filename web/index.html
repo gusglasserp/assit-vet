@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Painel · Clínica Cavani Vets</title>
+<title>Assist-vet · Clínica Pimentel Vets</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -63,8 +63,8 @@ input:focus{border-color:var(--cyan)}
 
 <!-- Senha da clínica (só pedida quando a API exige, ex.: acesso pelo túnel) -->
 <div class="login" id="login" hidden>
-  <img src="img/logo.png" alt="Logo Clínica Cavani Vets">
-  <h1>Painel da clínica</h1>
+  <img src="img/logo.png" alt="Logo Clínica Pimentel Vets">
+  <h1>Assist-vet</h1><p style="color:var(--muted);margin:4px 0 0">Clínica Pimentel Vets</p>
   <form id="loginForm">
     <label for="senha">Senha da clínica</label>
     <input id="senha" type="password" autocomplete="current-password">
@@ -75,8 +75,8 @@ input:focus{border-color:var(--cyan)}
 
 <div class="wrap" id="painel" hidden>
   <header class="top">
-    <img src="img/logo.png" alt="Logo Clínica Cavani Vets">
-    <div class="t"><h1>Solicitações</h1><span>Clínica Cavani Vets · painel interno</span></div>
+    <img src="img/logo.png" alt="Logo Clínica Pimentel Vets">
+    <div class="t"><h1>Solicitações</h1><span>Assist-vet · Clínica Pimentel Vets</span></div>
     <!-- Situação da conexão com o Conta Azul (orçamentos e cadastro de clientes dependem dela). -->
     <div class="conta-azul"><span class="chip" id="caStatus">Conta Azul…</span> <button class="ghost small" type="button" id="caConectar" hidden>Conectar Conta Azul</button></div>
   </header>
@@ -132,7 +132,7 @@ input:focus{border-color:var(--cyan)}
   ['celConvite','celClinica'].forEach(id=>$(id).addEventListener('input',e=>e.target.value=tel(e.target.value)));
 
   // Senha da clínica: guardada só nesta aba (sessionStorage) e enviada no cabeçalho.
-  const CHAVE='cavani-senha';
+  const CHAVE='assistvet-senha';
   const senha=()=>{try{return sessionStorage.getItem(CHAVE)||''}catch(e){return ''}};
   async function api(metodo,caminho,corpo){
     const h={'X-Senha-Clinica':senha()};if(corpo)h['Content-Type']='application/json';
@@ -169,7 +169,7 @@ input:focus{border-color:var(--cyan)}
     const v=r.json.veterinario,link=r.json.link;
     $('resConviteQuem').textContent=v?('Já cadastrado: '+v.nome+' · CRMV-'+v.uf+' '+v.crmv):'Veterinário novo: ele informa nome, CRMV e UF na primeira vez.';
     $('resConviteLink').textContent=link;
-    const msg='Olá'+(v?', '+primeiroNome(v.nome):'')+'! Aqui é da Clínica Cavani Vets, oftalmologia veterinária. '
+    const msg='Olá'+(v?', '+primeiroNome(v.nome):'')+'! Aqui é da Clínica Pimentel Vets, oftalmologia veterinária. '
       +'Para solicitar o atendimento, é só preencher por este link (leva uns 2 minutos): '+link;
     $('resConviteWa').href='https://wa.me/55'+cel+'?text='+encodeURIComponent(msg);
     $('resConviteCopiar').onclick=()=>copiar($('resConviteCopiar'),link);
@@ -189,7 +189,7 @@ input:focus{border-color:var(--cyan)}
   const quando=iso=>{const d=new Date(iso);return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
   function mensagemTutor(s){
     const pn=(s.tutor||'').split(' ')[0];
-    return 'Olá'+(pn?', '+pn:'')+'! Aqui é da Clínica Cavani Vets, oftalmologia veterinária. '+s.veterinario.nome
+    return 'Olá'+(pn?', '+pn:'')+'! Aqui é da Clínica Pimentel Vets, oftalmologia veterinária. '+s.veterinario.nome
       +' solicitou um atendimento oftalmológico'+(s.animal?' para '+(/a$/i.test(s.animal)?'a ':'o ')+s.animal:'')
       +'. Para agendarmos, preencha seus dados e autorize a consulta por este link: '+s.linkTutor;
   }

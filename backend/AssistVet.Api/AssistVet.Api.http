@@ -1,0 +1,54 @@
+@AssistVet.Api_HostAddress = http://localhost:5273
+
+### Cliente: 1º passo do formulário, busca pelo CPF ou CNPJ
+# 200 = já existe (no sistema ou no Conta Azul), dados vêm preenchidos; 404 = cadastro novo
+GET {{AssistVet.Api_HostAddress}}/api/clientes/529.982.247-25
+
+### CEP: preenche rua, bairro, cidade e UF no cadastro novo
+GET {{AssistVet.Api_HostAddress}}/api/cep/04569-010
+
+### Cliente: salva no sistema e cria no Conta Azul se ainda não existir lá
+POST {{AssistVet.Api_HostAddress}}/api/clientes
+Content-Type: application/json
+
+{
+  "documento": "529.982.247-25",
+  "nome": "TESTE SISTEMA - APAGAR",
+  "celular": "(11) 99999-0000",
+  "email": "teste@example.com",
+  "cep": "04569-010",
+  "uf": "SP",
+  "cidade": "São Paulo",
+  "rua": "Rua Quintana",
+  "bairro": "Cidade Monções",
+  "numero": "206",
+  "complemento": null
+}
+
+### Conta Azul: situação da conexão
+# Para conectar, abra no navegador: http://localhost:5273/api/conta-azul/conectar
+GET {{AssistVet.Api_HostAddress}}/api/conta-azul/status
+
+### Conta Azul: serviços cadastrados (para ligar à tabela de valores)
+GET {{AssistVet.Api_HostAddress}}/api/conta-azul/servicos
+
+### Liga o item "consulta" da tabela de valores a um serviço do Conta Azul
+PUT {{AssistVet.Api_HostAddress}}/api/conta-azul/precos/consulta
+Content-Type: application/json
+
+{ "servicoId": "COLE-AQUI-O-ID-DO-SERVICO" }
+
+### Cria orçamento no Conta Azul para o cliente
+POST {{AssistVet.Api_HostAddress}}/api/conta-azul/orcamentos
+Content-Type: application/json
+
+{
+  "documento": "52998224725",
+  "itens": [
+    { "codigo": "consulta" },
+    { "codigo": "km", "quantidade": 120 }
+  ],
+  "validadeDias": 7,
+  "descricao": "Consulta oftalmológica - Thor",
+  "observacoesPagamento": "Pagamento via Pix"
+}
