@@ -64,6 +64,40 @@ public record OrcamentoCriar(
 
 public record OrcamentoItem(string Id, decimal Quantidade, decimal Valor);
 
+/// <summary>GET /v1/venda/{id}: só o que a edição exige (número, versão, cliente) e a situação atual.</summary>
+public record VendaPorId(VendaNegociacao Venda);
+
+public record VendaNegociacao(string Id, long Numero, int Versao, string IdCliente, VendaSituacao? Situacao);
+
+/// <summary>ORCAMENTO, ORCAMENTO_ACEITO, APROVADO, FATURADO, CANCELADO...</summary>
+public record VendaSituacao(string? Nome);
+
+/// <summary>
+/// POST /v1/venda. A API não converte orçamento em venda (a edição recusa a mudança de situação de
+/// orçamento para aprovado), então a venda é criada à parte, citando o número do orçamento.
+/// </summary>
+public record VendaCriacao(
+    string IdCliente,
+    long Numero,
+    string Situacao,
+    string DataVenda,
+    List<VendaItem> Itens,
+    VendaCondicaoPagamento CondicaoPagamento,
+    string? Observacoes,
+    string? ObservacoesPagamento);
+
+/// <summary>Id = serviço do Conta Azul. Descrição opcional substitui o nome do serviço na linha.</summary>
+public record VendaItem(string Id, decimal Quantidade, decimal Valor, string? Descricao = null);
+
+/// <summary>TipoPagamento: PIX_PAGAMENTO_INSTANTANEO, BOLETO_BANCARIO, TRANSFERENCIA_BANCARIA, CARTAO_CREDITO, DINHEIRO...</summary>
+public record VendaCondicaoPagamento(string TipoPagamento, string OpcaoCondicaoPagamento, List<VendaParcela> Parcelas);
+
+public record ExclusaoLote(List<string> Ids);
+
+public record ExclusaoResposta(int Atualizados, int Ignorados);
+
+public record VendaParcela(string DataVencimento, decimal Valor, string? Descricao = null);
+
 public record Servico(string Id, string? Codigo, string? Descricao, decimal? Preco, string? Status);
 
 public record ServicosPorFiltro(List<Servico>? Itens);

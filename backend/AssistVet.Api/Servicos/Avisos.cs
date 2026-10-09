@@ -85,7 +85,7 @@ public class Avisos(AssistVetDbContext db, EmailSender email, TermoPdf termoPdf,
         Domain.Prioridade.Rotina => "Rotina", Domain.Prioridade.Ate48h => "Em até 48 h", Domain.Prioridade.Urgente => "Urgente", _ => null,
     };
 
-    public async Task ConsultaAutorizada(int solicitacaoId, OrcamentosContaAzul.Resultado orcamento, CancellationToken ct)
+    public async Task ConsultaAutorizada(int solicitacaoId, OrcamentosContaAzul.Resultado orcamento, string linkArea, CancellationToken ct)
     {
         if (!email.Configurado)
         {
@@ -120,6 +120,9 @@ public class Avisos(AssistVetDbContext db, EmailSender email, TermoPdf termoPdf,
                   <li>Se algum procedimento adicional for indicado, você recebe o orçamento para aprovar antes.</li>
                   <li>O relatório de atendimento chega pelo WhatsApp e por este e-mail.</li>
                 </ol>
+                <p style="margin:20px 0 8px">Acompanhe a data marcada, os valores e os relatórios na sua área
+                (entre com seu CPF e um código enviado a este e-mail):</p>
+                <p style="margin:0 0 12px">{Botao(linkArea, "Minha área", "#0B8AA0")}</p>
                 """);
             var texto = $"Olá, {PrimeiroNome(tutor.Nome)}!\n\nRecebemos seu cadastro e sua autorização para a consulta " +
                         $"oftalmológica de {pet}, solicitada por {s.Veterinario.Nome}.\nProtocolo: {s.Protocolo}\n" +
@@ -163,6 +166,126 @@ public class Avisos(AssistVetDbContext db, EmailSender email, TermoPdf termoPdf,
                 "aviso à clínica", s.Protocolo);
         }
     }
+
+    /// <summary>
+    /// Data marcada (ou remarcada) de um atendimento. Num acompanhamento novo, o orçamento vai anexo.
+    /// </summary>
+    public async Task AtendimentoMarcado(int atendimentoId, bool enviarOrcamento, string linkArea, CancellationToken ct)
+    {
+        var a = await db.Atendimentos.AsNoTracking()
+            .Include(x => x.Solicitacao).ThenInclude(x => x.Tutor)
+            .Include(x => x.Solicitacao).ThenInclude(x => x.Animal)
+            .Include(x => x.Solicitacao).ThenInclude(x => x.Local)
+            .SingleAsync(x => x.Id == atendimentoId, ct);
+        var s = a.Solicitacao;
+        if (!PodeAvisarTutor(s)) return;
+        var pet = s.Animal?.Nome ?? s.PetNome ?? "seu animal";
+        var quando = DataHora(a.MarcadoPara!.Value);
+        var oque = a.Tipo == Domain.TipoAtendimento.Consulta ? "consulta oftalmológica" : "visita de acompanhamento oftálmico";
+        var orcamento = enviarOrcamento && a.ContaAzulOrcamentoId is not null
+            ? "<p>Segue em anexo o orçamento desta visita (acompanhamento + deslocamento estimado). O valor final segue o km rodado.</p>"
+            : "";
+        var html = Modelo($"""
+            <p>Olá, {H(PrimeiroNome(s.Tutor!.Nome))}!</p>
+            <p>A <b>{H(oque)} de {H(pet)}</b> está marcada:</p>
+            {Tabela(("Data e hora", quando), ("Local", LocalTexto(s)), ("Protocolo", s.Protocolo))}
+            {orcamento}
+            <p>Se precisar remarcar, fale com a clínica pelo WhatsApp (11) 94767-0145.</p>
+            <p style="margin:0 0 12px">{Botao(linkArea, "Acompanhar na minha área", "#0B8AA0")}</p>
+            """);
+        var texto = $"Olá, {PrimeiroNome(s.Tutor.Nome)}!\n\nA {oque} de {pet} está marcada para {quando}" +
+                    $"{(LocalTexto(s) is { } l ? $", em {l}" : "")}.\nProtocolo: {s.Protocolo}\n\nAcompanhe em: {linkArea}";
+        var assunto = a.Tipo == Domain.TipoAtendimento.Consulta ? "Consulta marcada" : "Acompanhamento marcado";
+        await Tentar(async () =>
+        {
+            var anexos = new List<(string, byte[])>();
+            if (enviarOrcamento && a.ContaAzulOrcamentoId is not null && await contaAzul.ImprimirOrcamento(a.ContaAzulOrcamentoId, ct) is { } pdf)
+                anexos.Add(($"orcamento-{s.Protocolo}-{a.Numero}.pdf", pdf));
+            await email.Enviar(s.Tutor.Email, $"{assunto}: {quando} · {pet}", html, texto, ct, anexos);
+        }, "aviso de data marcada", s.Protocolo);
+    }
+
+    /// <summary>
+    /// Atendimento concluído: um e-mail só, com o relatório clínico (o que foi feito) e a venda do Conta Azul
+    /// (os valores) anexos, e os dados de pagamento.
+    /// </summary>
+    public async Task AtendimentoConcluido(int atendimentoId, string? instrucoesPagamento, string linkArea,
+        (string Titulo, byte[] Pdf)? relatorio, CancellationToken ct)
+    {
+        var a = await db.Atendimentos.AsNoTracking()
+            .Include(x => x.Solicitacao).ThenInclude(x => x.Tutor)
+            .Include(x => x.Solicitacao).ThenInclude(x => x.Animal)
+            .SingleAsync(x => x.Id == atendimentoId, ct);
+        var s = a.Solicitacao;
+        if (!PodeAvisarTutor(s)) return;
+        var pet = s.Animal?.Nome ?? s.PetNome ?? "seu animal";
+        var forma = a.PagamentoForma is { } f && VendasContaAzul.Formas.TryGetValue(f, out var nome) ? nome : null;
+        var vencimento = a.PagamentoVencimento?.ToString("dd/MM/yyyy");
+        var consulta = a.Tipo == Domain.TipoAtendimento.Consulta;
+        var oque = consulta ? "A consulta" : "O acompanhamento";
+        var concluido = consulta ? "concluída" : "concluído";
+        var quando = a.MarcadoPara is { } m ? TimeZoneInfo.ConvertTime(m, Brasilia).ToString("dd/MM/yyyy") : null;
+        var anexosTexto = relatorio is null
+            ? "Segue em anexo a venda com os valores."
+            : "Seguem em anexo o <b>relatório clínico</b>, com o que foi feito e as orientações, e a <b>venda</b> com os valores.";
+        var dadosPagamento = string.IsNullOrWhiteSpace(instrucoesPagamento) ? "" :
+            "<h3 style=\"font-size:16px;color:#0E3A53;margin:24px 0 8px\">Dados para pagamento</h3>" +
+            $"<p style=\"white-space:pre-line;background:#E4F6F9;border-radius:10px;padding:12px 14px\">{H(instrucoesPagamento)}</p>";
+        var html = Modelo($"""
+            <p>Olá, {H(PrimeiroNome(s.Tutor!.Nome))}!</p>
+            <p>{oque} de <b>{H(pet)}</b>{(quando is null ? "" : $" em {quando}")} foi {concluido}. {anexosTexto}</p>
+            {Tabela(("Protocolo", s.Protocolo), ("Venda", a.ContaAzulVendaNumero is { } n ? $"nº {n}" : null),
+                    ("Total", a.ValorFinal?.ToString("C", PtBr)), ("Forma de pagamento", forma), ("Vencimento", vencimento))}
+            {dadosPagamento}
+            <p>O relatório e a venda também ficam na sua área.</p>
+            <p style="margin:0 0 12px">{Botao(linkArea, "Acompanhar na minha área", "#0B8AA0")}</p>
+            """);
+        var texto = $"Olá, {PrimeiroNome(s.Tutor.Nome)}!\n\n{oque} de {pet}{(quando is null ? "" : $" em {quando}")} foi {concluido}. " +
+                    (relatorio is null ? "Segue em anexo a venda com os valores." : "Seguem em anexo o relatório clínico e a venda com os valores.") +
+                    $"\nProtocolo: {s.Protocolo}\nTotal: {a.ValorFinal?.ToString("C", PtBr)}\nVencimento: {vencimento}\n\n" +
+                    (string.IsNullOrWhiteSpace(instrucoesPagamento) ? "" : $"Dados para pagamento:\n{instrucoesPagamento}\n\n") +
+                    $"Acompanhe em: {linkArea}";
+        await Tentar(async () =>
+        {
+            var anexos = new List<(string, byte[])>();
+            if (relatorio is { } r) anexos.Add(($"relatorio-{s.Protocolo}-{a.Numero}.pdf", r.Pdf));
+            if (a.ContaAzulVendaId is not null && await contaAzul.ImprimirOrcamento(a.ContaAzulVendaId, ct) is { } pdf)
+                anexos.Add(($"venda-{s.Protocolo}-{a.Numero}.pdf", pdf));
+            await email.Enviar(s.Tutor.Email, $"{(consulta ? "Consulta concluída" : "Acompanhamento concluído")}: relatório e valores · {pet} · Clínica Pimentel Vets",
+                html, texto, ct, anexos);
+        }, "aviso de atendimento concluído", s.Protocolo);
+    }
+
+
+
+    /// <summary>Relatório novo: vai anexo ao e-mail do tutor.</summary>
+    public async Task RelatorioDisponivel(int relatorioId, byte[] pdf, string linkArea, CancellationToken ct)
+    {
+        var r = await db.Relatorios.AsNoTracking().Include(x => x.Solicitacao).ThenInclude(x => x.Tutor)
+            .Include(x => x.Solicitacao).ThenInclude(x => x.Animal).SingleAsync(x => x.Id == relatorioId, ct);
+        var s = r.Solicitacao;
+        if (!PodeAvisarTutor(s)) return;
+        var pet = s.Animal?.Nome ?? s.PetNome ?? "seu animal";
+        var html = Modelo($"""
+            <p>Olá, {H(PrimeiroNome(s.Tutor!.Nome))}!</p>
+            <p>O <b>{H(r.Titulo.ToLowerInvariant())}</b> de {H(pet)} está pronto e segue em anexo.</p>
+            <p style="margin:0 0 12px">{Botao(linkArea, "Ver na minha área", "#0B8AA0")}</p>
+            """);
+        var texto = $"Olá, {PrimeiroNome(s.Tutor.Nome)}!\n\nO {r.Titulo.ToLowerInvariant()} de {pet} está pronto e segue em anexo.\n" +
+                    $"Protocolo: {s.Protocolo}\n\nVeja também em: {linkArea}";
+        await Tentar(() => email.Enviar(s.Tutor.Email, $"{r.Titulo} · {pet} · Clínica Pimentel Vets", html, texto, ct,
+            [($"relatorio-{s.Protocolo}-{r.Id}.pdf", pdf)]), "relatório ao tutor", s.Protocolo);
+    }
+
+    bool PodeAvisarTutor(Domain.Solicitacao s)
+    {
+        if (email.Configurado && !string.IsNullOrWhiteSpace(s.Tutor?.Email)) return true;
+        log.LogWarning("Tutor sem e-mail ou e-mail não configurado; aviso da solicitação {Protocolo} não enviado", s.Protocolo);
+        return false;
+    }
+
+    static string DataHora(DateTimeOffset quando) =>
+        TimeZoneInfo.ConvertTime(quando, Brasilia).ToString("dddd, dd/MM/yyyy 'às' HH:mm", PtBr);
 
     static string? TextoEstimativa(Estimativa? e) => e is null ? null :
         $"{e.KmIdaVolta:0} km ida e volta ≈ {e.Valor.ToString("C", PtBr)}" +

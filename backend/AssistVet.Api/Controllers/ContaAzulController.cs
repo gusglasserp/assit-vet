@@ -73,6 +73,38 @@ public class ContaAzulController(ContaAzulClient contaAzul, AssistVetDbContext d
     [SenhaClinica]
     public async Task<IActionResult> Servicos(CancellationToken ct) => Ok(await contaAzul.ListarServicos(ct));
 
+    /// <summary>
+    /// Busca no Conta Azul os números de orçamentos e vendas criados antes de o sistema guardar os números.
+    /// Uma consulta ao Conta Azul por documento sem número; os já preenchidos não são consultados de novo.
+    /// </summary>
+    [HttpPost("preencher-numeros")]
+    [SenhaClinica]
+    public async Task<IActionResult> PreencherNumeros(CancellationToken ct)
+    {
+        var pendentes = await db.Atendimentos.Include(x => x.Solicitacao)
+            .Where(x => (x.ContaAzulOrcamentoId != null && x.ContaAzulOrcamentoNumero == null)
+                        || (x.ContaAzulVendaId != null && x.ContaAzulVendaNumero == null))
+            .ToListAsync(ct);
+        var erros = 0;
+        foreach (var s in pendentes)
+        {
+            try
+            {
+                if (s.ContaAzulOrcamentoId is not null && s.ContaAzulOrcamentoNumero is null)
+                    s.ContaAzulOrcamentoNumero = (await contaAzul.ObterVenda(s.ContaAzulOrcamentoId, ct))?.Numero;
+                if (s.ContaAzulVendaId is not null && s.ContaAzulVendaNumero is null)
+                    s.ContaAzulVendaNumero = (await contaAzul.ObterVenda(s.ContaAzulVendaId, ct))?.Numero;
+            }
+            catch (ContaAzulException e)
+            {
+                erros++;
+                log.LogWarning(e, "Números do Conta Azul não lidos para a solicitação {Protocolo}", s.Solicitacao.Protocolo);
+            }
+        }
+        await db.SaveChangesAsync(ct);
+        return Ok(new { atendimentos = pendentes.Count, erros });
+    }
+
     /// <summary>Liga um item da tabela de valores (ex.: "consulta") a um serviço do Conta Azul.</summary>
     [HttpPut("precos/{codigo}")]
     [SenhaClinica]

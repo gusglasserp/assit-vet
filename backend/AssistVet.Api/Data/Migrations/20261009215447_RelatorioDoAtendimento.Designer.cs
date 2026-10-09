@@ -4,6 +4,7 @@ using AssistVet.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AssistVet.Api.Data.Migrations
 {
     [DbContext(typeof(AssistVetDbContext))]
-    partial class AssistVetDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261009215447_RelatorioDoAtendimento")]
+    partial class RelatorioDoAtendimento
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

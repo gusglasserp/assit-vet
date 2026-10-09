@@ -86,6 +86,23 @@ public class ContaAzulClient(HttpClient http, AssistVetDbContext db, IOptions<Co
         return resp.IsSuccessStatusCode ? await resp.Content.ReadAsByteArrayAsync(ct) : null;
     }
 
+    public async Task<VendaNegociacao?> ObterVenda(string id, CancellationToken ct = default) =>
+        (await Enviar<VendaPorId>(HttpMethod.Get, $"/v1/venda/{id}", null, ct))?.Venda;
+
+    public Task<JsonElement> ObterVendaBruta(string id, CancellationToken ct = default) =>
+        Enviar<JsonElement>(HttpMethod.Get, $"/v1/venda/{id}", null, ct);
+
+    public async Task<long> ProximoNumeroVenda(CancellationToken ct = default) =>
+        await Enviar<long?>(HttpMethod.Get, "/v1/venda/proximo-numero", null, ct)
+        ?? throw new ContaAzulException("O Conta Azul não informou o próximo número de venda.");
+
+    /// <summary>Exclui uma venda ou orçamento. Devolve true se o Conta Azul confirmou a exclusão.</summary>
+    public async Task<bool> ExcluirVenda(string id, CancellationToken ct = default) =>
+        (await Enviar<ExclusaoResposta>(HttpMethod.Post, "/v1/venda/exclusao-lote", new ExclusaoLote([id]), ct))?.Atualizados > 0;
+
+    public async Task<string> CriarVenda(VendaCriacao venda, CancellationToken ct = default) =>
+        (await Enviar<IdResposta>(HttpMethod.Post, "/v1/venda", venda, ct))!.Id;
+
     public async Task<List<Servico>> ListarServicos(CancellationToken ct = default) =>
         (await Enviar<ServicosPorFiltro>(HttpMethod.Get, "/v1/servicos?pagina=1&tamanho_pagina=100", null, ct))?.Itens ?? [];
 

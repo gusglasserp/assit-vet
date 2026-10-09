@@ -12,4 +12,10 @@ public static class Links
         var publica = req.HttpContext.RequestServices.GetRequiredService<IConfiguration>()["Site:UrlPublica"];
         return string.IsNullOrWhiteSpace(publica) ? $"{req.Scheme}://{req.Host}" : publica.TrimEnd('/');
     }
+
+    /// <summary>Área do tutor (login por CPF + código no e-mail).</summary>
+    public static string AreaTutor(HttpRequest req) => $"{Base(req)}/minha-area.html";
+
+    /// <summary>Link direto do PDF de um relatório, para enviar pelo WhatsApp.</summary>
+    public static string Relatorio(HttpRequest req, string token) => $"{Base(req)}/api/relatorios/{token}";
 }

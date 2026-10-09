@@ -4,6 +4,7 @@ using AssistVet.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AssistVet.Api.Data.Migrations
 {
     [DbContext(typeof(AssistVetDbContext))]
-    partial class AssistVetDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261009213916_Atendimentos")]
+    partial class Atendimentos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -500,9 +503,6 @@ namespace AssistVet.Api.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("AtendimentoId")
-                        .HasColumnType("int");
-
                     b.Property<DateTimeOffset>("CriadoEm")
                         .HasColumnType("datetimeoffset");
 
@@ -524,8 +524,6 @@ namespace AssistVet.Api.Data.Migrations
                         .UseCollation("Latin1_General_100_BIN2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AtendimentoId");
 
                     b.HasIndex("SolicitacaoId");
 
@@ -877,18 +875,11 @@ namespace AssistVet.Api.Data.Migrations
 
             modelBuilder.Entity("AssistVet.Api.Domain.Relatorio", b =>
                 {
-                    b.HasOne("AssistVet.Api.Domain.Atendimento", "Atendimento")
-                        .WithMany("Relatorios")
-                        .HasForeignKey("AtendimentoId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("AssistVet.Api.Domain.Solicitacao", "Solicitacao")
                         .WithMany("Relatorios")
                         .HasForeignKey("SolicitacaoId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Atendimento");
 
                     b.Navigation("Solicitacao");
                 });
@@ -923,11 +914,6 @@ namespace AssistVet.Api.Data.Migrations
                     b.Navigation("Tutor");
 
                     b.Navigation("Veterinario");
-                });
-
-            modelBuilder.Entity("AssistVet.Api.Domain.Atendimento", b =>
-                {
-                    b.Navigation("Relatorios");
                 });
 
             modelBuilder.Entity("AssistVet.Api.Domain.Solicitacao", b =>

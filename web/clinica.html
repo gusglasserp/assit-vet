@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Painel da clínica · Assist-vet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E3A53; --cyan:#13A9C2; --cyan-strong:#0B8AA0; --aqua:#E4F6F9; --paper:#F7FBFC; --surface:#FFFFFF;
+  --text:#14262F; --muted:#56707C; --line:#D5E5EA; --danger:#B3261E; --ok:#1E7A4F; --wa:#1F8F4E;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--text);font:400 15px/1.5 Figtree,system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,sans-serif;color:var(--ink);margin:0;line-height:1.15}
+.wrap{max-width:920px;margin:0 auto;padding:0 16px 60px}
+header.top{display:flex;align-items:center;gap:12px;padding:18px 0 14px;flex-wrap:wrap}
+header.top img{width:44px;height:44px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px var(--line)}
+header.top .t{flex:1;min-width:160px}
+header.top .t span{display:block;color:var(--muted);font-size:13px}
+.acoes{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 18px}
+button,.btn{font:inherit;font-weight:600;font-size:14.5px;border-radius:12px;min-height:44px;padding:0 16px;cursor:pointer;border:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
+.primary{background:var(--cyan-strong);color:#fff}
+.ghost{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.wa{background:var(--wa);color:#fff}
+.small{min-height:36px;font-size:13.5px;padding:0 12px;border-radius:10px}
+.caixa{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:18px}
+.caixa h2{font-size:18px;margin-bottom:4px}
+.caixa p{margin:0 0 12px;color:var(--muted);font-size:14px}
+label{display:block;font-weight:600;font-size:14px;margin-bottom:6px}
+input{width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;outline:none}
+input:focus{border-color:var(--cyan)}
+.linha{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.linha .campo{flex:1;min-width:200px}
+.resultado{margin-top:14px;padding:12px;border-radius:12px;background:var(--aqua)}
+.resultado .link{font-size:13px;word-break:break-all;color:var(--muted);margin:6px 0 10px}
+.erro{color:var(--danger);font-size:14px;margin-top:8px}
+.lista-topo{display:flex;align-items:center;justify-content:space-between;margin:8px 0 10px}
+.lista-topo h2{font-size:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:12px}
+.card .cab{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+.card .proto{font-weight:700;color:var(--ink)}
+.card .quando{color:var(--muted);font-size:13px}
+.chip{font-size:12px;font-weight:600;border-radius:999px;padding:3px 10px;background:var(--aqua);color:var(--ink)}
+.chip.ok{background:#E3F4EA;color:var(--ok)}
+.chip.urg{background:#FBE4E2;color:var(--danger)}
+.chip.cli{background:#EEF0F2;color:var(--muted)}
+.grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px 16px;font-size:14px;margin-bottom:10px}
+.grade b{color:var(--muted);font-weight:500;margin-right:4px}
+.botoes{display:flex;gap:8px;flex-wrap:wrap}
+.vazio{color:var(--muted);text-align:center;padding:30px 0}
+.conta-azul{display:flex;align-items:center;gap:8px}
+.login{max-width:360px;margin:12vh auto 0;text-align:center}
+.login img{width:72px;height:72px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px var(--line);margin-bottom:12px}
+.login form{display:flex;flex-direction:column;gap:10px;margin-top:16px;text-align:left}
+/* Atendimento, conclusão e relatórios dentro de cada card */
+.etapa{border-top:1px solid var(--line);margin-top:12px;padding-top:12px}
+.etapa h3{font-size:15px;margin-bottom:8px}
+.etapa .linha .campo{min-width:150px}
+.etapa input,.etapa select{font-size:15px;padding:9px 10px}
+select{width:100%;font:inherit;color:var(--text);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;outline:none}
+.extras{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:6px 16px;margin:10px 0}
+.extras label{display:flex;align-items:center;gap:8px;font-weight:500;margin:0}
+.extras input[type=checkbox]{width:18px;height:18px}
+.extras input[type=number]{width:64px;padding:6px 8px}
+.extras .off{color:var(--muted)}
+.total{font-weight:700;color:var(--ink);font-size:16px;margin:10px 0}
+.rel{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:6px 0;font-size:14px}
+.rel b{flex:1;min-width:180px;font-weight:600}
+.dica{color:var(--muted);font-size:13px;margin:6px 0 0}
+</style>
+</head>
+<body>
+
+<!-- Senha da clínica (só pedida quando a API exige, ex.: acesso pelo túnel) -->
+<div class="login" id="login" hidden>
+  <img src="img/logo.png" alt="Logo Clínica Pimentel Vets">
+  <h1>Assist-vet</h1><p style="color:var(--muted);margin:4px 0 0">Clínica Pimentel Vets</p>
+  <form id="loginForm">
+    <label for="senha">Senha da clínica</label>
+    <input id="senha" type="password" autocomplete="current-password">
+    <button class="primary" type="submit">Entrar</button>
+    <div class="erro" id="loginErro" hidden></div>
+  </form>
+</div>
+
+<div class="wrap" id="painel" hidden>
+  <header class="top">
+    <img src="img/logo.png" alt="Logo Clínica Pimentel Vets">
+    <div class="t"><h1>Solicitações</h1><span>Assist-vet · Clínica Pimentel Vets</span></div>
+    <!-- Situação da conexão com o Conta Azul (orçamentos e cadastro de clientes dependem dela). -->
+    <div class="conta-azul"><span class="chip" id="caStatus">Conta Azul…</span> <button class="ghost small" type="button" id="caConectar" hidden>Conectar Conta Azul</button></div>
+  </header>
+
+  <!-- Conexão com o Conta Azul: o app de desenvolvimento deles volta para www.contaazul.com com o código;
+       a pessoa cola esse endereço aqui em vez de editar a barra do navegador. -->
+  <div class="caixa" id="caixaContaAzul" hidden>
+    <h2>Conectar o Conta Azul</h2>
+    <p>1. Clique em <b>Conectar Conta Azul</b> (no topo), entre no Conta Azul e autorize. 2. O Conta Azul abre uma página do site
+      deles (o endereço começa com https://www.contaazul.com/?code=...). 3. Copie o endereço completo da barra, volte para o painel (abra de novo, se precisar) e cole aqui.</p>
+    <form class="linha" id="formContaAzul">
+      <div class="campo"><label for="caRetorno">Endereço da página do Conta Azul</label><input id="caRetorno" autocomplete="off" placeholder="https://www.contaazul.com/?code=...&state=..."></div>
+      <button class="primary" type="submit">Concluir conexão</button>
+    </form>
+    <div class="erro" id="erroContaAzul" hidden></div>
+  </div>
+
+  <div class="acoes">
+    <button class="primary" type="button" id="abrirConvite">Convidar veterinário</button>
+    <button class="ghost" type="button" id="abrirClinica">Nova solicitação (a clínica preenche)</button>
+  </div>
+
+  <!-- Convite: link para o veterinário preencher, enviado pelo WhatsApp -->
+  <div class="caixa" id="caixaConvite" hidden>
+    <h2>Convidar veterinário</h2>
+    <p>O link reconhece o veterinário pelo celular. Se ele já tiver cadastro, só confirma e descreve o caso.</p>
+    <form class="linha" id="formConvite">
+      <div class="campo"><label for="celConvite">Celular do veterinário</label><input id="celConvite" inputmode="tel" placeholder="(11) 90000-0000"></div>
+      <button class="primary" type="submit">Gerar link</button>
+    </form>
+    <div class="erro" id="erroConvite" hidden></div>
+    <div class="resultado" id="resConvite" hidden>
+      <div id="resConviteQuem"></div>
+      <div class="link" id="resConviteLink"></div>
+      <div class="botoes">
+        <a class="btn wa small" id="resConviteWa" target="_blank" rel="noopener">Enviar pelo WhatsApp</a>
+        <button class="ghost small" type="button" id="resConviteCopiar">Copiar link</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- A clínica preenche no lugar do veterinário: abre a página e, no fim, mostra o link do tutor -->
+  <div class="caixa" id="caixaClinica" hidden>
+    <h2>Nova solicitação preenchida pela clínica</h2>
+    <p>Informe o celular do veterinário que pediu o atendimento. A página abre numa aba nova; no fim, ela mostra o link para enviar ao tutor.</p>
+    <form class="linha" id="formClinica">
+      <div class="campo"><label for="celClinica">Celular do veterinário solicitante</label><input id="celClinica" inputmode="tel" placeholder="(11) 90000-0000"></div>
+      <button class="primary" type="submit">Abrir solicitação</button>
+    </form>
+    <div class="erro" id="erroClinica" hidden></div>
+  </div>
+
+  <div class="lista-topo">
+    <h2>Últimas solicitações</h2>
+    <button class="ghost small" type="button" id="atualizar">Atualizar</button>
+  </div>
+  <div id="lista"><div class="vazio">Carregando…</div></div>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const digits=v=>(v||'').replace(/\D/g,'');
+  const tel=v=>{v=digits(v).slice(0,11);if(v.length<=10)return v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{4})(\d)/,'$1-$2');return v.replace(/(\d{2})(\d{5})(\d)/,'($1) $2-$3')};
+  const el=(tag,cls,texto)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(texto!=null)e.textContent=texto;return e};
+  ['celConvite','celClinica'].forEach(id=>$(id).addEventListener('input',e=>e.target.value=tel(e.target.value)));
+
+  // Senha da clínica: guardada só nesta aba (sessionStorage) e enviada no cabeçalho.
+  const CHAVE='assistvet-senha';
+  const senha=()=>{try{return sessionStorage.getItem(CHAVE)||''}catch(e){return ''}};
+  async function api(metodo,caminho,corpo){
+    const h={'X-Senha-Clinica':senha()};if(corpo)h['Content-Type']='application/json';
+    const r=await fetch(caminho,{method:metodo,headers:h,body:corpo?JSON.stringify(corpo):undefined});
+    const txt=await r.text();let json=null;try{json=JSON.parse(txt)}catch(e){}
+    return {status:r.status,json,erro:(json&&(json.erro||json.title))||txt||('Erro '+r.status+'.')};
+  }
+
+  async function iniciar(){
+    const r=await api('GET','/api/painel/entrar');
+    if(r.status===204){$('login').hidden=true;$('painel').hidden=false;carregar();statusContaAzul();return}
+    $('painel').hidden=true;$('login').hidden=false;
+    if(senha()){$('loginErro').textContent=r.erro;$('loginErro').hidden=false}
+    $('senha').focus();
+  }
+  $('loginForm').addEventListener('submit',e=>{e.preventDefault();try{sessionStorage.setItem(CHAVE,$('senha').value)}catch(x){}iniciar()});
+
+  // Abre/fecha as caixas do topo
+  [['abrirConvite','caixaConvite','celConvite'],['abrirClinica','caixaClinica','celClinica']].forEach(([b,c,campo])=>{
+    $(b).addEventListener('click',()=>{const abrir=$(c).hidden;['caixaConvite','caixaClinica'].forEach(x=>$(x).hidden=true);$(c).hidden=!abrir;if(abrir)$(campo).focus()});
+  });
+  const primeiroNome=n=>(n||'').replace(/^Dra?\.\s*/,m=>m).split(' ').slice(0,2).join(' ');
+  function copiar(botao,texto){
+    if(!navigator.clipboard)return;
+    navigator.clipboard.writeText(texto).then(()=>{const t=botao.textContent;botao.textContent='Copiado!';setTimeout(()=>botao.textContent=t,1800)},()=>{});
+  }
+
+  // ---- Convidar veterinário ----
+  $('formConvite').addEventListener('submit',async e=>{
+    e.preventDefault();$('erroConvite').hidden=true;$('resConvite').hidden=true;
+    const cel=digits($('celConvite').value);
+    const r=await api('POST','/api/convites',{celular:cel,preenchidoPor:'Veterinario'});
+    if(r.status!==200){$('erroConvite').textContent=r.erro;$('erroConvite').hidden=false;return}
+    const v=r.json.veterinario,link=r.json.link;
+    $('resConviteQuem').textContent=v?('Já cadastrado: '+v.nome+' · CRMV-'+v.uf+' '+v.crmv):'Veterinário novo: ele informa nome, CRMV e UF na primeira vez.';
+    $('resConviteLink').textContent=link;
+    const msg='Olá'+(v?', '+primeiroNome(v.nome):'')+'! Aqui é da Clínica Pimentel Vets, oftalmologia veterinária. '
+      +'Para solicitar o atendimento, é só preencher por este link (leva uns 2 minutos): '+link;
+    $('resConviteWa').href='https://wa.me/55'+cel+'?text='+encodeURIComponent(msg);
+    $('resConviteCopiar').onclick=()=>copiar($('resConviteCopiar'),link);
+    $('resConvite').hidden=false;
+  });
+
+  // ---- Nova solicitação preenchida pela clínica ----
+  $('formClinica').addEventListener('submit',async e=>{
+    e.preventDefault();$('erroClinica').hidden=true;
+    const r=await api('POST','/api/convites',{celular:digits($('celClinica').value),preenchidoPor:'Clinica'});
+    if(r.status!==200){$('erroClinica').textContent=r.erro;$('erroClinica').hidden=false;return}
+    window.open(r.json.link,'_blank','noopener');
+  });
+
+  // ---- Lista ----
+  const ESPECIE={Cao:'cão',Gato:'gato',Equino:'equino',Outro:'outro'};
+  const quando=iso=>{const d=new Date(iso);return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
+  function mensagemTutor(s){
+    const pn=(s.tutor||'').split(' ')[0];
+    return 'Olá'+(pn?', '+pn:'')+'! Aqui é da Clínica Pimentel Vets, oftalmologia veterinária. '+s.veterinario.nome
+      +' solicitou um atendimento oftalmológico'+(s.animal?' para '+(/a$/i.test(s.animal)?'a ':'o ')+s.animal:'')
+      +'. Para agendarmos, preencha seus dados e autorize a consulta por este link: '+s.linkTutor;
+  }
+  function campo(grade,rotulo,valor){if(!valor)return;const d=el('div');d.append(el('b',null,rotulo),document.createTextNode(valor));grade.append(d)}
+  const real=v=>(Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const dataBr=iso=>{const [a,m,d]=iso.split('-');return d+'/'+m+'/'+a};
+  const pad=n=>String(n).padStart(2,'0');
+  // Valor para <input type="datetime-local"> no horário do navegador.
+  const paraInputData=iso=>{const d=new Date(iso);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes())};
+  const hojeMais=dias=>{const d=new Date();d.setDate(d.getDate()+dias);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
+  const linkWa=(cel,msg)=>'https://wa.me/'+(cel?'55'+cel:'')+'?text='+encodeURIComponent(msg);
+  // "Orçamento nº 6075 (PDF)": o mesmo número que aparece no Conta Azul, para achar e acompanhar por lá.
+  const nomeDoc=(tipo,numero)=>tipo+(numero?' nº '+numero:'')+' (PDF)';
+  function botaoLink(texto,href,cls){const a=el('a','btn small '+(cls||'ghost'),texto);a.href=href;a.target='_blank';a.rel='noopener';return a}
+  function erroEm(caixa){const e=el('div','erro');e.hidden=true;caixa.append(e);return t=>{e.textContent=t||'';e.hidden=!t}}
+  let cfg={};
+
+  // Atendimentos: nº 1 = consulta; depois, acompanhamentos. Só um fica em aberto por vez.
+  const emAberto=s=>s.atendimentos.find(a=>!a.concluidoEm);
+  const dataSo=iso=>new Date(iso).toLocaleDateString('pt-BR');
+  function situacao(s){
+    if(!s.autorizadoEm)return ['Aguardando tutor',''];
+    const a=emAberto(s);
+    if(a&&a.marcadoPara)return [a.nome+' marcada para '+quando(a.marcadoPara),' ok'];
+    if(a)return [a.nome+' · marcar data',''];
+    if(s.atendimentos.length)return [s.atendimentos[s.atendimentos.length-1].nome+' concluída',' ok'];
+    return ['Autorizada em '+quando(s.autorizadoEm)+' · marcar data',''];
+  }
+  const oQue=a=>!a||a.tipo==='Consulta'?'A consulta oftalmológica':'A visita de acompanhamento oftálmico';
+  const erroBox=box=>box.querySelector('.erro');
+
+  // Atendimento concluído: venda, total e cobrança pelo WhatsApp.
+  function etapaConcluido(s,a){
+    const box=el('div','etapa');
+    box.append(el('h3',null,a.nome+' · '+dataSo(a.marcadoPara||a.concluidoEm)));
+    box.append(el('p','dica','Venda'+(a.vendaNumero?' nº '+a.vendaNumero:'')+(a.orcamentoNumero?' (do orçamento nº '+a.orcamentoNumero+')':'')
+      +' · total '+real(a.valorFinal)+(a.formaPagamentoNome?' · '+a.formaPagamentoNome:'')+(a.pagamentoVencimento?' · vence em '+dataBr(a.pagamentoVencimento):'')
+      +'. O tutor já recebeu por e-mail.'));
+    const pn=(s.tutor||'').split(' ')[0];
+    const rel=a.relatorios[0];
+    const msg='Olá'+(pn?', '+pn:'')+'! Aqui é da Clínica Pimentel Vets. '+oQue(a)+(s.animal?' de '+s.animal:'')+' foi concluída. '
+      +(rel?'\n\nRelatório do atendimento: '+rel.link+'\n\n':'')
+      +'Total: '+real(a.valorFinal)+(a.pagamentoVencimento?', com vencimento em '+dataBr(a.pagamentoVencimento):'')+'.'
+      +(cfg.pagamentoInstrucoes?'\n\nDados para pagamento:\n'+cfg.pagamentoInstrucoes:'')
+      +'\n\nO relatório e a venda em PDF estão no seu e-mail e na sua área: '+cfg.linkAreaTutor;
+    const b=el('div','botoes');b.style.marginTop='8px';
+    if(a.vendaPdf)b.append(botaoLink(nomeDoc('Venda',a.vendaNumero),a.vendaPdf));
+    b.append(botaoLink('Enviar relatório e cobrança no WhatsApp',linkWa(s.tutorCelular,msg),'wa'));
+    box.append(b);
+    if(a.relatorios.length)box.append(linhasRelatorio(s,a.relatorios));
+    else box.append(formRelatorio(s,a));
+    return box;
+  }
+
+  // Atendimento em aberto: data (salvar avisa o tutor), orçamento e conclusão. A data marcada é a data da venda.
+  function etapaAberto(s,a){
+    const box=el('div','etapa');
+    box.append(el('h3',null,(a?a.nome:'Consulta')+(a&&a.marcadoPara?' · marcada':' · marcar data')));
+    const f=el('form','linha');
+    const campoData=el('div','campo');const lb=el('label',null,'Data e hora');const inp=el('input');inp.type='datetime-local';inp.required=true;
+    lb.htmlFor=inp.id='data-'+s.protocolo;if(a&&a.marcadoPara)inp.value=paraInputData(a.marcadoPara);
+    campoData.append(lb,inp);
+    const bt=el('button','primary small',a&&a.marcadoPara?'Remarcar e avisar tutor':'Salvar e avisar tutor');bt.type='submit';
+    f.append(campoData,bt);box.append(f);
+    const b=el('div','botoes');b.style.marginTop='10px';
+    if(a&&a.marcadoPara){
+      const pn=(s.tutor||'').split(' ')[0];
+      const msg='Olá'+(pn?', '+pn:'')+'! Aqui é da Clínica Pimentel Vets. '+oQue(a)+(s.animal?' de '+s.animal:'')
+        +' está marcada para '+quando(a.marcadoPara)+(s.local?', em '+s.local.nome:'')+'.'
+        +(a.tipo==='Acompanhamento'&&a.orcamentoPdf?' O orçamento da visita foi enviado para o seu e-mail.':'')
+        +' Você acompanha tudo por aqui: '+cfg.linkAreaTutor;
+      b.append(botaoLink('Avisar tutor no WhatsApp',linkWa(s.tutorCelular,msg),'wa'));
+    }
+    if(a&&a.orcamentoPdf)b.append(botaoLink(nomeDoc('Orçamento',a.orcamentoNumero),a.orcamentoPdf));
+    if(b.childNodes.length)box.append(b);
+
+    let abrir=null;
+    if(a&&a.marcadoPara){
+      abrir=el('button','ghost small','Concluir '+a.nome.toLowerCase()+' e gerar venda');abrir.type='button';abrir.style.marginTop='10px';
+      box.append(abrir);
+    }else box.append(el('p','dica','Marque a data para poder concluir: ela é a data da venda no Conta Azul.'));
+    const erro=erroEm(box);
+    f.addEventListener('submit',async e=>{
+      e.preventDefault();erro('');bt.disabled=true;
+      const r=await api('POST','/api/painel/solicitacoes/'+encodeURIComponent(s.protocolo)+'/agendar',{quando:new Date(inp.value).toISOString()});
+      bt.disabled=false;if(r.status!==204){erro(r.erro);return}carregar();
+    });
+    if(abrir)abrir.addEventListener('click',async()=>{
+      abrir.disabled=true;erro('');
+      const r=await api('GET','/api/painel/solicitacoes/'+encodeURIComponent(s.protocolo)+'/conclusao');
+      abrir.disabled=false;if(r.status!==200){erro(r.erro);return}
+      abrir.hidden=true;box.insertBefore(formConcluir(s,a,r.json,erro),erroBox(box));
+    });
+    return box;
+  }
+
+  // Novo acompanhamento: cria o atendimento com a data, gera o orçamento e avisa o tutor (com o orçamento anexo).
+  function etapaNovoAcompanhamento(s){
+    const box=el('div','etapa');box.append(el('h3',null,'Agendar acompanhamento'));
+    const f=el('form','linha');
+    const c=el('div','campo');const lb=el('label',null,'Data e hora da visita');const inp=el('input');inp.type='datetime-local';inp.required=true;
+    lb.htmlFor=inp.id='acomp-'+s.protocolo;c.append(lb,inp);
+    const bt=el('button','primary small','Agendar, avisar tutor e gerar orçamento');bt.type='submit';
+    f.append(c,bt);box.append(f);
+    box.append(el('p','dica','O tutor recebe o aviso com o orçamento da visita (acompanhamento + deslocamento estimado). Ao concluir, o orçamento vira venda.'));
+    const erro=erroEm(box);
+    f.addEventListener('submit',async e=>{
+      e.preventDefault();erro('');bt.disabled=true;bt.textContent='Agendando…';
+      const r=await api('POST','/api/painel/solicitacoes/'+encodeURIComponent(s.protocolo)+'/acompanhamentos',{quando:new Date(inp.value).toISOString()});
+      bt.disabled=false;bt.textContent='Agendar, avisar tutor e gerar orçamento';
+      if(r.status!==200){erro(r.erro);return}
+      if(r.json&&r.json.aviso)alert(r.json.aviso);
+      carregar();
+    });
+    return box;
+  }
+
+  function formConcluir(s,a,d,erro){
+    const f=el('form','aberto');
+    const num=(rotulo,valor,passo)=>{const c=el('div','campo');const l=el('label',null,rotulo);const i=el('input');i.type='number';i.min='0';i.step=passo;i.value=valor??'';i.inputMode='decimal';c.append(l,i);return [c,i]};
+    f.append(el('p','dica','Data da venda: '+dataSo(a.marcadoPara)+' (data marcada). Para mudar, remarque acima.'));
+    const l1=el('div','linha');
+    const [cKm,km]=num('Km rodados (ida e volta)',d.kmIdaVolta,'0.1');
+    const [cPed,ped]=num('Pedágio total (R$)',d.pedagio,'0.01');
+    l1.append(cKm,cPed);f.append(l1);
+    f.append(el('p','dica',(d.base||'Atendimento')+' '+real(d.valorBase)+' + '+real(d.valorKm)+' por km. Marque abaixo o que mais foi feito.'));
+    const extras=el('div','extras');const marcados=[];
+    d.extras.forEach(x=>{
+      const lb=el('label',x.ligado?null:'off');const ck=el('input');ck.type='checkbox';ck.disabled=!x.ligado;
+      const q=el('input');q.type='number';q.min='1';q.step='1';q.value='1';q.disabled=!x.ligado;q.title='Quantidade';
+      lb.append(ck,el('span',null,(x.grupo==='Infiltrações'?'Infiltração '+x.descricao.toLowerCase():x.descricao)+' · '+real(x.valor)+(x.ligado?'':' (ligar no Conta Azul)')),q);
+      extras.append(lb);marcados.push({x,ck,q});
+    });
+    f.append(extras);
+    const l2=el('div','linha');
+    const cForma=el('div','campo');const sel=el('select');
+    cfg.formasPagamento.forEach(fp=>{const o=el('option',null,fp.nome);o.value=fp.codigo;sel.append(o)});
+    cForma.append(el('label',null,'Forma de pagamento'),sel);
+    const cVenc=el('div','campo');const venc=el('input');venc.type='date';venc.required=true;venc.value=hojeMais(cfg.prazoDias||3);
+    cVenc.append(el('label',null,'Vencimento'),venc);
+    l2.append(cForma,cVenc);f.append(l2);
+    // Relatório do atendimento: obrigatório, vai no mesmo e-mail da venda.
+    const l3=el('div','linha');
+    const cRel=el('div','campo');const arq=el('input');arq.type='file';arq.accept='application/pdf';arq.required=true;
+    cRel.append(el('label',null,'Relatório do atendimento (PDF)'),arq);
+    const cTit=el('div','campo');const tit=el('input');tit.placeholder=a.tipo==='Consulta'?'Relatório da consulta':'Relatório do '+a.nome.toLowerCase();
+    cTit.append(el('label',null,'Título do relatório (opcional)'),tit);
+    l3.append(cRel,cTit);f.append(l3);
+    const total=el('div','total');f.append(total);
+    const calc=()=>{let t=Number(d.valorBase)||0;t+=(Number(km.value)||0)*(Number(d.valorKm)||0);t+=Number(ped.value)||0;
+      marcados.forEach(m=>{if(m.ck.checked)t+=(Number(m.q.value)||0)*Number(m.x.valor)});total.textContent='Total da venda: '+real(t)};
+    f.addEventListener('input',calc);calc();
+    if(!cfg.pagamentoInstrucoes)f.append(el('p','dica','Atenção: os dados de pagamento (Pix) ainda não estão configurados; a venda sai sem eles.'));
+    const bt=el('button','primary small','Gerar venda e enviar relatório e venda ao tutor');bt.type='submit';f.append(bt);
+    f.addEventListener('submit',async e=>{
+      e.preventDefault();erro('');
+      if(!arq.files[0]){erro('Anexe o relatório do atendimento (PDF).');return}
+      if(!confirm('Gerar a venda de '+total.textContent.replace('Total da venda: ','')+' com data de '+dataSo(a.marcadoPara)+' no Conta Azul'
+        +(a.orcamentoNumero?' (o orçamento nº '+a.orcamentoNumero+' será excluído)':' (o orçamento será excluído)')+' e enviar o relatório e a venda ao tutor?'))return;
+      bt.disabled=true;bt.textContent='Gerando venda…';
+      const dados=new FormData();
+      dados.append('dados',JSON.stringify({
+        kmIdaVolta:Number(km.value)||0,pedagio:Number(ped.value)||0,formaPagamento:sel.value,vencimento:venc.value,
+        extras:marcados.filter(m=>m.ck.checked).map(m=>({codigo:m.x.codigo,quantidade:Number(m.q.value)||1}))}));
+      dados.append('relatorio',arq.files[0]);dados.append('tituloRelatorio',tit.value);
+      const r=await enviarArquivo('/api/painel/solicitacoes/'+encodeURIComponent(s.protocolo)+'/concluir',dados);
+      bt.disabled=false;bt.textContent='Gerar venda e enviar relatório e venda ao tutor';
+      if(r.status!==200){erro(r.erro);return}
+      if(r.json&&r.json.aviso)alert(r.json.aviso);
+      carregar();
+    });
+    return f;
+  }
+
+  // Relatório de cada atendimento: vai junto com a venda. Aqui ficam o link e o envio ao veterinário pelo WhatsApp.
+  function linhasRelatorio(s,rels){
+    const frag=document.createDocumentFragment();
+    rels.forEach(rel=>{
+      const linha=el('div','rel');linha.append(el('b',null,rel.titulo+' · '+quando(rel.criadoEm)));
+      linha.append(botaoLink('Abrir relatório',rel.link));
+      if(s.veterinarioRecebeRelatorios)linha.append(botaoLink('Veterinário no WhatsApp',linkWa(s.veterinario.celular,'Olá, '+primeiroNome(s.veterinario.nome)
+        +'! Aqui é da Clínica Pimentel Vets. Segue o '+rel.titulo.toLowerCase()+(s.animal?' de '+s.animal:'')+(s.tutor?' (tutor: '+s.tutor+')':'')
+        +', atendimento solicitado por você: '+rel.link),'wa'));
+      frag.append(linha);
+    });
+    return frag;
+  }
+
+  // Envio de PDF com a senha da clínica (multipart; a função api() só manda JSON).
+  async function enviarArquivo(caminho,dados){
+    const r=await fetch(caminho,{method:'POST',headers:{'X-Senha-Clinica':senha()},body:dados});
+    const txt=await r.text();let json=null;try{json=JSON.parse(txt)}catch(e){}
+    return {status:r.status,json,erro:(json&&(json.erro||json.title))||txt||('Erro '+r.status+'.')};
+  }
+
+  // Atendimento concluído antes de o relatório ir junto com a venda: anexa agora (o tutor recebe por e-mail).
+  function formRelatorio(s,a){
+    const box=el('div');
+    box.append(el('p','dica','Este atendimento ainda não tem relatório.'));
+    const f=el('form','linha');
+    const cA=el('div','campo');const arq=el('input');arq.type='file';arq.accept='application/pdf';arq.required=true;
+    cA.append(el('label',null,'PDF do relatório'),arq);
+    const bt=el('button','primary small','Enviar relatório ao tutor');bt.type='submit';
+    f.append(cA,bt);box.append(f);
+    const erro=erroEm(box);
+    f.addEventListener('submit',async e=>{
+      e.preventDefault();erro('');if(!arq.files[0])return;
+      const dados=new FormData();dados.append('arquivo',arq.files[0]);
+      bt.disabled=true;bt.textContent='Enviando…';
+      const r=await enviarArquivo('/api/painel/solicitacoes/'+encodeURIComponent(s.protocolo)+'/atendimentos/'+a.numero+'/relatorio',dados);
+      bt.disabled=false;bt.textContent='Enviar relatório ao tutor';
+      if(r.status!==200){erro(r.erro);return}
+      carregar();
+    });
+    return box;
+  }
+
+  // Relatórios enviados antes de ficarem ligados a um atendimento.
+  function etapaRelatorios(s){
+    if(!s.relatorios.length)return document.createDocumentFragment();
+    const box=el('div','etapa');box.append(el('h3',null,'Outros relatórios'));
+    box.append(linhasRelatorio(s,s.relatorios));
+    return box;
+  }
+
+  async function carregar(){
+    const r=await api('GET','/api/painel/solicitacoes');
+    const box=$('lista');box.innerHTML='';
+    if(r.status===401||r.status===403){iniciar();return}
+    if(r.status!==200){box.append(el('div','vazio','Não foi possível carregar: '+r.erro));return}
+    cfg=r.json;
+    if(!cfg.solicitacoes.length){box.append(el('div','vazio','Nenhuma solicitação ainda.'));return}
+    cfg.solicitacoes.forEach(s=>{
+      const c=el('div','card');
+      const cab=el('div','cab');
+      cab.append(el('span','proto',s.protocolo),el('span','quando',quando(s.criadoEm)));
+      const autorizada=!!s.autorizadoEm;
+      const [textoSit,classeSit]=situacao(s);
+      cab.append(el('span','chip'+classeSit,textoSit));
+      if(s.prioridade==='Urgente')cab.append(el('span','chip urg','Urgente'));
+      if(s.preenchidoPor==='Clinica')cab.append(el('span','chip cli','Preenchida pela clínica'));
+      c.append(cab);
+
+      const g=el('div','grade');
+      campo(g,'Veterinário: ',s.veterinario.nome+' · '+tel(s.veterinario.celular));
+      campo(g,'Animal: ',s.animal?(s.animal+(s.especie?' ('+ESPECIE[s.especie]+')':'')):null);
+      campo(g,'Local: ',s.local?(s.local.nome+(s.local.cidade?', '+s.local.cidade:'')+(s.local.kmIdaVolta?' · '+s.local.kmIdaVolta+' km ida e volta':'')):null);
+      campo(g,'Tutor: ',s.tutor?(s.tutor+(s.tutorCelular?' · '+tel(s.tutorCelular):'')):(s.tutorCelular?tel(s.tutorCelular):'não informado'));
+      c.append(g);
+
+      const b=el('div','botoes');
+      if(!autorizada){
+        const wa=el('a','btn wa small','Enviar link ao tutor');wa.target='_blank';wa.rel='noopener';
+        wa.href='https://wa.me/'+(s.tutorCelular?'55'+s.tutorCelular:'')+'?text='+encodeURIComponent(mensagemTutor(s));
+        b.append(wa);
+      }
+      const cp=el('button','ghost small','Copiar link do tutor');cp.type='button';cp.onclick=()=>copiar(cp,s.linkTutor);b.append(cp);
+      const ab=el('a','btn ghost small','Abrir página do tutor');ab.href=s.linkTutor;ab.target='_blank';ab.rel='noopener';b.append(ab);
+      if(s.termoPdf){const t=el('a','btn ghost small','Termo (PDF)');t.href=s.termoPdf;t.target='_blank';b.append(t)}
+      c.append(b);
+      if(autorizada){
+        s.atendimentos.filter(a=>a.concluidoEm).forEach(a=>c.append(etapaConcluido(s,a)));
+        const aberto=emAberto(s);
+        if(aberto||!s.atendimentos.length)c.append(etapaAberto(s,aberto));
+        else c.append(etapaNovoAcompanhamento(s));
+        c.append(etapaRelatorios(s));
+      }
+      box.append(c);
+    });
+  }
+  // ---- Conta Azul ----
+  async function statusContaAzul(){
+    const r=await api('GET','/api/conta-azul/status');
+    const ok=r.status===200&&r.json.conectado;
+    $('caStatus').textContent=ok?'Conta Azul conectado':'Conta Azul desconectado';
+    $('caStatus').className='chip'+(ok?' ok':' urg');
+    $('caConectar').hidden=ok;
+    // Desconectado: a caixa de colar o endereço fica sempre à mostra (o login pode ter levado a aba do painel).
+    $('caixaContaAzul').hidden=ok;
+  }
+  $('caConectar').addEventListener('click',async()=>{
+    // Abre a aba já no clique (antes do await) para o navegador não bloquear como pop-up.
+    const aba=window.open('','_blank');
+    const r=await api('GET','/api/conta-azul/conectar-url');
+    if(r.status!==200){if(aba)aba.close();return}
+    if(aba)aba.location.href=r.json.url;else window.open(r.json.url,'_blank');
+    $('erroContaAzul').hidden=true;$('caRetorno').value='';$('caixaContaAzul').hidden=false;$('caRetorno').focus();
+  });
+  $('formContaAzul').addEventListener('submit',async e=>{
+    e.preventDefault();$('erroContaAzul').hidden=true;
+    let url;try{url=new URL($('caRetorno').value.trim())}catch(x){url=null}
+    const code=url&&url.searchParams.get('code'),state=url&&url.searchParams.get('state');
+    if(!code||!state){$('erroContaAzul').textContent='Esse endereço não tem o código. Copie o endereço completo da página do Conta Azul, com ?code=...&state=...';$('erroContaAzul').hidden=false;return}
+    const r=await api('GET','/api/conta-azul/callback?code='+encodeURIComponent(code)+'&state='+encodeURIComponent(state));
+    if(r.status!==200){$('erroContaAzul').textContent=r.erro;$('erroContaAzul').hidden=false;return}
+    $('caixaContaAzul').hidden=true;statusContaAzul();
+  });
+
+  $('atualizar').addEventListener('click',carregar);
+  // Sem atualização periódica: o Azure SQL gratuito só pausa depois de ~1 h sem acesso, e um painel aberto
+  // consultando a cada poucos segundos gastaria a cota mensal. Atualiza ao voltar para a aba ou no botão.
+  // Não recarrega com um formulário de conclusão aberto (a pessoa pode ter ido conferir o km em outra aba).
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!$('painel').hidden&&!document.querySelector('form.aberto'))carregar()});
+
+  iniciar();
+})();
+</script>
+</body>
+</html>

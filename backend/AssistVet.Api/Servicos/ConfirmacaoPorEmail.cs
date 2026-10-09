@@ -35,7 +35,8 @@ public class ConfirmacaoPorEmail(IMemoryCache cache, EmailSender email, ILogger<
     public bool Confirmado(string token, string documento) => cache.TryGetValue(Chave("ok", token, documento), out _);
 
     /// <summary>Envia um código novo. Devolve a mensagem de erro, ou nulo se enviou.</summary>
-    public async Task<string?> Enviar(string token, string documento, string emailDestino, string nome, CancellationToken ct)
+    /// <param name="finalidade">Completa "Seu código para ...", ex.: "confirmar o cadastro", "entrar na sua área".</param>
+    public async Task<string?> Enviar(string token, string documento, string emailDestino, string nome, string finalidade, CancellationToken ct)
     {
         var agora = DateTimeOffset.UtcNow;
         var envios = cache.GetOrCreate(Chave("envios", token, documento), e =>
@@ -60,7 +61,7 @@ public class ConfirmacaoPorEmail(IMemoryCache cache, EmailSender email, ILogger<
             <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#14262F;max-width:520px">
               <p style="font-size:18px;font-weight:bold;color:#0E3A53;margin:0 0 16px">Clínica Pimentel Vets</p>
               <p>Olá, {WebUtility.HtmlEncode(primeiro)}!</p>
-              <p>Seu código para confirmar o cadastro é:</p>
+              <p>Seu código para {WebUtility.HtmlEncode(finalidade)} é:</p>
               <p style="font-size:30px;font-weight:bold;letter-spacing:6px;color:#0E3A53;margin:8px 0 16px">{codigo}</p>
               <p style="color:#56707C;font-size:14px">Ele vale 10 minutos. Se você não pediu este código, pode ignorar este e-mail.</p>
             </div>
@@ -69,7 +70,7 @@ public class ConfirmacaoPorEmail(IMemoryCache cache, EmailSender email, ILogger<
         {
             // Código fora do assunto: o assunto vai para o log.
             await email.Enviar(emailDestino, "Código de confirmação · Clínica Pimentel Vets", html,
-                $"Seu código para confirmar o cadastro na Clínica Pimentel Vets é {codigo}. Ele vale 10 minutos.", ct);
+                $"Seu código para {finalidade} na Clínica Pimentel Vets é {codigo}. Ele vale 10 minutos.", ct);
             return null;
         }
         catch (Exception e)

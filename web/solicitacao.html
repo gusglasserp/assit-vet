@@ -170,7 +170,7 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
 
   <div class="hero" id="hero">
     <h1>Solicitar atendimento oftalmológico</h1>
-    <p>Leva cerca de 2 minutos. A Dra. Juliane recebe o caso e envia o orçamento direto ao tutor.</p>
+    <p>Leva menos de 1 minuto. No fim, você recebe o link para enviar ao tutor, que preenche os dados e autoriza a consulta.</p>
   </div>
 
   <div id="progress">
@@ -201,44 +201,29 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
     </div>
   </section>
 
-  <!-- 2. O caso -->
-  <section class="step" data-step="2" data-title="O caso">
-    <h2>O caso</h2>
-    <p class="lead">Conte o que já sabe. Todos os campos são opcionais: a Dra. Juliane completa a ficha com você se faltar algo.</p>
-    <div class="field"><label for="pNome">Nome do animal</label><input id="pNome"></div>
-    <div class="field"><label>Espécie</label>
+  <!-- 2. A solicitação, numa tela só: o essencial primeiro (animal e tutor), o resto opcional. -->
+  <section class="step" data-step="2" data-title="Solicitação">
+    <h2>Quem vamos atender?</h2>
+    <p class="lead">Só o nome do animal e o do tutor são obrigatórios. No fim, você recebe o link para enviar ao tutor pelo WhatsApp.</p>
+    <div class="field" data-req><label for="pNome">Nome do animal</label><input id="pNome" autocomplete="off"><div class="msg">Informe o nome do animal.</div></div>
+    <div class="field" data-req><label for="tNome">Nome do tutor</label><input id="tNome" autocomplete="off"><div class="msg">Informe o nome do tutor.</div></div>
+    <div class="field"><label>Espécie <small>(opcional)</small></label>
       <div class="chips">
         <label><input type="radio" name="especie" value="Cão"><span>Cão</span></label>
         <label><input type="radio" name="especie" value="Gato"><span>Gato</span></label>
         <label><input type="radio" name="especie" value="Equino"><span>Equino</span></label>
         <label><input type="radio" name="especie" value="Outro"><span>Outro</span></label>
       </div></div>
-    <div class="row">
-      <div class="field"><label for="pRaca">Raça</label><input id="pRaca"></div>
-      <div class="field"><label for="pIdade">Idade</label><input id="pIdade" placeholder="Ex.: 8 anos"></div>
-    </div>
-    <div class="field"><label>Olho acometido</label>
-      <div class="chips">
-        <label><input type="radio" name="olho" value="OD"><span>Direito (OD)</span></label>
-        <label><input type="radio" name="olho" value="OE"><span>Esquerdo (OE)</span></label>
-        <label><input type="radio" name="olho" value="AO"><span>Ambos (AO)</span></label>
-      </div></div>
-    <div class="field"><label>Prioridade</label>
+    <div class="field"><label>Urgência <small>(opcional)</small></label>
       <div class="chips">
         <label><input type="radio" name="urg" value="Rotina"><span>Rotina</span></label>
         <label><input type="radio" name="urg" value="Em até 48 h"><span>Em até 48 h</span></label>
         <label><input type="radio" name="urg" value="Urgente"><span>Urgente</span></label>
       </div></div>
-    <div class="field"><div class="rotulo"><label for="pQueixa">Queixa e histórico</label><button type="button" class="ditar" data-alvo="pQueixa" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5"/></svg><span>Ditar</span></button></div><textarea id="pQueixa" placeholder="Ex.: opacidade em OD há 10 dias, blefaroespasmo..."></textarea></div>
-    <div class="field"><div class="rotulo"><label for="pMed">Medicações em uso</label><button type="button" class="ditar" data-alvo="pMed" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5"/></svg><span>Ditar</span></button></div><textarea id="pMed" style="min-height:80px"></textarea></div>
-  </section>
+    <div class="field"><div class="rotulo"><label for="pQueixa">Conte o caso <small>(opcional)</small></label><button type="button" class="ditar" data-alvo="pQueixa" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5"/></svg><span>Ditar</span></button></div><textarea id="pQueixa" placeholder="Fale ou escreva: o que está acontecendo, há quanto tempo, qual olho, medicações em uso..."></textarea></div>
 
-  <!-- 3. Local e tutor -->
-  <section class="step" data-step="3" data-title="Local e tutor">
-    <h2>Onde será o atendimento?</h2>
-    <p class="lead">Escolha na lista. Se o local ainda não estiver cadastrado, é só adicionar.</p>
     <div class="field" id="placeSearchF">
-      <label for="placeQ">Local <small>(opcional)</small></label>
+      <label for="placeQ">Onde o animal está <small>(opcional)</small></label>
       <input id="placeQ" placeholder="Busque por nome ou cidade" autocomplete="off">
       <div class="places" id="places"></div>
     </div>
@@ -277,41 +262,29 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
       <div class="field"><label for="trTel">Celular do tratador <small>(opcional)</small></label><input id="trTel" inputmode="tel" placeholder="(11) 90000-0000" maxlength="15"></div>
     </div>
 
-    <h2 style="margin-top:30px">Tutor do animal</h2>
-    <p class="lead">O orçamento e a autorização vão sempre direto para o tutor, que é o responsável financeiro.</p>
-    <div class="field"><label for="tNome">Nome do tutor</label><input id="tNome"></div>
-    <div class="field"><label for="tTel">Celular do tutor</label><input id="tTel" inputmode="tel" placeholder="(11) 90000-0000" maxlength="15"><div class="sub">Se não tiver agora, a clínica pede depois.</div></div>
-    <div class="field"><label>Ele já sabe que a consulta com especialista tem custo próprio?</label>
+    <div class="field" data-req data-check="radio" data-name="rel" style="margin-top:18px"><label>Quer receber os relatórios clínicos deste caso?</label>
       <div class="chips">
-        <label><input type="radio" name="ciente" value="Sim"><span>Sim</span></label>
-        <label><input type="radio" name="ciente" value="Não"><span>Ainda não</span></label>
-      </div></div>
-
-    <h2 style="margin-top:30px">Relatórios clínicos</h2>
-    <p class="lead">Se você acompanha o animal, por exemplo internado, no haras ou no pós-operatório, podemos te enviar também os relatórios de cada atendimento.</p>
-    <div class="field" data-req data-check="radio" data-name="rel">
-      <div class="chips" style="flex-direction:column">
-        <label><input type="radio" name="rel" value="sim"><span>Sim, quero receber os relatórios</span></label>
+        <label><input type="radio" name="rel" value="sim"><span>Sim, quero receber</span></label>
         <label><input type="radio" name="rel" value="nao"><span>Não, só o tutor</span></label>
       </div><div class="msg">Escolha uma opção.</div></div>
     <div class="note err" id="envioErro" hidden></div>
   </section>
 
-  <!-- 4. Confirmação -->
-  <section class="step" data-step="4">
+  <!-- 3. Confirmação: o link do tutor sai pronto para o veterinário (ou a clínica) enviar pelo WhatsApp. -->
+  <section class="step" data-step="3">
     <div class="done">
       <div class="ok"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
       <h2>Solicitação enviada</h2>
       <p class="lead" style="margin-top:8px" id="doneMsg"></p>
     </div>
     <div class="receipt list" id="receipt"></div>
-    <!-- Só quando a clínica preenche no lugar do veterinário: já sai com o link do tutor. -->
-    <div class="clinicbox" id="clinicBox" hidden>
-      <h3>Link para o tutor</h3>
+    <!-- Link do tutor, pronto para enviar: o WhatsApp abre e a pessoa escolhe o contato do tutor. -->
+    <div class="clinicbox" id="clinicBox">
+      <h3>Agora envie o link ao tutor</h3>
       <p id="clinicTxt"></p>
       <div class="linkbox" id="tutorLink"></div>
       <div class="btnrow">
-        <a class="wa" id="waBtn" target="_blank" rel="noopener">Enviar pelo WhatsApp</a>
+        <a class="wa" id="waBtn" target="_blank" rel="noopener">Enviar ao tutor pelo WhatsApp</a>
         <button class="copy" type="button" id="copyBtn">Copiar link</button>
       </div>
     </div>
@@ -335,7 +308,7 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
   const tel=v=>{v=digits(v).slice(0,11);if(v.length<=10)return v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{4})(\d)/,'$1-$2');return v.replace(/(\d{2})(\d{5})(\d)/,'($1) $2-$3')};
   const radio=n=>(document.querySelector('input[name="'+n+'"]:checked')||{}).value||'';
   'AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO'.split(' ').forEach(u=>{const o=document.createElement('option');o.value=o.textContent=u;['vUf','npUf'].forEach(id=>$(id).appendChild(o.cloneNode(true)))});
-  ['vTel','tTel','trTel'].forEach(id=>$(id).addEventListener('input',e=>e.target.value=tel(e.target.value)));
+  ['vTel','trTel'].forEach(id=>$(id).addEventListener('input',e=>e.target.value=tel(e.target.value)));
   $('npCep').addEventListener('input',e=>e.target.value=digits(e.target.value).slice(0,8).replace(/(\d{5})(\d)/,'$1-$2'));
 
   // Valores dos chips na página ↔ nomes na API.
@@ -531,7 +504,7 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
   document.querySelectorAll('input[name="especie"],input[name="npTipo"]').forEach(r=>r.addEventListener('change',updateTratador));
 
   // ---- Navegação ----
-  const steps=[...document.querySelectorAll('section.step')];let cur=1;const TOTAL=3;
+  const steps=[...document.querySelectorAll('section.step')];let cur=1;const TOTAL=2;
   function rotuloBotao(){$('next').textContent=cur===1&&me?'Sou eu, continuar':cur===TOTAL?'Enviar solicitação':'Continuar'}
   function render(){
     steps.forEach(s=>s.classList.toggle('active',+s.dataset.step===cur));
@@ -549,19 +522,17 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
     if(cur===TOTAL&&!await enviar())return;
     cur++;render()});
   $('back').addEventListener('click',()=>{pararDitado();if(cur>1){cur--;render()}});
-  $('newReq').addEventListener('click',()=>{document.querySelectorAll('section.step[data-step="2"] input,section.step[data-step="2"] textarea,section.step[data-step="3"] input').forEach(e=>{if(e.type==='radio')e.checked=false;else if(e.type!=='file')e.value=''});
+  $('newReq').addEventListener('click',()=>{document.querySelectorAll('section.step[data-step="2"] input,section.step[data-step="2"] textarea').forEach(e=>{if(e.type==='radio')e.checked=false;else if(e.type!=='file')e.value=''});
     place=null;$('chosen').classList.add('hidden');$('newPlace').classList.add('hidden');$('placeSearchF').classList.remove('hidden');renderPlaces();updateTratador();setIdentity();cur=1;render()});
 
   // ---- Envio ----
   async function enviar(){
-    const ciente=radio('ciente');
     const dados={
       convite,
       veterinario:me?null:{nome:$('vNome').value.trim(),crmv:$('vCrmv').value.trim(),uf:$('vUf').value},
       petNome:$('pNome').value.trim()||null,especie:ESPECIE[radio('especie')]||null,
-      raca:$('pRaca').value.trim()||null,idade:$('pIdade').value.trim()||null,
-      olho:radio('olho')||null,prioridade:PRIORIDADE[radio('urg')]||null,
-      queixaHistorico:$('pQueixa').value.trim()||null,medicacoes:$('pMed').value.trim()||null,
+      prioridade:PRIORIDADE[radio('urg')]||null,
+      queixaHistorico:$('pQueixa').value.trim()||null,
       localId:place&&!place.novo?place.id:null,
       novoLocal:place&&place.novo&&$('npNome').value.trim()?{
         nome:$('npNome').value.trim(),tipo:TIPO[radio('npTipo')]||'Outro',
@@ -573,8 +544,7 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
       }:null,
       tratadorNome:$('tratador').classList.contains('hidden')?null:$('trNome').value.trim()||null,
       tratadorCelular:$('tratador').classList.contains('hidden')?null:digits($('trTel').value)||null,
-      tutorNome:$('tNome').value.trim()||null,tutorCelular:digits($('tTel').value)||null,
-      tutorCienteCusto:ciente?ciente==='Sim':null,
+      tutorNome:$('tNome').value.trim()||null,
       veterinarioRecebeRelatorios:radio('rel')==='sim'
     };
     const fd=new FormData();fd.append('dados',JSON.stringify(dados));
@@ -594,25 +564,26 @@ textarea{min-height:110px;resize:vertical;line-height:1.5}
   function mostrarConfirmacao(res,d){
     const v=me,pet=d.petNome,rel=d.veterinarioRecebeRelatorios;
     const lugar=place&&!place.novo?place.nome+(place.cidade?', '+place.cidade:''):d.novoLocal?d.novoLocal.nome+(d.novoLocal.cidade?', '+d.novoLocal.cidade:''):'';
-    $('doneMsg').textContent='Obrigado, '+v.nome.replace(/^Dra?\.\s*/,'').split(' ')[0]+'. A Dra. Juliane vai enviar o orçamento ao tutor'+(rel?' e você receberá os relatórios clínicos do caso.':'.');
+    $('doneMsg').textContent='Obrigado, '+v.nome.replace(/^Dra?\.\s*/,'').split(' ')[0]+'. Falta só um passo: enviar o link abaixo ao tutor'+(rel?'. Você receberá os relatórios clínicos do caso.':'.');
     const rows=[['Protocolo',res.protocolo],['Solicitante',v.nome+' · CRMV-'+v.uf+' '+v.crmv]];
     if(pet)rows.push(['Paciente',pet+(radio('especie')?' ('+radio('especie').toLowerCase()+')':'')]);
     if(lugar)rows.push(['Local',lugar]);
     if(d.tratadorNome)rows.push(['Tratador',d.tratadorNome+(d.tratadorCelular?' · '+tel(d.tratadorCelular):'')]);
-    rows.push(['Tutor',d.tutorNome||'A informar']);rows.push(['Relatórios',rel?'Tutor e veterinário':'Somente tutor']);
+    rows.push(['Tutor',d.tutorNome]);rows.push(['Relatórios',rel?'Tutor e veterinário':'Somente tutor']);
     $('receipt').innerHTML='';
     rows.forEach(([a,b])=>{const el=document.createElement('div');el.className='item';const x=document.createElement('span');x.textContent=a;const y=document.createElement('span');y.className='v';y.textContent=b;el.append(x,y);$('receipt').appendChild(el)});
 
-    // Link do tutor: só aparece quando a clínica preencheu (quem envia ao tutor é a clínica).
-    $('clinicBox').hidden=modo!=='Clinica';
-    if(modo!=='Clinica')return;
-    const link=res.linkTutor,dest=d.tutorCelular||'';
+    // Link do tutor para quem preencheu enviar. Sem número: o WhatsApp abre a lista de contatos,
+    // e o veterinário escolhe o tutor (não precisa saber o celular de cor). O celular, o tutor informa no link.
+    const link=res.linkTutor;
     $('tutorLink').textContent=link;
-    $('clinicTxt').textContent='O link vai direto para o WhatsApp do tutor.'+(rel?' Os relatórios deste caso ficam marcados para ir também ao veterinário.':'')+(!dest?' O celular do tutor não foi informado; peça ao veterinário.':'');
+    $('clinicTxt').textContent='Toque no botão e escolha o contato do tutor no WhatsApp. Ele preenche os dados, vê os valores e autoriza a consulta; a clínica acompanha tudo e cuida do agendamento.';
     const tutorFirst=(d.tutorNome||'').split(' ')[0];
-    const msg='Olá'+(tutorFirst?', '+tutorFirst:'')+'! Aqui é da Clínica Pimentel Vets, oftalmologia veterinária. '+v.nome+' solicitou um atendimento oftalmológico'+(pet?' para '+(/a$/i.test(pet)?'a ':'o ')+pet:'')+'. Para agendarmos, preencha seus dados e autorize a consulta por este link: '+link;
-    $('waBtn').href='https://wa.me/'+(dest?'55'+dest:'')+'?text='+encodeURIComponent(msg);
-    $('waBtn').textContent='Enviar ao tutor';
+    const paraPet=pet?' para '+(/a$/i.test(pet)?'a ':'o ')+pet:'';
+    const msg=modo==='Clinica'
+      ?'Olá'+(tutorFirst?', '+tutorFirst:'')+'! Aqui é da Clínica Pimentel Vets, oftalmologia veterinária. '+v.nome+' solicitou um atendimento oftalmológico'+paraPet+'. Para agendarmos, preencha seus dados e autorize a consulta por este link: '+link
+      :'Olá'+(tutorFirst?', '+tutorFirst:'')+'! Solicitei um atendimento oftalmológico'+paraPet+' com a Dra. Juliane Cavani Pimentel, da Clínica Pimentel Vets. Para agendar, preencha seus dados e autorize a consulta por este link: '+link;
+    $('waBtn').href='https://wa.me/?text='+encodeURIComponent(msg);
     $('copyBtn').onclick=()=>{if(navigator.clipboard)navigator.clipboard.writeText(link).then(()=>{$('copyBtn').textContent='Link copiado';setTimeout(()=>$('copyBtn').textContent='Copiar link',2000)},()=>{})};
   }
 

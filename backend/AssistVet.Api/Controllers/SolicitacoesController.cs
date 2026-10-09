@@ -11,7 +11,7 @@ namespace AssistVet.Api.Controllers;
 /// <summary>Página do veterinário (solicitacao.html?c=TOKEN): envia o caso, com áudio opcional.</summary>
 [ApiController]
 [Route("api/solicitacoes")]
-public class SolicitacoesController(AssistVetDbContext db, IWebHostEnvironment env, IConfiguration config, IOptions<JsonOptions> json,
+public class SolicitacoesController(AssistVetDbContext db, IOptions<JsonOptions> json,
     Avisos avisos, Deslocamentos deslocamentos) : ControllerBase
 {
     const long TamanhoMaximoAudio = 30 * 1024 * 1024;
@@ -131,11 +131,7 @@ public class SolicitacoesController(AssistVetDbContext db, IWebHostEnvironment e
     /// <summary>Grava em dados/audios (fora da pasta pública). Nome = protocolo + extensão.</summary>
     async Task<string> GuardarAudio(IFormFile audio, string protocolo, CancellationToken ct)
     {
-        // Armazenamento:Pasta fica fora da pasta publicada (no Azure Windows, D:\home\dados), senão os
-        // arquivos somem a cada publicação. Sem configuração, usa dados/ dentro do projeto (desenvolvimento).
-        var raiz = config["Armazenamento:Pasta"] is { Length: > 0 } p ? p : Path.Combine(env.ContentRootPath, "dados");
-        var pasta = Path.Combine(raiz, "audios");
-        Directory.CreateDirectory(pasta);
+        var pasta = Armazenamento.Pasta(HttpContext.RequestServices, "audios");
         var nome = protocolo + Extensao(audio);
         await using var arquivo = System.IO.File.Create(Path.Combine(pasta, nome));
         await audio.CopyToAsync(arquivo, ct);

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Minha área · Clínica Pimentel Vets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E3A53; --cyan:#13A9C2; --cyan-strong:#0B8AA0; --aqua:#E4F6F9; --paper:#F7FBFC; --surface:#FFFFFF;
+  --text:#14262F; --muted:#56707C; --line:#D5E5EA; --danger:#B3261E; --ok:#1E7A4F; --ok-bg:#E3F4EA; --warn:#8A5A00; --warn-bg:#FFF4D6;
+  --disc:#FFFFFF; color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ink:#BFE9F2; --cyan:#3CC7DD; --cyan-strong:#6BD8EA; --aqua:#123540; --paper:#0A1A21; --surface:#10252E;
+  --text:#E3EEF1; --muted:#93AEB8; --line:#22404B; --danger:#FF8A80; --ok:#6FD6A0; --ok-bg:#12352A; --warn:#F2C76B; --warn-bg:#3A2F12;
+  --disc:#F2FAFC; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --ink:#BFE9F2; --cyan:#3CC7DD; --cyan-strong:#6BD8EA; --aqua:#123540; --paper:#0A1A21; --surface:#10252E;
+  --text:#E3EEF1; --muted:#93AEB8; --line:#22404B; --danger:#FF8A80; --ok:#6FD6A0; --ok-bg:#12352A; --warn:#F2C76B; --warn-bg:#3A2F12;
+  --disc:#F2FAFC; color-scheme:dark;}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--text);font:400 16px/1.55 Figtree,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Bricolage Grotesque",Figtree,system-ui,sans-serif;color:var(--ink);line-height:1.15;margin:0}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px 60px}
+header.brand{display:flex;align-items:center;gap:14px;padding:22px 0 8px}
+.disc{width:58px;height:58px;border-radius:50%;background:var(--disc);display:grid;place-items:center;flex:none;box-shadow:0 0 0 1px var(--line)}
+.disc img{width:50px;height:50px}
+.brand .t{flex:1}
+.brand b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:19px;color:var(--ink);font-weight:700}
+.brand span{color:var(--muted);font-size:14px}
+.hero{padding:22px 0 16px}
+.hero h1{font-size:clamp(26px,7vw,34px)}
+.hero p{margin:10px 0 0;color:var(--muted)}
+.field{margin-bottom:16px}
+.field label{display:block;font-weight:600;font-size:15px;margin-bottom:6px}
+input{width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;min-height:50px;outline:none}
+input:focus{border-color:var(--cyan)}
+.codigo{font-size:24px;letter-spacing:8px;text-align:center}
+button,.btn{font:inherit;font-weight:600;border-radius:12px;min-height:50px;padding:0 18px;cursor:pointer;border:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
+.primary{background:var(--cyan-strong);color:#fff;width:100%}
+:root[data-theme="dark"] .primary{color:#0A1A21}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .primary{color:#0A1A21}}
+.ghost{background:var(--surface);color:var(--ink);border:1.5px solid var(--line)}
+.small{min-height:40px;font-size:14px;padding:0 14px;border-radius:10px}
+.link{background:none;border:0;color:var(--cyan-strong);font-weight:600;min-height:auto;padding:0;text-decoration:underline}
+.note{border-radius:12px;padding:12px 14px;font-size:14.5px;margin:12px 0}
+.note.err{background:#FBE4E2;color:#8C1D18}
+.note.info{background:var(--aqua);color:var(--text)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px}
+.card .cab{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:6px}
+.card h2{font-size:21px}
+.card .sub{color:var(--muted);font-size:14px;margin:2px 0 10px}
+.chip{flex:none;font-size:12.5px;font-weight:600;border-radius:999px;padding:4px 10px;background:var(--aqua);color:var(--ink);white-space:nowrap}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}
+.chip.warn{background:var(--warn-bg);color:var(--warn)}
+.linhas{font-size:14.5px;margin:8px 0}
+.linhas div{display:flex;gap:8px;padding:5px 0;border-top:1px solid var(--line)}
+.linhas div:first-child{border-top:0}
+.linhas dt{color:var(--muted);min-width:118px}
+.linhas dd{margin:0;font-weight:600}
+.pagar{background:var(--aqua);border-radius:12px;padding:12px 14px;font-size:14.5px;margin:10px 0;white-space:pre-line}
+.pagar b{display:block;color:var(--ink);margin-bottom:2px}
+.docs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.docs h3{width:100%;font-size:15px;margin-top:6px}
+.visita{border-top:1px solid var(--line);margin-top:12px;padding-top:12px}
+.visita h3{font-size:16px;margin-bottom:4px}
+.vazio{color:var(--muted);text-align:center;padding:30px 0}
+footer{color:var(--muted);font-size:13px;text-align:center;margin-top:28px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="brand">
+    <div class="disc"><img src="img/logo.png" alt="Logo Clínica Pimentel Vets"></div>
+    <div class="t"><b>Clínica Pimentel Vets</b><span>Oftalmologia veterinária</span></div>
+    <button class="ghost small" type="button" id="sair" hidden>Sair</button>
+  </header>
+
+  <!-- 1. CPF/CNPJ -->
+  <section id="passoDoc" hidden>
+    <div class="hero">
+      <h1>Minha área</h1>
+      <p>Acompanhe as consultas dos seus animais, a data marcada, os valores e os relatórios. Para entrar, enviamos um código ao e-mail do seu cadastro.</p>
+    </div>
+    <form id="formDoc">
+      <div class="field"><label for="doc">CPF ou CNPJ</label><input id="doc" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00"></div>
+      <button class="primary" type="submit" id="btDoc">Receber código por e-mail</button>
+    </form>
+    <div class="note err" id="erroDoc" hidden></div>
+  </section>
+
+  <!-- 2. Código -->
+  <section id="passoCodigo" hidden>
+    <div class="hero">
+      <h1>Digite o código</h1>
+      <p>Se este CPF/CNPJ tem cadastro na clínica, enviamos um código de 6 números para o e-mail cadastrado. Ele vale 10 minutos.</p>
+    </div>
+    <form id="formCodigo">
+      <div class="field"><label for="codigo">Código</label><input id="codigo" class="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div>
+      <button class="primary" type="submit" id="btCodigo">Entrar</button>
+    </form>
+    <div class="note err" id="erroCodigo" hidden></div>
+    <div class="note info">Não chegou? Confira a caixa de spam. Se você ainda não preencheu a autorização de nenhuma consulta, use o link que a clínica enviou pelo WhatsApp.
+      <br><button class="link" type="button" id="voltarDoc">Usar outro CPF/CNPJ</button></div>
+  </section>
+
+  <!-- 3. Solicitações -->
+  <section id="passoLista" hidden>
+    <div class="hero"><h1 id="ola">Minha área</h1><p>Suas consultas, das mais recentes para as mais antigas.</p></div>
+    <div id="lista"></div>
+  </section>
+
+  <footer>Clínica Pimentel Vets · M.V. Juliane Cavani Pimentel · CRMV-SP 11.064<br>Rua Arandu, 885, Brooklin Paulista, São Paulo · (11) 94767-0145</footer>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const digits=v=>(v||'').replace(/\D/g,'');
+  const el=(tag,cls,texto)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(texto!=null)e.textContent=texto;return e};
+  const docMask=v=>{v=digits(v).slice(0,14);
+    if(v.length<=11)return v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+    return v.replace(/(\d{2})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1/$2').replace(/(\d{4})(\d{1,2})$/,'$1-$2')};
+  $('doc').addEventListener('input',e=>e.target.value=docMask(e.target.value));
+  $('codigo').addEventListener('input',e=>e.target.value=digits(e.target.value).slice(0,6));
+
+  async function api(metodo,caminho,corpo){
+    const r=await fetch(caminho,{method:metodo,credentials:'same-origin',headers:corpo?{'Content-Type':'application/json'}:{},body:corpo?JSON.stringify(corpo):undefined});
+    const txt=await r.text();let json=null;try{json=JSON.parse(txt)}catch(e){}
+    return {status:r.status,json,erro:(json&&(json.erro||json.title))||txt||('Erro '+r.status+'.')};
+  }
+  function mostrar(passo){['passoDoc','passoCodigo','passoLista'].forEach(p=>$(p).hidden=p!==passo);$('sair').hidden=passo!=='passoLista'}
+  const msg=(id,t)=>{$(id).textContent=t||'';$(id).hidden=!t};
+
+  $('formDoc').addEventListener('submit',async e=>{
+    e.preventDefault();msg('erroDoc');
+    const d=digits($('doc').value);
+    if(d.length!==11&&d.length!==14){msg('erroDoc','Digite o CPF (11 números) ou o CNPJ (14 números).');return}
+    $('btDoc').disabled=true;
+    const r=await api('POST','/api/tutor/codigo',{documento:d});
+    $('btDoc').disabled=false;
+    if(r.status!==204){msg('erroDoc',r.erro);return}
+    $('codigo').value='';msg('erroCodigo');mostrar('passoCodigo');$('codigo').focus();
+  });
+  $('formCodigo').addEventListener('submit',async e=>{
+    e.preventDefault();msg('erroCodigo');
+    $('btCodigo').disabled=true;
+    const r=await api('POST','/api/tutor/entrar',{documento:digits($('doc').value),codigo:$('codigo').value});
+    $('btCodigo').disabled=false;
+    if(r.status!==204){msg('erroCodigo',r.erro);return}
+    carregar();
+  });
+  $('voltarDoc').addEventListener('click',()=>{mostrar('passoDoc');$('doc').focus()});
+  $('sair').addEventListener('click',async()=>{await api('POST','/api/tutor/sair');$('doc').value='';mostrar('passoDoc')});
+
+  const quando=iso=>{const d=new Date(iso);return d.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'})+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
+  const data=iso=>new Date(iso).toLocaleDateString('pt-BR');
+  const dataBr=iso=>{const [a,m,d]=iso.split('-');return d+'/'+m+'/'+a};
+  const real=v=>Number(v).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const ESPECIE={Cao:'cão',Gato:'gato',Equino:'equino',Outro:'outro'};
+  const SITUACAO={
+    AguardandoAutorizacao:['Aguardando sua autorização','warn'],
+    Autorizada:['Autorizada · data a combinar',''],
+    Agendada:['Consulta marcada','ok'],
+    AcompanhamentoAgendado:['Acompanhamento marcado','ok'],
+    Atendida:['Atendida','ok'],
+  };
+  function linha(dl,rotulo,valor){if(!valor)return;const d=el('div');d.append(el('dt',null,rotulo),el('dd',null,valor));dl.append(d)}
+  function botao(texto,href,cls){const a=el('a','btn small '+(cls||'ghost'),texto);a.href=href;if(!/^\/autorizacao/.test(href)){a.target='_blank';a.rel='noopener'}return a}
+  const n=num=>num?' nº '+num:'';
+
+  // Uma visita (consulta ou acompanhamento): data, valores e documentos dela.
+  function visita(a){
+    const box=el('section','visita');
+    box.append(el('h3',null,a.nome+(a.concluidoEm?' · atendida':a.marcadoPara?' · marcada':' · data a combinar')));
+    const dl=el('dl','linhas');
+    linha(dl,a.concluidoEm?'Data':'Data marcada',a.marcadoPara?quando(a.marcadoPara):'a clínica vai combinar com você');
+    linha(dl,'Total',a.valorFinal!=null?real(a.valorFinal):null);
+    linha(dl,'Pagamento',a.formaPagamentoNome?(a.formaPagamentoNome+(a.pagamentoVencimento?', vence em '+dataBr(a.pagamentoVencimento):'')):null);
+    if(dl.childNodes.length)box.append(dl);
+    const docs=el('div','docs');
+    a.relatorios.forEach(rel=>docs.append(botao(rel.titulo,rel.pdf,'primary')));
+    if(a.orcamentoPdf)docs.append(botao('Orçamento'+n(a.orcamentoNumero),a.orcamentoPdf));
+    if(a.vendaPdf)docs.append(botao('Venda'+n(a.vendaNumero)+' · valores finais',a.vendaPdf));
+    if(docs.childNodes.length)box.append(docs);
+    return box;
+  }
+
+  async function carregar(){
+    const r=await api('GET','/api/tutor');
+    if(r.status===401){mostrar('passoDoc');$('doc').focus();return}
+    mostrar('passoLista');
+    const box=$('lista');box.innerHTML='';
+    if(r.status!==200){box.append(el('div','vazio','Não foi possível carregar: '+r.erro));return}
+    $('ola').textContent='Olá, '+r.json.nome.split(' ')[0]+'!';
+    if(!r.json.solicitacoes.length){box.append(el('div','vazio','Nenhuma consulta por aqui ainda.'));return}
+    r.json.solicitacoes.forEach(s=>{
+      const c=el('article','card');
+      const cab=el('div','cab');
+      const [txt,cls]=SITUACAO[s.situacao]||[s.situacao,''];
+      cab.append(el('h2',null,s.animal||'Consulta oftalmológica'),el('span','chip '+cls,txt));
+      c.append(cab);
+      c.append(el('p','sub',[s.especie?ESPECIE[s.especie]:null,'pedido por '+s.veterinario,'em '+data(s.criadoEm)].filter(Boolean).join(' · ')));
+      const dl=el('dl','linhas');
+      linha(dl,'Próxima visita',s.proximaData?quando(s.proximaData):null);
+      linha(dl,'Local',s.local);
+      linha(dl,'Protocolo',s.protocolo);
+      c.append(dl);
+      if(s.linkAutorizacao){const d=el('div','docs');d.append(botao('Preencher e autorizar a consulta',s.linkAutorizacao,'primary'));c.append(d)}
+      // Mais recente primeiro: o próximo acompanhamento aparece no topo.
+      s.atendimentos.slice().reverse().forEach(a=>c.append(visita(a)));
+      if(s.pagamentoInstrucoes){const p=el('div','pagar');p.append(el('b',null,'Dados para pagamento'),document.createTextNode(s.pagamentoInstrucoes));c.append(p)}
+
+      const docs=el('div','docs');
+      if(s.relatorios.length){
+        docs.append(el('h3',null,'Outros relatórios'));
+        s.relatorios.forEach(rel=>docs.append(botao(rel.titulo+' · '+data(rel.criadoEm),rel.pdf)));
+      }
+      if(s.termoPdf){docs.append(el('h3',null,'Documentos'));docs.append(botao('Termo assinado',s.termoPdf))}
+      if(docs.childNodes.length)c.append(docs);
+      box.append(c);
+    });
+  }
+
+  carregar();
+})();
+</script>
+</body>
+</html>

@@ -4,6 +4,7 @@ using AssistVet.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AssistVet.Api.Data.Migrations
 {
     [DbContext(typeof(AssistVetDbContext))]
-    partial class AssistVetDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261009210621_VendaContaAzul")]
+    partial class VendaContaAzul
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -61,67 +64,6 @@ namespace AssistVet.Api.Data.Migrations
                     b.HasIndex("TutorId");
 
                     b.ToTable("Animais");
-                });
-
-            modelBuilder.Entity("AssistVet.Api.Domain.Atendimento", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTimeOffset?>("ConcluidoEm")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ContaAzulOrcamentoId")
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
-
-                    b.Property<long?>("ContaAzulOrcamentoNumero")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("ContaAzulVendaId")
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
-
-                    b.Property<long?>("ContaAzulVendaNumero")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTimeOffset>("CriadoEm")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<DateTimeOffset?>("MarcadoPara")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("Numero")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PagamentoForma")
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
-
-                    b.Property<DateOnly?>("PagamentoVencimento")
-                        .HasColumnType("date");
-
-                    b.Property<int>("SolicitacaoId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Tipo")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<decimal?>("ValorFinal")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SolicitacaoId", "Numero")
-                        .IsUnique();
-
-                    b.ToTable("Atendimentos");
                 });
 
             modelBuilder.Entity("AssistVet.Api.Domain.Autorizacao", b =>
@@ -343,7 +285,6 @@ namespace AssistVet.Api.Data.Migrations
                             Id = 5,
                             Ativo = true,
                             Codigo = "acompanhamento",
-                            ContaAzulServicoId = "c009a3ea-951c-4aa6-bcc3-c532c4bf73a0",
                             Descricao = "Acompanhamento oftálmico, até a alta clínica",
                             Grupo = "Indicados",
                             Observacao = "por visita",
@@ -375,7 +316,6 @@ namespace AssistVet.Api.Data.Migrations
                             Id = 8,
                             Ativo = true,
                             Codigo = "inf-subconjuntival",
-                            ContaAzulServicoId = "420f0ea1-48fb-49ce-a32f-a237aa9bfb60",
                             Descricao = "Subconjuntival",
                             Grupo = "Infiltrações",
                             Ordem = 20,
@@ -386,7 +326,6 @@ namespace AssistVet.Api.Data.Migrations
                             Id = 9,
                             Ativo = true,
                             Codigo = "inf-retrobulbar",
-                            ContaAzulServicoId = "c479be16-5a0c-496a-bf31-dedc89829723",
                             Descricao = "Retrobulbar",
                             Grupo = "Infiltrações",
                             Ordem = 21,
@@ -397,7 +336,6 @@ namespace AssistVet.Api.Data.Migrations
                             Id = 10,
                             Ativo = true,
                             Codigo = "inf-intravitrea",
-                            ContaAzulServicoId = "dec4b351-ddc8-491f-bd3d-0234067e1799",
                             Descricao = "Intravítrea",
                             Grupo = "Infiltrações",
                             Ordem = 22,
@@ -408,7 +346,6 @@ namespace AssistVet.Api.Data.Migrations
                             Id = 11,
                             Ativo = true,
                             Codigo = "inf-intralesional",
-                            ContaAzulServicoId = "4eeb1f4a-d258-4035-88fa-dea602b45c27",
                             Descricao = "Intralesional",
                             Grupo = "Infiltrações",
                             Ordem = 23,
@@ -500,9 +437,6 @@ namespace AssistVet.Api.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("AtendimentoId")
-                        .HasColumnType("int");
-
                     b.Property<DateTimeOffset>("CriadoEm")
                         .HasColumnType("datetimeoffset");
 
@@ -525,8 +459,6 @@ namespace AssistVet.Api.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AtendimentoId");
-
                     b.HasIndex("SolicitacaoId");
 
                     b.HasIndex("Token")
@@ -546,11 +478,23 @@ namespace AssistVet.Api.Data.Migrations
                     b.Property<int?>("AnimalId")
                         .HasColumnType("int");
 
+                    b.Property<DateTimeOffset?>("AtendidoEm")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("AtendimentoMarcadoPara")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("AudioArquivo")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("AudioDuracaoSegundos")
                         .HasColumnType("int");
+
+                    b.Property<string>("ContaAzulOrcamentoId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContaAzulVendaId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("CriadoEm")
                         .HasColumnType("datetimeoffset");
@@ -571,6 +515,13 @@ namespace AssistVet.Api.Data.Migrations
                     b.Property<string>("Olho")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("PagamentoForma")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<DateOnly?>("PagamentoVencimento")
+                        .HasColumnType("date");
 
                     b.Property<string>("PetNome")
                         .HasColumnType("nvarchar(max)");
@@ -623,6 +574,10 @@ namespace AssistVet.Api.Data.Migrations
 
                     b.Property<string>("TutorNome")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("ValorFinal")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<int>("VeterinarioId")
                         .HasColumnType("int");
@@ -829,17 +784,6 @@ namespace AssistVet.Api.Data.Migrations
                     b.Navigation("Tutor");
                 });
 
-            modelBuilder.Entity("AssistVet.Api.Domain.Atendimento", b =>
-                {
-                    b.HasOne("AssistVet.Api.Domain.Solicitacao", "Solicitacao")
-                        .WithMany("Atendimentos")
-                        .HasForeignKey("SolicitacaoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Solicitacao");
-                });
-
             modelBuilder.Entity("AssistVet.Api.Domain.Autorizacao", b =>
                 {
                     b.HasOne("AssistVet.Api.Domain.Animal", "Animal")
@@ -877,18 +821,11 @@ namespace AssistVet.Api.Data.Migrations
 
             modelBuilder.Entity("AssistVet.Api.Domain.Relatorio", b =>
                 {
-                    b.HasOne("AssistVet.Api.Domain.Atendimento", "Atendimento")
-                        .WithMany("Relatorios")
-                        .HasForeignKey("AtendimentoId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("AssistVet.Api.Domain.Solicitacao", "Solicitacao")
                         .WithMany("Relatorios")
                         .HasForeignKey("SolicitacaoId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Atendimento");
 
                     b.Navigation("Solicitacao");
                 });
@@ -925,15 +862,8 @@ namespace AssistVet.Api.Data.Migrations
                     b.Navigation("Veterinario");
                 });
 
-            modelBuilder.Entity("AssistVet.Api.Domain.Atendimento", b =>
-                {
-                    b.Navigation("Relatorios");
-                });
-
             modelBuilder.Entity("AssistVet.Api.Domain.Solicitacao", b =>
                 {
-                    b.Navigation("Atendimentos");
-
                     b.Navigation("Autorizacao");
 
                     b.Navigation("Relatorios");

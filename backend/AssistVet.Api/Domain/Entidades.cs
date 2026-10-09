@@ -105,9 +105,6 @@ public class Solicitacao
 
     public bool VeterinarioRecebeRelatorios { get; set; }
 
-    /// <summary>Orçamento criado no Conta Azul depois do aceite (consulta + deslocamento estimado).</summary>
-    public string? ContaAzulOrcamentoId { get; set; }
-
     // Preenchidos pelo tutor no link de autorização (etapas 1 e 2).
     public int? TutorId { get; set; }
     public Tutor? Tutor { get; set; }
@@ -117,6 +114,73 @@ public class Solicitacao
     public DateTimeOffset CriadoEm { get; set; } = DateTimeOffset.UtcNow;
 
     public Autorizacao? Autorizacao { get; set; }
+    public List<Relatorio> Relatorios { get; set; } = [];
+    /// <summary>A consulta (nº 1) e os acompanhamentos seguintes, cada um com data, orçamento e venda.</summary>
+    public List<Atendimento> Atendimentos { get; set; } = [];
+}
+
+/// <summary>
+/// Uma visita da Dra.: a consulta (criada no aceite do tutor) ou um acompanhamento agendado depois.
+/// Ciclo: orçamento no Conta Azul → data marcada (tutor avisado) → concluído: a venda é criada a partir do
+/// orçamento, com data = data marcada, e o orçamento é excluído (a API não converte orçamento em venda).
+/// </summary>
+public class Atendimento
+{
+    public int Id { get; set; }
+    public int SolicitacaoId { get; set; }
+    public Solicitacao Solicitacao { get; set; } = null!;
+    /// <summary>Ordem dentro da solicitação: 1 = consulta, 2 em diante = acompanhamentos.</summary>
+    public int Numero { get; set; }
+    public TipoAtendimento Tipo { get; set; }
+
+    /// <summary>Data e hora combinadas com o tutor; vira a data da venda. O tutor é avisado ao marcar ou remarcar.</summary>
+    public DateTimeOffset? MarcadoPara { get; set; }
+
+    public string? ContaAzulOrcamentoId { get; set; }
+    /// <summary>Número do orçamento como aparece no Conta Azul (para a clínica achar e acompanhar).</summary>
+    public long? ContaAzulOrcamentoNumero { get; set; }
+    public string? ContaAzulVendaId { get; set; }
+    public long? ContaAzulVendaNumero { get; set; }
+
+    /// <summary>Quando a clínica concluiu (a venda foi criada).</summary>
+    public DateTimeOffset? ConcluidoEm { get; set; }
+    /// <summary>Total da venda (consulta ou acompanhamento, km rodado, pedágio e procedimentos feitos).</summary>
+    public decimal? ValorFinal { get; set; }
+    public DateOnly? PagamentoVencimento { get; set; }
+    /// <summary>Forma de pagamento da venda, no formato do Conta Azul (ex.: PIX_PAGAMENTO_INSTANTANEO).</summary>
+    public string? PagamentoForma { get; set; }
+
+    public DateTimeOffset CriadoEm { get; set; } = DateTimeOffset.UtcNow;
+
+    /// <summary>Relatório clínico desta visita, enviado ao tutor junto com a venda.</summary>
+    public List<Relatorio> Relatorios { get; set; } = [];
+
+    /// <summary>Código do item da tabela de valores cobrado como base: "consulta" ou "acompanhamento".</summary>
+    public string CodigoBase => Tipo == TipoAtendimento.Consulta ? "consulta" : "acompanhamento";
+
+    /// <summary>"Consulta" ou "Acompanhamento 2" (o número conta a partir da consulta).</summary>
+    public string Nome => Tipo == TipoAtendimento.Consulta ? "Consulta" : $"Acompanhamento {Numero - 1}";
+}
+
+/// <summary>
+/// Relatório clínico em PDF de um atendimento (consulta ou acompanhamento), anexado pela clínica ao concluir,
+/// junto com a venda. O tutor recebe no mesmo e-mail e vê na área dele; o Token gera o link direto enviado
+/// pelo WhatsApp (ao tutor e, se ele pediu, ao veterinário solicitante).
+/// </summary>
+public class Relatorio
+{
+    public int Id { get; set; }
+    public int SolicitacaoId { get; set; }
+    public Solicitacao Solicitacao { get; set; } = null!;
+    /// <summary>Atendimento a que o relatório se refere (vai junto com a venda). Nulo nos enviados antes disso.</summary>
+    public int? AtendimentoId { get; set; }
+    public Atendimento? Atendimento { get; set; }
+    public required string Token { get; set; }
+    public required string Titulo { get; set; }
+    /// <summary>Nome do arquivo em dados/relatorios (fora da pasta pública).</summary>
+    public required string Arquivo { get; set; }
+    public long TamanhoBytes { get; set; }
+    public DateTimeOffset CriadoEm { get; set; } = DateTimeOffset.UtcNow;
 }
 
 public class Tutor

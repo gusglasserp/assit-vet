@@ -14,6 +14,8 @@ public class AssistVetDbContext(DbContextOptions<AssistVetDbContext> options) : 
     public DbSet<ItemPreco> ItensPreco => Set<ItemPreco>();
     public DbSet<Autorizacao> Autorizacoes => Set<Autorizacao>();
     public DbSet<ContaAzulConexao> ContaAzulConexoes => Set<ContaAzulConexao>();
+    public DbSet<Relatorio> Relatorios => Set<Relatorio>();
+    public DbSet<Atendimento> Atendimentos => Set<Atendimento>();
     public DbSet<Convite> Convites => Set<Convite>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder b)
@@ -77,6 +79,23 @@ public class AssistVetDbContext(DbContextOptions<AssistVetDbContext> options) : 
             e.Property(x => x.Celular).HasMaxLength(11);
         });
 
+        m.Entity<Atendimento>(e =>
+        {
+            e.HasIndex(x => new { x.SolicitacaoId, x.Numero }).IsUnique();
+            e.Property(x => x.ValorFinal).HasPrecision(10, 2);
+            e.Property(x => x.PagamentoForma).HasMaxLength(40);
+            e.Property(x => x.ContaAzulOrcamentoId).HasMaxLength(40);
+            e.Property(x => x.ContaAzulVendaId).HasMaxLength(40);
+        });
+
+        m.Entity<Relatorio>(e =>
+        {
+            e.HasIndex(x => x.Token).IsUnique();
+            e.Property(x => x.Token).HasMaxLength(40).UseCollation(CollationExata);
+            e.Property(x => x.Titulo).HasMaxLength(120);
+            e.Property(x => x.Arquivo).HasMaxLength(100);
+        });
+
         // Nada é apagado em cascata: autorizações, termos e solicitações são prova e ficam guardados.
         // (O SQL Server também recusa os caminhos de cascata cruzados, ex.: Tutor → Animal → Autorização.)
         foreach (var fk in m.Model.GetEntityTypes().SelectMany(t => t.GetForeignKeys()))
@@ -99,13 +118,13 @@ public class AssistVetDbContext(DbContextOptions<AssistVetDbContext> options) : 
             new ItemPreco { Id = 2, Codigo = "km", Grupo = "Agora", Descricao = "Deslocamento", Valor = 2.50m, Observacao = "por km rodado, saindo da Rua Arandu, 885 (Brooklin Paulista), + pedágio. Se a rota for compartilhada com outros atendimentos, o deslocamento pode ser dividido.", Ordem = 2, ContaAzulServicoId = "29b9050a-700c-43bf-bbb7-c13cd5f374eb" },
             new ItemPreco { Id = 3, Codigo = "materiais-diagnostico", Grupo = "Agora", Descricao = "Materiais estéreis para diagnóstico", Observacao = "cobrados à parte, se usados", Ordem = 3 },
             new ItemPreco { Id = 4, Codigo = "ultrassom", Grupo = "Indicados", Descricao = "Exame ultrassonográfico oftalmológico", Valor = 550m, Ordem = 10 },
-            new ItemPreco { Id = 5, Codigo = "acompanhamento", Grupo = "Indicados", Descricao = "Acompanhamento oftálmico, até a alta clínica", Valor = 300m, Observacao = "por visita", Ordem = 11 },
+            new ItemPreco { Id = 5, Codigo = "acompanhamento", Grupo = "Indicados", Descricao = "Acompanhamento oftálmico, até a alta clínica", Valor = 300m, Observacao = "por visita", Ordem = 11, ContaAzulServicoId = "c009a3ea-951c-4aa6-bcc3-c532c4bf73a0" },
             new ItemPreco { Id = 6, Codigo = "medicamentos-tratamento", Grupo = "Indicados", Descricao = "Medicamentos e materiais para tratamento", Observacao = "à parte", Ordem = 12 },
             new ItemPreco { Id = 7, Codigo = "cirurgia", Grupo = "Indicados", Descricao = "Procedimentos cirúrgicos", Observacao = "sob orçamento", Ordem = 13 },
-            new ItemPreco { Id = 8, Codigo = "inf-subconjuntival", Grupo = "Infiltrações", Descricao = "Subconjuntival", Valor = 350m, Ordem = 20 },
-            new ItemPreco { Id = 9, Codigo = "inf-retrobulbar", Grupo = "Infiltrações", Descricao = "Retrobulbar", Valor = 450m, Ordem = 21 },
-            new ItemPreco { Id = 10, Codigo = "inf-intravitrea", Grupo = "Infiltrações", Descricao = "Intravítrea", Valor = 700m, Ordem = 22 },
-            new ItemPreco { Id = 11, Codigo = "inf-intralesional", Grupo = "Infiltrações", Descricao = "Intralesional", Valor = 750m, Ordem = 23 }
+            new ItemPreco { Id = 8, Codigo = "inf-subconjuntival", Grupo = "Infiltrações", Descricao = "Subconjuntival", Valor = 350m, Ordem = 20, ContaAzulServicoId = "420f0ea1-48fb-49ce-a32f-a237aa9bfb60" },
+            new ItemPreco { Id = 9, Codigo = "inf-retrobulbar", Grupo = "Infiltrações", Descricao = "Retrobulbar", Valor = 450m, Ordem = 21, ContaAzulServicoId = "c479be16-5a0c-496a-bf31-dedc89829723" },
+            new ItemPreco { Id = 10, Codigo = "inf-intravitrea", Grupo = "Infiltrações", Descricao = "Intravítrea", Valor = 700m, Ordem = 22, ContaAzulServicoId = "dec4b351-ddc8-491f-bd3d-0234067e1799" },
+            new ItemPreco { Id = 11, Codigo = "inf-intralesional", Grupo = "Infiltrações", Descricao = "Intralesional", Valor = 750m, Ordem = 23, ContaAzulServicoId = "4eeb1f4a-d258-4035-88fa-dea602b45c27" }
         );
 
         // Versões do termo nunca são editadas: cada mudança é uma nova versão, e as autorizações antigas

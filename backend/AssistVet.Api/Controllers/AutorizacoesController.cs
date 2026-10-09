@@ -44,6 +44,8 @@ public class AutorizacoesController(AssistVetDbContext db, CadastroClientes cada
                 Peso = a?.Peso,
             },
             Veterinario = new { s.Veterinario.Nome },
+            // O que o veterinário contou do caso (opcional), para o tutor entender o motivo da consulta.
+            Descricao = s.QueixaHistorico,
             Local = s.Local is null ? null : new { s.Local.Nome, s.Local.Tipo, s.Local.Cidade },
             Tutor = new { Nome = s.TutorNome, Celular = s.TutorCelular },
             // Primeiro nome de quem já tem cadastro com o celular informado pelo veterinário (só para cumprimentar).
@@ -57,7 +59,7 @@ public class AutorizacoesController(AssistVetDbContext db, CadastroClientes cada
                 s.Autorizacao.AceitoEm,
                 Tutor = s.Autorizacao.Tutor.Nome,
                 Documento = s.Autorizacao.Tutor.Documento,
-                Orcamento = s.ContaAzulOrcamentoId is not null,
+                Orcamento = await db.Atendimentos.AnyAsync(x => x.SolicitacaoId == s.Id && (x.ContaAzulOrcamentoId != null || x.ContaAzulVendaId != null), ct),
             },
         });
     }
@@ -108,8 +110,8 @@ public class AutorizacoesController(AssistVetDbContext db, CadastroClientes cada
         await db.SaveChangesAsync(ct);
 
         // Orçamento no Conta Azul (consulta + km estimado) para a clínica enviar ao cliente; falha não desfaz o aceite.
-        var orcamento = await orcamentos.CriarParaSolicitacao(s.Id, ct);
-        await avisos.ConsultaAutorizada(s.Id, orcamento, ct);
+        var orcamento = await orcamentos.CriarParaConsulta(s.Id, ct);
+        await avisos.ConsultaAutorizada(s.Id, orcamento, Links.AreaTutor(Request), ct);
 
         return Ok(new { s.Protocolo, autorizacao.AceitoEm, Orcamento = orcamento.OrcamentoId is not null });
     }
@@ -130,18 +132,47 @@ public class AutorizacoesController(AssistVetDbContext db, CadastroClientes cada
             .Select(x => new ValorExibido(x.Codigo, x.Grupo, x.Descricao, x.Valor, x.Observacao))
             .ToListAsync(ct);
 
-    /// <summary>PDF do orçamento no Conta Azul (botão "Ver orçamento" no comprovante). Gerado na hora pelo Conta Azul.</summary>
+    /// <summary>
+    /// Botão "Ver orçamento" do comprovante: orçamento da consulta ou, depois de concluída, a venda dela
+    /// (o orçamento é excluído no Conta Azul quando a venda é criada).
+    /// </summary>
     [HttpGet("orcamento.pdf")]
     public async Task<IActionResult> OrcamentoPdf(string token, [FromServices] Integracoes.ContaAzul.ContaAzulClient contaAzul, CancellationToken ct)
     {
-        var s = await db.Solicitacoes.AsNoTracking().Where(x => x.TokenTutor == token)
-            .Select(x => new { x.Protocolo, x.ContaAzulOrcamentoId }).SingleOrDefaultAsync(ct);
-        if (s is null) return NotFound("Link inválido ou expirado.");
-        if (s.ContaAzulOrcamentoId is null) return NotFound("O orçamento ainda não está disponível.");
-        var pdf = await contaAzul.ImprimirOrcamento(s.ContaAzulOrcamentoId, ct);
+        var a = await Atendimento(token, 1, ct);
+        return a is { ContaAzulVendaId: not null }
+            ? await PdfContaAzul(a.Solicitacao.Protocolo, 1, a.ContaAzulVendaId, "venda", contaAzul, ct)
+            : await PdfContaAzul(a?.Solicitacao.Protocolo, 1, a?.ContaAzulOrcamentoId, "orcamento", contaAzul, ct);
+    }
+
+    /// <summary>PDF do orçamento de um atendimento (1 = consulta, 2+ = acompanhamentos).</summary>
+    [HttpGet("atendimentos/{numero:int}/orcamento.pdf")]
+    public async Task<IActionResult> OrcamentoAtendimentoPdf(string token, int numero, [FromServices] Integracoes.ContaAzul.ContaAzulClient contaAzul, CancellationToken ct)
+    {
+        var a = await Atendimento(token, numero, ct);
+        return await PdfContaAzul(a?.Solicitacao.Protocolo, numero, a?.ContaAzulVendaId is null ? a?.ContaAzulOrcamentoId : null, "orcamento", contaAzul, ct);
+    }
+
+    /// <summary>PDF da venda de um atendimento concluído.</summary>
+    [HttpGet("atendimentos/{numero:int}/venda.pdf")]
+    public async Task<IActionResult> VendaAtendimentoPdf(string token, int numero, [FromServices] Integracoes.ContaAzul.ContaAzulClient contaAzul, CancellationToken ct)
+    {
+        var a = await Atendimento(token, numero, ct);
+        return await PdfContaAzul(a?.Solicitacao.Protocolo, numero, a?.ContaAzulVendaId, "venda", contaAzul, ct);
+    }
+
+    Task<Atendimento?> Atendimento(string token, int numero, CancellationToken ct) =>
+        db.Atendimentos.AsNoTracking().Include(x => x.Solicitacao)
+            .SingleOrDefaultAsync(x => x.Solicitacao.TokenTutor == token && x.Numero == numero, ct);
+
+    async Task<IActionResult> PdfContaAzul(string? protocolo, int numero, string? id, string tipo,
+        Integracoes.ContaAzul.ContaAzulClient contaAzul, CancellationToken ct)
+    {
+        if (id is null) return NotFound(tipo == "venda" ? "A venda ainda não foi gerada." : "O orçamento não está disponível.");
+        var pdf = await contaAzul.ImprimirOrcamento(id, ct);
         return pdf is null
-            ? StatusCode(StatusCodes.Status502BadGateway, "Não foi possível obter o orçamento agora. Tente de novo em instantes.")
-            : File(pdf, "application/pdf", $"orcamento-{s.Protocolo}.pdf");
+            ? StatusCode(StatusCodes.Status502BadGateway, "Não foi possível obter o PDF agora. Tente de novo em instantes.")
+            : File(pdf, "application/pdf", $"{tipo}-{protocolo}{(numero > 1 ? $"-{numero}" : "")}.pdf");
     }
 
     Task<VersaoTermo?> TermoVigente(CancellationToken ct) =>
@@ -198,7 +229,7 @@ public class AutorizacoesController(AssistVetDbContext db, CadastroClientes cada
         var achado = await cadastro.Buscar(doc, tipo, ct);
         if (achado is null || string.IsNullOrWhiteSpace(achado.Dados.Email)) return BadRequest("Este cadastro não tem e-mail. Preencha seus dados.");
 
-        var erro = await confirmacao.Enviar(token, doc, achado.Dados.Email, achado.Dados.Nome, ct);
+        var erro = await confirmacao.Enviar(token, doc, achado.Dados.Email, achado.Dados.Nome, "confirmar o cadastro", ct);
         return erro is null
             ? Ok(new { emailMascarado = ConfirmacaoPorEmail.Mascarar(achado.Dados.Email) })
             : StatusCode(StatusCodes.Status429TooManyRequests, erro);

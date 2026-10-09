@@ -40,7 +40,12 @@ builder.Services.AddHttpClient<GoogleMapsClient>(c => c.Timeout = TimeSpan.FromS
 builder.Services.Configure<DeslocamentoOptions>(builder.Configuration.GetSection(DeslocamentoOptions.Secao));
 builder.Services.AddScoped<Deslocamentos>();
 builder.Services.AddScoped<OrcamentosContaAzul>();
+builder.Services.Configure<PagamentoOptions>(builder.Configuration.GetSection(PagamentoOptions.Secao));
+builder.Services.AddScoped<VendasContaAzul>();
 builder.Services.AddSingleton<ConfirmacaoPorEmail>();
+
+// Área do tutor: sessão por cookie depois do código por e-mail (ver SessaoTutor).
+builder.Services.AddAuthentication(SessaoTutor.Esquema).AddCookie(SessaoTutor.Esquema, SessaoTutor.Configurar);
 
 // No Azure (e no túnel de teste) as requisições chegam por um proxy: o IP real do tutor e o https vêm nos
 // cabeçalhos X-Forwarded-*. Necessário para gravar o IP certo no aceite. Só o proxy alcança a aplicação,
@@ -109,6 +114,7 @@ app.UseHttpsRedirection();
 
 app.UseCors();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

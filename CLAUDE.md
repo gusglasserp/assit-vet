@@ -20,7 +20,7 @@ Hoje a coleta de dados do tutor, o envio do orçamento e a autorização são fe
 
 - Banco de desenvolvimento: Azure SQL `assist-vet-dev` (oferta gratuita), no servidor `assist-vet.database.windows.net`, separado do de produção (`assist-vet`). A conexão (com senha) fica em user-secrets: `dotnet user-secrets set "ConnectionStrings:AssistVet" "..."`. O IP da máquina precisa estar liberado no firewall do servidor no portal do Azure.
 - O PostgreSQL portátil em `C:\dev\pgsql` e os scripts `scripts\banco-*.ps1` eram do banco anterior (até out/2026) e não são mais usados.
-- A API serve as páginas de `web/`: em desenvolvimento direto da pasta (http://localhost:5273/; edições valem na hora); na publicação, `web/` é copiada para `wwwroot`. Página e API no mesmo endereço, sem CORS. Painel interno em `/` (index.html).
+- A API serve as páginas de `web/`: em desenvolvimento direto da pasta (http://localhost:5273/; edições valem na hora); na publicação, `web/` é copiada para `wwwroot`. Página e API no mesmo endereço, sem CORS. Entrada em `/` (index.html: "Sou tutor" / "Área da clínica"); painel interno em `clinica.html`; área do tutor em `minha-area.html`.
 - Migrações: `dotnet ef migrations add <Nome> -o Data/Migrations` e `dotnet ef database update`, dentro de `backend\AssistVet.Api`.
 
 ## Publicação (Azure)
@@ -56,7 +56,22 @@ Os protótipos são a referência de fluxo, textos e visual. Paleta e logo devem
 8. A clínica envia ao tutor o link de autorização pelo WhatsApp (link carrega pet, veterinário solicitante, local, nome e celular do tutor).
 9. Página do tutor, 4 etapas: dados pessoais (nome, CPF validado, celular, e-mail, endereço completo) → animal → valores → termo e aceite.
 10. Aceite: três confirmações + nome digitado igual ao do cadastro. Salvar data, hora, IP, user agent e versão exata do termo.
-11. Pós-atendimento (a desenhar): registrar o que foi feito, orçamento de procedimentos adicionais com aprovação do tutor, relatório em PDF enviado ao tutor e, se marcado, ao veterinário solicitante.
+11. **Atendimentos** (tabela `Atendimentos`): cada solicitação tem a consulta (nº 1, criada no aceite) e os acompanhamentos (nº 2 em diante). Cada um tem data marcada, orçamento, venda e pagamento próprios; só um fica em aberto por vez.
+12. No aceite, o sistema cria o orçamento da consulta no Conta Azul (consulta + km estimado).
+13. A clínica marca a data no painel; o tutor recebe e-mail (e a clínica tem o botão de WhatsApp pronto). **A data marcada é a data da venda**; sem data, não dá para concluir.
+14. Ao concluir, a clínica informa km rodado, pedágio e procedimentos feitos (itens da tabela ligados a serviços do Conta Azul). A API não converte orçamento em venda (recusa a mudança "Em andamento" → "Aprovado"), então o sistema cria a venda aprovada a partir do orçamento (`POST /v1/venda`: mesmo cliente, itens finais, forma de pagamento, vencimento, observação citando o nº do orçamento) e exclui o orçamento (`POST /v1/venda/exclusao-lote`; no Conta Azul ele fica com status CANCELADO). O tutor recebe o PDF da venda com os dados de pagamento. Os números do orçamento e da venda ficam guardados e aparecem nos botões do painel e da área do tutor; para documentos antigos sem número, `POST /api/conta-azul/preencher-numeros` (senha da clínica) busca uma vez.
+15. Depois de concluído, a clínica pode **agendar um acompanhamento**: cria o atendimento com a data, gera o orçamento (acompanhamento + km estimado, serviço "ACOMPANHAMENTO OFTALMOLÓGICO") e avisa o tutor com o orçamento anexo. Depois segue igual à consulta (concluir → venda → orçamento excluído). Não pede nova autorização: o termo aceito já inclui o acompanhamento.
+16. **Cada atendimento tem o seu relatório**, anexado (PDF, obrigatório) no mesmo formulário de conclusão: o tutor recebe um e-mail só, com o relatório e a venda anexos e os dados de pagamento, e vê os dois na área dele. O PDF é conferido antes de criar a venda (arquivo errado não gera nada no Conta Azul). No painel: botão "Enviar relatório e cobrança no WhatsApp" (link direto do relatório `/api/relatorios/TOKEN`) e, se marcado, "Veterinário no WhatsApp". Atendimentos concluídos sem relatório (antes desta regra) têm um campo para anexar depois. O processo para gerar o relatório no sistema será desenhado depois.
+
+## Perfis de acesso
+
+- **Clínica** (`clinica.html`): senha da clínica (`X-Senha-Clinica`).
+- **Tutor** (`minha-area.html`): CPF/CNPJ + código de 6 números no e-mail do cadastro; cookie de sessão de 30 dias (`SessaoTutor`). Vê as solicitações que preencheu e as que esperam a autorização dele (mesmo celular do cadastro). A resposta ao pedir código é igual com ou sem cadastro, para não revelar quem é cliente.
+- **Veterinário**: continua pelo link de convite (sem login).
+
+## Pagamento
+
+Pix (CNPJ) 38.053.903/0001-03, Banco Itaú, favorecido Clínica Pimentel Vets Ltda. Fica em `appsettings.json` (`Pagamento:Instrucoes`, texto que o tutor vê na venda do Conta Azul, no e-mail e na área dele; `Pagamento:PrazoDias`, vencimento sugerido, padrão 3).
 
 ## Tabela de valores (2026)
 

@@ -15,4 +15,6 @@ public enum Prioridade { Rotina, Ate48h, Urgente }
 /// <summary>Quem preencheu a solicitação. Uso interno, nunca mostrado ao tutor.</summary>
 public enum PreenchidoPor { Veterinario, Clinica }
 
-public enum StatusSolicitacao { Recebida, AguardandoTutor, Autorizada, Atendida, Cancelada }
+public enum TipoAtendimento { Consulta, Acompanhamento }
+
+public enum StatusSolicitacao { Recebida, AguardandoTutor, Autorizada, Agendada, Atendida, Cancelada }
