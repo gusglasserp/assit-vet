@@ -5,6 +5,7 @@ using AssistVet.Api.Integracoes.ContaAzul;
 using AssistVet.Api.Integracoes.Email;
 using AssistVet.Api.Integracoes.Mapas;
 using AssistVet.Api.Servicos;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,12 @@ builder.Services.AddDbContext<AssistVetDbContext>(o =>
         .CommandTimeout(60)));
 
 builder.Services.AddMemoryCache();
+
+// Chaves de assinatura (ex.: state do login do Conta Azul) na pasta persistente, para valerem entre
+// reinícios e publicações do App Service. Sem Armazenamento:Pasta (desenvolvimento), usa o padrão do .NET.
+var protecao = builder.Services.AddDataProtection().SetApplicationName("AssistVet");
+if (builder.Configuration["Armazenamento:Pasta"] is { Length: > 0 } pastaDados)
+    protecao.PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(pastaDados, "chaves")));
 builder.Services.Configure<ContaAzulOptions>(builder.Configuration.GetSection(ContaAzulOptions.Secao));
 builder.Services.AddHttpClient<ContaAzulClient>();
 builder.Services.AddHttpClient<CepClient>(c => c.Timeout = TimeSpan.FromSeconds(5));

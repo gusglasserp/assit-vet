@@ -4,13 +4,13 @@ using AssistVet.Api.Integracoes.ContaAzul;
 using AssistVet.Api.Servicos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace AssistVet.Api.Controllers;
 
 [ApiController]
 [Route("api/conta-azul")]
-public class ContaAzulController(ContaAzulClient contaAzul, AssistVetDbContext db, IMemoryCache cache, ILogger<ContaAzulController> log) : ControllerBase
+public class ContaAzulController(ContaAzulClient contaAzul, AssistVetDbContext db, IDataProtectionProvider protecao, ILogger<ContaAzulController> log) : ControllerBase
 {
     /// <summary>Abre o login do Conta Azul. Depois de autorizar, o Conta Azul redireciona com ?code=...&state=...</summary>
     [HttpGet("conectar")]
@@ -25,27 +25,35 @@ public class ContaAzulController(ContaAzulClient contaAzul, AssistVetDbContext d
     [SenhaClinica]
     public IActionResult ConectarUrl() => Ok(new { url = NovaUrlDeLogin() });
 
-    string NovaUrlDeLogin()
+    /// <summary>
+    /// O state é assinado (Data Protection) e vale 15 minutos. Assinado, e não guardado na memória, porque
+    /// o App Service gratuito reinicia com frequência e a memória se perde entre o clique e o retorno.
+    /// </summary>
+    ITimeLimitedDataProtector Assinador => protecao.CreateProtector("ContaAzul.State").ToTimeLimitedDataProtector();
+
+    string NovaUrlDeLogin() =>
+        contaAzul.MontarUrlLogin(Assinador.Protect(Guid.NewGuid().ToString("N"), TimeSpan.FromMinutes(15)));
+
+    bool StateValido(string? state)
     {
-        var state = Guid.NewGuid().ToString("N");
-        cache.Set(ChaveState(state), true, TimeSpan.FromMinutes(15));
-        return contaAzul.MontarUrlLogin(state);
+        if (string.IsNullOrEmpty(state)) return false;
+        try { Assinador.Unprotect(state); return true; }
+        catch (System.Security.Cryptography.CryptographicException) { return false; }
     }
 
     /// <summary>
     /// Recebe o código do login e troca pelos tokens. No app de desenvolvimento o Conta Azul
-    /// redireciona para https://www.contaazul.com; troque esse endereço por este endpoint na barra do navegador.
+    /// redireciona para https://www.contaazul.com; o painel tem um campo para colar esse endereço.
     /// </summary>
     [HttpGet("callback")]
-    // Sem senha: o state só é emitido por conectar/conectar-url (protegidos) e vale uma vez, por 15 minutos.
+    // Sem senha: o state só é emitido por conectar/conectar-url (protegidos), é assinado e vale 15 minutos.
     public async Task<IActionResult> Callback(string? code, string? state, CancellationToken ct)
     {
-        log.LogInformation("Callback Conta Azul recebido (code: {TemCode}, state: {State})", !string.IsNullOrEmpty(code), state);
+        log.LogInformation("Callback Conta Azul recebido (code: {TemCode})", !string.IsNullOrEmpty(code));
         if (string.IsNullOrEmpty(code))
             return BadRequest("O endereço não tem o parâmetro code. Cole o endereço completo que o Conta Azul abriu, com ?code=...&state=...");
-        if (state is null || !cache.TryGetValue(ChaveState(state), out _))
-            return BadRequest("Link de conexão expirado ou inválido. Acesse /api/conta-azul/conectar de novo.");
-        cache.Remove(ChaveState(state));
+        if (!StateValido(state))
+            return BadRequest("Link de conexão expirado ou inválido. Clique em \"Conectar Conta Azul\" de novo.");
 
         await contaAzul.Conectar(code, ct);
         log.LogInformation("Conta Azul conectado");
@@ -119,7 +127,6 @@ public class ContaAzulController(ContaAzulClient contaAzul, AssistVetDbContext d
         return Ok(new { contaAzulOrcamentoId = id });
     }
 
-    static string ChaveState(string state) => $"conta-azul-state:{state}";
 }
 
 public record LigarServicoRequest(string ServicoId);

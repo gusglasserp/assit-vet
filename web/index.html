@@ -81,6 +81,19 @@ input:focus{border-color:var(--cyan)}
     <div class="conta-azul"><span class="chip" id="caStatus">Conta Azul…</span> <button class="ghost small" type="button" id="caConectar" hidden>Conectar Conta Azul</button></div>
   </header>
 
+  <!-- Conexão com o Conta Azul: o app de desenvolvimento deles volta para www.contaazul.com com o código;
+       a pessoa cola esse endereço aqui em vez de editar a barra do navegador. -->
+  <div class="caixa" id="caixaContaAzul" hidden>
+    <h2>Conectar o Conta Azul</h2>
+    <p>Abrimos o login do Conta Azul numa aba nova. Entre e autorize. Depois, o Conta Azul abre uma página do site
+      deles: copie o endereço completo da barra (começa com https://www.contaazul.com/?code=...) e cole aqui.</p>
+    <form class="linha" id="formContaAzul">
+      <div class="campo"><label for="caRetorno">Endereço da página do Conta Azul</label><input id="caRetorno" autocomplete="off" placeholder="https://www.contaazul.com/?code=...&state=..."></div>
+      <button class="primary" type="submit">Concluir conexão</button>
+    </form>
+    <div class="erro" id="erroContaAzul" hidden></div>
+  </div>
+
   <div class="acoes">
     <button class="primary" type="button" id="abrirConvite">Convidar veterinário</button>
     <button class="ghost" type="button" id="abrirClinica">Nova solicitação (a clínica preenche)</button>
@@ -240,8 +253,21 @@ input:focus{border-color:var(--cyan)}
     $('caConectar').hidden=ok;
   }
   $('caConectar').addEventListener('click',async()=>{
+    // Abre a aba já no clique (antes do await) para o navegador não bloquear como pop-up.
+    const aba=window.open('','_blank');
     const r=await api('GET','/api/conta-azul/conectar-url');
-    if(r.status===200)location.href=r.json.url;
+    if(r.status!==200){if(aba)aba.close();return}
+    if(aba)aba.location.href=r.json.url;else window.open(r.json.url,'_blank');
+    $('erroContaAzul').hidden=true;$('caRetorno').value='';$('caixaContaAzul').hidden=false;$('caRetorno').focus();
+  });
+  $('formContaAzul').addEventListener('submit',async e=>{
+    e.preventDefault();$('erroContaAzul').hidden=true;
+    let url;try{url=new URL($('caRetorno').value.trim())}catch(x){url=null}
+    const code=url&&url.searchParams.get('code'),state=url&&url.searchParams.get('state');
+    if(!code||!state){$('erroContaAzul').textContent='Esse endereço não tem o código. Copie o endereço completo da página do Conta Azul, com ?code=...&state=...';$('erroContaAzul').hidden=false;return}
+    const r=await api('GET','/api/conta-azul/callback?code='+encodeURIComponent(code)+'&state='+encodeURIComponent(state));
+    if(r.status!==200){$('erroContaAzul').textContent=r.erro;$('erroContaAzul').hidden=false;return}
+    $('caixaContaAzul').hidden=true;statusContaAzul();
   });
 
   $('atualizar').addEventListener('click',carregar);
