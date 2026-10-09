@@ -85,8 +85,8 @@ input:focus{border-color:var(--cyan)}
        a pessoa cola esse endereço aqui em vez de editar a barra do navegador. -->
   <div class="caixa" id="caixaContaAzul" hidden>
     <h2>Conectar o Conta Azul</h2>
-    <p>Abrimos o login do Conta Azul numa aba nova. Entre e autorize. Depois, o Conta Azul abre uma página do site
-      deles: copie o endereço completo da barra (começa com https://www.contaazul.com/?code=...) e cole aqui.</p>
+    <p>1. Clique em <b>Conectar Conta Azul</b> (no topo), entre no Conta Azul e autorize. 2. O Conta Azul abre uma página do site
+      deles (o endereço começa com https://www.contaazul.com/?code=...). 3. Copie o endereço completo da barra, volte para o painel (abra de novo, se precisar) e cole aqui.</p>
     <form class="linha" id="formContaAzul">
       <div class="campo"><label for="caRetorno">Endereço da página do Conta Azul</label><input id="caRetorno" autocomplete="off" placeholder="https://www.contaazul.com/?code=...&state=..."></div>
       <button class="primary" type="submit">Concluir conexão</button>
@@ -251,6 +251,8 @@ input:focus{border-color:var(--cyan)}
     $('caStatus').textContent=ok?'Conta Azul conectado':'Conta Azul desconectado';
     $('caStatus').className='chip'+(ok?' ok':' urg');
     $('caConectar').hidden=ok;
+    // Desconectado: a caixa de colar o endereço fica sempre à mostra (o login pode ter levado a aba do painel).
+    $('caixaContaAzul').hidden=ok;
   }
   $('caConectar').addEventListener('click',async()=>{
     // Abre a aba já no clique (antes do await) para o navegador não bloquear como pop-up.
