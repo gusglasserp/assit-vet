@@ -192,7 +192,7 @@ public class PainelController(AssistVetDbContext db, Avisos avisos) : Controller
     /// Conclui o atendimento em aberto: cria a venda no Conta Azul a partir do orçamento (data = data marcada;
     /// km rodado, pedágio e procedimentos), exclui o orçamento, guarda o relatório do atendimento e envia ao
     /// tutor um e-mail só, com o relatório e a venda anexos e os dados de pagamento.
-    /// Formulário: "dados" (JSON de ConcluirRequest), "relatorio" (PDF, obrigatório) e "tituloRelatorio".
+    /// Formulário: "dados" (JSON de ConcluirRequest), "relatorio" (PDF, opcional; pode ir depois) e "tituloRelatorio".
     /// </summary>
     [HttpPost("solicitacoes/{protocolo}/concluir")]
     [RequestSizeLimit(TamanhoMaximoRelatorio + 1024 * 1024)]
@@ -211,17 +211,21 @@ public class PainelController(AssistVetDbContext db, Avisos avisos) : Controller
         var a = s.Atendimentos.Where(x => x.ConcluidoEm is null).OrderBy(x => x.Numero).FirstOrDefault();
         if (a is null) return Conflict("Não há atendimento em aberto.");
 
-        // O relatório é conferido antes da venda: se o arquivo estiver errado, nada é criado no Conta Azul.
-        if (relatorio is null) return BadRequest("Anexe o relatório do atendimento (PDF).");
-        var (pdf, erroPdf) = await LerPdf(relatorio, ct);
-        if (pdf is null) return BadRequest(erroPdf);
+        // Relatório opcional. Se vier, é conferido antes da venda: arquivo errado não cria nada no Conta Azul.
+        byte[]? pdf = null;
+        if (relatorio is not null)
+        {
+            (pdf, var erroPdf) = await LerPdf(relatorio, ct);
+            if (pdf is null) return BadRequest(erroPdf);
+        }
 
         var (total, erro, aviso) = await vendas.Concluir(a.Id, new VendasContaAzul.Conclusao(
             req.KmIdaVolta, req.Pedagio, req.Extras ?? [], req.FormaPagamento, req.Vencimento), ct);
         if (erro is not null) return BadRequest(erro);
 
-        var r = await GuardarRelatorio(s.Id, s.Protocolo, a, pdf, tituloRelatorio, ct);
-        await avisos.AtendimentoConcluido(a.Id, pagamento.Value.Instrucoes, Links.AreaTutor(Request), (r.Titulo, pdf), ct);
+        (string, byte[])? anexo = null;
+        if (pdf is not null) anexo = ((await GuardarRelatorio(s.Id, s.Protocolo, a, pdf, tituloRelatorio, ct)).Titulo, pdf);
+        await avisos.AtendimentoConcluido(a.Id, pagamento.Value.Instrucoes, Links.AreaTutor(Request), anexo, ct);
         return Ok(new { total, aviso });
     }
 

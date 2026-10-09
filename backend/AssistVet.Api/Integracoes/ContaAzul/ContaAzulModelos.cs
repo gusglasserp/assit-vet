@@ -34,7 +34,9 @@ public record PessoaAtualizar(
     string? Nome = null,
     string? Email = null,
     string? TelefoneCelular = null,
-    List<EnderecoPessoa>? Enderecos = null);
+    List<EnderecoPessoa>? Enderecos = null,
+    // Lista completa de perfis (Cliente, Fornecedor...): só enviada para acrescentar "Cliente".
+    List<PerfilPessoa>? Perfis = null);
 
 public record PessoaResumo(string Id, string? Nome, string? Documento);
 
@@ -49,7 +51,8 @@ public record Pessoa(
     string? Email,
     string? TelefoneCelular,
     string? TelefoneComercial,
-    List<EnderecoPessoa>? Enderecos);
+    List<EnderecoPessoa>? Enderecos,
+    List<PerfilPessoa>? Perfis = null);
 
 public record IdResposta(string Id);
 

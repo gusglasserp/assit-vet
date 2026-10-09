@@ -45,6 +45,14 @@ public class DevController(AssistVetDbContext db, IWebHostEnvironment env) : Con
         return Ok(await contaAzul.ObterVendaBruta(id, ct));
     }
 
+    /// <summary>Resposta bruta do Conta Azul para uma pessoa (diagnóstico de perfis do cliente).</summary>
+    [HttpGet("conta-azul/pessoa/{id}")]
+    public async Task<IActionResult> PessoaContaAzul(string id, [FromServices] Integracoes.ContaAzul.ContaAzulClient contaAzul, CancellationToken ct)
+    {
+        if (!env.IsDevelopment()) return NotFound();
+        return Ok(await contaAzul.ObterPessoaBruta(id, ct));
+    }
+
     [HttpGet("email-teste")]
     public async Task<IActionResult> EmailTeste([FromServices] EmailSender email, [FromServices] IOptions<EmailOptions> op, CancellationToken ct)
     {

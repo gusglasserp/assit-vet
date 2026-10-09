@@ -89,6 +89,9 @@ public class ContaAzulClient(HttpClient http, AssistVetDbContext db, IOptions<Co
     public async Task<VendaNegociacao?> ObterVenda(string id, CancellationToken ct = default) =>
         (await Enviar<VendaPorId>(HttpMethod.Get, $"/v1/venda/{id}", null, ct))?.Venda;
 
+    public Task<JsonElement> ObterPessoaBruta(string id, CancellationToken ct = default) =>
+        Enviar<JsonElement>(HttpMethod.Get, $"/v1/pessoas/{id}", null, ct);
+
     public Task<JsonElement> ObterVendaBruta(string id, CancellationToken ct = default) =>
         Enviar<JsonElement>(HttpMethod.Get, $"/v1/venda/{id}", null, ct);
 

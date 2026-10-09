@@ -359,10 +359,10 @@ select{width:100%;font:inherit;color:var(--text);background:var(--surface);borde
     const cVenc=el('div','campo');const venc=el('input');venc.type='date';venc.required=true;venc.value=hojeMais(cfg.prazoDias||3);
     cVenc.append(el('label',null,'Vencimento'),venc);
     l2.append(cForma,cVenc);f.append(l2);
-    // Relatório do atendimento: obrigatório, vai no mesmo e-mail da venda.
+    // Relatório do atendimento: opcional. Se anexado, vai no mesmo e-mail da venda; senão, pode ser enviado depois.
     const l3=el('div','linha');
-    const cRel=el('div','campo');const arq=el('input');arq.type='file';arq.accept='application/pdf';arq.required=true;
-    cRel.append(el('label',null,'Relatório do atendimento (PDF)'),arq);
+    const cRel=el('div','campo');const arq=el('input');arq.type='file';arq.accept='application/pdf';
+    cRel.append(el('label',null,'Relatório do atendimento (PDF, opcional)'),arq);
     const cTit=el('div','campo');const tit=el('input');tit.placeholder=a.tipo==='Consulta'?'Relatório da consulta':'Relatório do '+a.nome.toLowerCase();
     cTit.append(el('label',null,'Título do relatório (opcional)'),tit);
     l3.append(cRel,cTit);f.append(l3);
@@ -371,20 +371,21 @@ select{width:100%;font:inherit;color:var(--text);background:var(--surface);borde
       marcados.forEach(m=>{if(m.ck.checked)t+=(Number(m.q.value)||0)*Number(m.x.valor)});total.textContent='Total da venda: '+real(t)};
     f.addEventListener('input',calc);calc();
     if(!cfg.pagamentoInstrucoes)f.append(el('p','dica','Atenção: os dados de pagamento (Pix) ainda não estão configurados; a venda sai sem eles.'));
-    const bt=el('button','primary small','Gerar venda e enviar relatório e venda ao tutor');bt.type='submit';f.append(bt);
+    const bt=el('button','primary small','Gerar venda e enviar ao tutor');bt.type='submit';f.append(bt);
     f.addEventListener('submit',async e=>{
       e.preventDefault();erro('');
-      if(!arq.files[0]){erro('Anexe o relatório do atendimento (PDF).');return}
+      const comRelatorio=!!arq.files[0];
       if(!confirm('Gerar a venda de '+total.textContent.replace('Total da venda: ','')+' com data de '+dataSo(a.marcadoPara)+' no Conta Azul'
-        +(a.orcamentoNumero?' (o orçamento nº '+a.orcamentoNumero+' será excluído)':' (o orçamento será excluído)')+' e enviar o relatório e a venda ao tutor?'))return;
+        +(a.orcamentoNumero?' (o orçamento nº '+a.orcamentoNumero+' será excluído)':' (o orçamento será excluído)')
+        +(comRelatorio?' e enviar o relatório e a venda ao tutor?':' e enviar a venda ao tutor? O relatório pode ser enviado depois.')))return;
       bt.disabled=true;bt.textContent='Gerando venda…';
       const dados=new FormData();
       dados.append('dados',JSON.stringify({
         kmIdaVolta:Number(km.value)||0,pedagio:Number(ped.value)||0,formaPagamento:sel.value,vencimento:venc.value,
         extras:marcados.filter(m=>m.ck.checked).map(m=>({codigo:m.x.codigo,quantidade:Number(m.q.value)||1}))}));
-      dados.append('relatorio',arq.files[0]);dados.append('tituloRelatorio',tit.value);
+      if(comRelatorio){dados.append('relatorio',arq.files[0]);dados.append('tituloRelatorio',tit.value)}
       const r=await enviarArquivo('/api/painel/solicitacoes/'+encodeURIComponent(s.protocolo)+'/concluir',dados);
-      bt.disabled=false;bt.textContent='Gerar venda e enviar relatório e venda ao tutor';
+      bt.disabled=false;bt.textContent='Gerar venda e enviar ao tutor';
       if(r.status!==200){erro(r.erro);return}
       if(r.json&&r.json.aviso)alert(r.json.aviso);
       carregar();

@@ -12,7 +12,7 @@ namespace AssistVet.Api.Servicos;
 /// estimado. O orçamento do Conta Azul não tem descrição por item, então o local, a conta do km e o pedágio
 /// vão nas observações. Usa os serviços ligados aos itens da tabela de valores.
 /// </summary>
-public class OrcamentosContaAzul(AssistVetDbContext db, ContaAzulClient contaAzul, Deslocamentos deslocamentos,
+public class OrcamentosContaAzul(AssistVetDbContext db, ContaAzulClient contaAzul, Deslocamentos deslocamentos, CadastroClientes cadastro,
     IOptions<DeslocamentoOptions> deslocamento, ILogger<OrcamentosContaAzul> log)
 {
     static readonly CultureInfo PtBr = CultureInfo.GetCultureInfo("pt-BR");
@@ -68,14 +68,29 @@ public class OrcamentosContaAzul(AssistVetDbContext db, ContaAzulClient contaAzu
         var tipo = a.Tipo == TipoAtendimento.Consulta ? "Consulta oftalmológica" : "Acompanhamento oftálmico";
         try
         {
-            a.ContaAzulOrcamentoId = await contaAzul.CriarOrcamento(new OrcamentoCriar(
+            // Quem já estava no Conta Azul só como fornecedor faria o orçamento ser recusado ("cliente não encontrado").
+            var perfilAcrescentado = await cadastro.GarantirPerfilCliente(s.Tutor.ContaAzulId, ct);
+            var orcamento = new OrcamentoCriar(
                 IdCliente: s.Tutor.ContaAzulId,
                 DataOrcamento: hoje.ToString("yyyy-MM-dd"),
                 DataValidade: hoje.AddDays(7).ToString("yyyy-MM-dd"),
                 Itens: itens,
                 Descricao: $"{tipo} · {s.Animal?.Nome ?? s.PetNome ?? "animal"}",
                 Observacoes: string.Join("\n", observacoes),
-                ObservacoesPagamento: null), ct);
+                ObservacoesPagamento: null);
+            // O perfil novo leva alguns segundos para valer no Conta Azul: até lá, o orçamento é recusado.
+            for (var tentativa = 1; ; tentativa++)
+            {
+                try
+                {
+                    a.ContaAzulOrcamentoId = await contaAzul.CriarOrcamento(orcamento, ct);
+                    break;
+                }
+                catch (ContaAzulException e) when (perfilAcrescentado && tentativa < 4 && e.Message.Contains("não encontrado"))
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(4 * tentativa), ct);
+                }
+            }
             // A criação só devolve o id; o número (o que a clínica vê no Conta Azul) vem da leitura.
             try { a.ContaAzulOrcamentoNumero = (await contaAzul.ObterVenda(a.ContaAzulOrcamentoId, ct))?.Numero; }
             catch (ContaAzulException e) { log.LogWarning(e, "Número do orçamento {Id} não lido", a.ContaAzulOrcamentoId); }

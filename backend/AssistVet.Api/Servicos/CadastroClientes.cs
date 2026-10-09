@@ -105,7 +105,8 @@ public class CadastroClientes(AssistVetDbContext db, ContaAzulClient contaAzul, 
                 Nome: tutor.Nome,
                 Email: NuloSeVazio(tutor.Email),
                 TelefoneCelular: NuloSeVazio(tutor.Celular),
-                Enderecos: [new EnderecoPessoa(tutor.Rua, tutor.Numero, tutor.Complemento, tutor.Bairro, tutor.Cidade, tutor.Uf, tutor.Cep, Id: idEndereco)]), ct);
+                Enderecos: [new EnderecoPessoa(tutor.Rua, tutor.Numero, tutor.Complemento, tutor.Bairro, tutor.Cidade, tutor.Uf, tutor.Cep, Id: idEndereco)],
+                Perfis: PerfisComCliente(atual)), ct);
         }
         else
         {
@@ -123,6 +124,28 @@ public class CadastroClientes(AssistVetDbContext db, ContaAzulClient contaAzul, 
         await db.SaveChangesAsync(ct);
 
         return new(tutor.Id, tutor.ContaAzulId, criado);
+    }
+
+    /// <summary>
+    /// Orçamentos e vendas só aceitam pessoas com perfil "Cliente". Quem já estava no Conta Azul só como
+    /// fornecedor (ou outro perfil) recebe o perfil Cliente, mantendo os que já tinha.
+    /// </summary>
+    public async Task<bool> GarantirPerfilCliente(string contaAzulId, CancellationToken ct)
+    {
+        var atual = await contaAzul.ObterPessoa(contaAzulId, ct);
+        if (PerfisComCliente(atual) is not { } perfis) return false;
+        await contaAzul.AtualizarPessoa(contaAzulId, new PessoaAtualizar(Perfis: perfis), ct);
+        log.LogInformation("Perfil Cliente acrescentado à pessoa {Id} no Conta Azul", contaAzulId);
+        return true;
+    }
+
+    /// <summary>Perfis atuais + "Cliente", ou nulo se já for cliente (aí o PATCH não mexe nos perfis).</summary>
+    static List<PerfilPessoa>? PerfisComCliente(Pessoa? pessoa)
+    {
+        var perfis = pessoa?.Perfis ?? [];
+        return perfis.Any(p => string.Equals(p.TipoPerfil, "Cliente", StringComparison.OrdinalIgnoreCase))
+            ? null
+            : [.. perfis, new PerfilPessoa("Cliente")];
     }
 
     static string? NuloSeVazio(string s) => string.IsNullOrWhiteSpace(s) ? null : s;
