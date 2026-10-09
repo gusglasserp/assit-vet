@@ -75,6 +75,8 @@ public class ConfirmacaoPorEmail(IMemoryCache cache, EmailSender email, ILogger<
         }
         catch (Exception e)
         {
+            // Envio que falhou não conta no limite: a pessoa pode pedir de novo em seguida.
+            lock (envios) envios.Horarios.Remove(agora);
             log.LogError(e, "Falha ao enviar código de confirmação");
             return "Não foi possível enviar o código agora. Tente de novo ou preencha seus dados.";
         }
